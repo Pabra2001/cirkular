@@ -458,11 +458,16 @@ body[data-scene="upload"], html:has(body[data-scene="upload"]) { background: #00
 }
 .opening.opening-v1 > * {
   position: static !important;
-  grid-column: 1 !important;
-  grid-row: auto !important;
+  grid-area: auto !important;
   inset: auto !important;
   transform: none !important;
   margin: 0 !important;
+}
+.opening-v1 .opening-mark,
+.opening-v1 .opening-wordmark,
+.opening-v1 .opening-nav,
+.opening-v1 .aperture {
+  grid-area: auto !important;
 }
 .v1-top, .v1-bot {
   display: flex !important;
