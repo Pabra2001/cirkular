@@ -634,3 +634,8 @@ body:not([data-scene="catalog"]) .cirkular-back.back-arrow:hover {
 body[data-scene="catalog"] .cirkular-back.back-arrow svg {
   transform: rotate(90deg);
 }
+
+/* Prevent legacy .manifesto vertical animation from colliding with horizontal page transition */
+.manifesto {
+  animation: none !important;
+}
