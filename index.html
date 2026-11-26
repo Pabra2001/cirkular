@@ -190,17 +190,11 @@
             else ctx.lineTo(x, y);
           }
           ctx.closePath();
-          const alpha = 0.14 + (1 - p) * 0.62;
+          const alpha = 0.06 + (1 - p) * 0.24;
           ctx.strokeStyle = `rgba(187, 255, 41, ${alpha.toFixed(3)})`;
-          ctx.lineWidth = i === 1 || i === 5 || i === 10 ? 1.8 : 1;
+          ctx.lineWidth = i === 1 || i === 6 ? 1.15 : 0.75;
           ctx.stroke();
         }
-
-        // Subtle luminous core dot
-        ctx.beginPath();
-        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-        ctx.fillStyle = "#bbff29";
-        ctx.fill();
 
         if (!reduce.matches) requestAnimationFrame(draw);
       }
