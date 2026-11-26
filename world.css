@@ -597,3 +597,32 @@ body[data-scene="upload"], html:has(body[data-scene="upload"]) { background: #00
   width: 112vw !important;
   margin-left: -6vw !important;
 }
+
+/* Align world & history flush with the left and right corners of the center card */
+.catalog-views {
+  width: calc((112vw - 4.4vw) / 5) !important;
+  margin-inline: auto !important;
+  justify-content: space-between !important;
+  gap: 0 !important;
+}
+
+/* Outlined back arrow by default, filled on hover */
+.cirkular-back.back-arrow {
+  background: transparent !important;
+  border: 1.5px solid currentColor !important;
+  transition: background .18s ease, color .18s ease;
+}
+body[data-scene="catalog"] .cirkular-back.back-arrow {
+  color: #bbff29 !important;
+}
+body[data-scene="catalog"] .cirkular-back.back-arrow:hover {
+  background: #bbff29 !important;
+  color: #060705 !important;
+}
+body:not([data-scene="catalog"]) .cirkular-back.back-arrow {
+  color: #060705 !important;
+}
+body:not([data-scene="catalog"]) .cirkular-back.back-arrow:hover {
+  background: #060705 !important;
+  color: #bbff29 !important;
+}
