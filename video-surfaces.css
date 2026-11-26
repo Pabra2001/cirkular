@@ -1,0 +1,8 @@
+:root {
+  --portfolio-video-radius: clamp(12px, 1.5vw, 24px);
+}
+
+/* Keep the poster and moving image on the same rounded surface. */
+video {
+  clip-path: inset(0 round var(--portfolio-video-radius));
+}

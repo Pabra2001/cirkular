@@ -1,0 +1,17 @@
+@media (any-pointer: fine) and (forced-colors: none) and (prefers-contrast: no-preference) {
+  :root {
+    --site-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='white' stroke='black' stroke-width='2' d='M1 1h10v10H1z'/%3E%3C/svg%3E") 6 6;
+  }
+
+  :root[data-square-tone="light"] {
+    --site-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='white' d='M0 0h12v12H0z'/%3E%3C/svg%3E") 6 6;
+  }
+
+  :root[data-square-tone="dark"] {
+    --site-cursor: url("assets/cursors/square.png") 6 6;
+  }
+
+  :root, :root :where(body, body *) {
+    cursor: var(--site-cursor), default !important;
+  }
+}

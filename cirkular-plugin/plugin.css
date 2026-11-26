@@ -1,0 +1,177 @@
+@font-face {
+  font-family: Inter;
+  src: url(../fonts/Inter-Latin.woff2) format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+:root {
+  --lime: #bbff29;
+  --ink: #0b0d08;
+  --paper: #f8f9f2;
+  background: var(--lime);
+  color: var(--ink);
+  font: 16px/1.45 Inter, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100svh; display: grid; grid-template-rows: auto 1fr; }
+h1, h2, p { margin: 0; }
+a { color: inherit; }
+button { font: inherit; cursor: pointer; }
+.mast, main { width: min(100% - 40px, 1120px); margin-inline: auto; }
+.mast { display: flex; align-items: center; justify-content: space-between; padding-block: 20px 8px; }
+main { display: grid; align-content: safe center; gap: 20px; padding-block: 20px 28px; }
+h1 { font-size: clamp(2.55rem, 6.2vw, 5.5rem); line-height: .94; letter-spacing: -.075em; text-wrap: balance; }
+.copy { display: grid; justify-items: start; align-content: center; gap: 20px; }
+.copy p, .steps > p { max-width: 39ch; }
+.download, dialog button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 46px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 9px 18px;
+  font-weight: 700;
+}
+:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: stretch;
+  padding: 14px;
+  border-radius: 28px;
+  background: var(--ink);
+  color: var(--paper);
+}
+.preview .copy { padding: clamp(16px, 4vw, 52px); min-width: 0; }
+.preview .download { background: var(--paper); color: var(--ink); }
+.wordmark { display: flex; align-items: center; gap: 9px; font-weight: 650; }
+.wordmark img { width: 115px; }
+.wordmark .brand-mark { width: 25px; margin-inline-start: 5px; }
+.plugin-preview {
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  min-height: 430px;
+  padding: 14px;
+  border-radius: 20px;
+  background: var(--paper);
+}
+@media (prefers-reduced-motion: no-preference) {
+  body { overflow-x: clip; animation: plugin-pull-in 390ms cubic-bezier(.22,.8,.25,1) both; }
+}
+@keyframes plugin-pull-in { from { transform: translateY(100svh); } }
+dialog { max-width: min(90vw, 420px); border: 1px solid; border-radius: 20px; padding: 24px; background: var(--paper); }
+dialog p { margin-block: 8px 18px; }
+dialog::backdrop { background: #0b0d0880; }
+@media (max-width: 800px) {
+  .preview { grid-template-columns: 1fr; }
+  .plugin-preview { width: 100%; }
+}
+@media (max-width: 460px) {
+  .plugin-preview { min-height: 340px; }
+}
+
+dialog.install-dialog {
+  width: min(390px, calc(100vw - 32px));
+  padding: 20px;
+  background: #060705;
+  color: #f5f7ee;
+  border: 1px solid #4a5341;
+  border-radius: 19px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .55);
+  font-family: "Cirkular Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+dialog.install-dialog::backdrop {
+  background: rgba(6, 7, 5, .72);
+  backdrop-filter: blur(4px);
+}
+dialog.install-dialog .dlg-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+dialog.install-dialog .dlg-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+dialog.install-dialog .dlg-brand img {
+  height: 13px;
+  width: auto;
+  filter: brightness(0) invert(1);
+}
+dialog.install-dialog .dlg-meta {
+  font: 10px ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #8c9384;
+}
+dialog.install-dialog .dlg-close {
+  background: transparent;
+  border: 0;
+  color: #f5f7ee;
+  font-size: 22px;
+  line-height: 1;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+dialog.install-dialog h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: 1.05;
+  color: #f5f7ee;
+}
+dialog.install-dialog .dlg-sub {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #a9b1a0;
+}
+dialog.install-dialog code {
+  font: 11.5px ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #bbff29;
+}
+dialog.install-dialog .dlg-steps {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+}
+dialog.install-dialog .dlg-steps li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid #747b6d55;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #e4e8dd;
+}
+dialog.install-dialog .dlg-num {
+  font: 700 10.5px ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .1em;
+  color: #bbff29;
+  padding-top: 2px;
+}
+dialog.install-dialog .dlg-cta {
+  width: 100%;
+  min-height: 42px;
+  border: 0;
+  border-radius: 24px;
+  background: #bbff29;
+  color: #060705;
+  font: 750 13.5px "Cirkular Inter", sans-serif;
+  cursor: pointer;
+}
+dialog.install-dialog .dlg-cta:hover {
+  filter: brightness(1.06);
+}

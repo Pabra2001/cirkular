@@ -1,0 +1,56 @@
+.stage { width: 100%; max-width: 430px; height: 390px; }
+@media (max-width: 460px) {
+  .stage { zoom: .75; }
+}
+
+.rail .detail {
+  height: auto;
+  animation: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .detail .product { position: relative; }
+  .detail .product img { animation: image-resolve 180ms steps(2, end) both; }
+  .detail .product::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 77px;
+    border-radius: 9px;
+    pointer-events: none;
+    background-image:
+      radial-gradient(var(--lime) 1px, transparent 1px),
+      radial-gradient(#060705 1px, transparent 1px);
+    background-size: 4px 4px;
+    background-position: 0 0, 2px 2px;
+    animation: dither-resolve 190ms steps(3, end) both;
+  }
+  .detail :is(.product h2, .product strong, .why, .metrics dd) {
+    animation: text-resolve 135ms steps(1, end) both;
+  }
+  .detail .why { animation-delay: 12ms; }
+  .detail .metrics dd { animation-delay: 22ms; }
+}
+
+@media (max-width: 440px) {
+  .detail .product::after { width: 56px; }
+}
+
+@keyframes image-resolve {
+  0% { filter: grayscale(1) contrast(2) brightness(.65); }
+  35% { filter: grayscale(1) contrast(1.8); }
+  68% { filter: grayscale(1) contrast(1.2); }
+  100% { filter: none; }
+}
+@keyframes dither-resolve {
+  0% { opacity: .95; }
+  45% { opacity: .55; }
+  75% { opacity: .2; }
+  100% { opacity: 0; }
+}
+@keyframes text-resolve {
+  0% { opacity: .44; text-shadow: 4px 0 var(--lime); clip-path: polygon(0 0,100% 0,100% 23%,0 23%,0 57%,100% 57%,100% 83%,0 83%); }
+  28% { opacity: .86; text-shadow: -2px 1px var(--lime); clip-path: inset(0); }
+  64% { opacity: 1; text-shadow: 1px 0 var(--lime); }
+  84%, 100% { opacity: 1; text-shadow: none; clip-path: inset(0); }
+}

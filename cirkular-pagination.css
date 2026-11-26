@@ -1,0 +1,5 @@
+.cirkular-pagination { display:flex; justify-content:center; gap:.35rem; }
+.cirkular-pagination button { display:grid; place-items:center; width:44px; height:44px; padding:0; border:0; border-radius:50%; background:transparent; color:inherit; }
+.cirkular-pagination button::before { content:""; width:7px; height:7px; border-radius:999px; background:currentColor; opacity:.65; transition:width .2s; }
+.cirkular-pagination button[aria-current="true"]::before { width:18px; opacity:1; }
+@media (prefers-reduced-motion: reduce) { .cirkular-pagination button::before { transition: none; } }

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CIRKULAR Plugin</title>
+  <link rel="stylesheet" href="../cirkular-back-arrow.css">
+  <link rel="stylesheet" href="./plugin.css">
+  <link rel="stylesheet" href="../cirkular-gestures.css">
+  <script defer src="../cirkular-gestures.js"></script>
+  <script type="module" src="./plugin.js"></script>
+</head>
+<body>
+  <header class="mast">
+    <a class="back back-arrow" href="../#home" aria-label="Back to Cirkular home"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg></a>
+    <div class="wordmark"><img src="../cirkular-world/media/wordmark.svg" alt="Cirkular"><span>plugin</span><img class="brand-mark" src="../cirkular-world/media/mark.svg" alt="" width="25"></div>
+  </header>
+  <main>
+    <section id="preview" class="concept preview" aria-labelledby="preview-title">
+      <div class="copy">
+        <h1 id="preview-title">Find it secondhand.</h1>
+        <p>Finds live secondhand alternatives and grades the sustainability of retail products as you shop.</p>
+        <button class="download" type="button">Download plugin <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path transform="translate(24 0) scale(-1 1)" d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg></button>
+      </div>
+      <div class="plugin-preview">
+        <template>
+          <link rel="stylesheet" href="../cirkular-case-study/plugin/plugin.css">
+          <link rel="stylesheet" href="./demo.css">
+          <div class="stage rail" role="group" aria-label="Cirkular plugin demo">
+            <div class="shell">
+              <div class="arrangement">
+                <button class="mark" type="button" aria-label="Secondhand recommendations" aria-expanded="false" aria-controls="recommendations detail">A</button>
+                <div id="recommendations" role="group" aria-label="Secondhand finds" hidden></div>
+              </div>
+              <section class="detail" id="detail" aria-label="Listing details" hidden></section>
+            </div>
+          </div>
+        </template>
+      </div>
+    </section>
+  </main>
+  <dialog class="install-dialog" aria-labelledby="download-title">
+    <div class="dlg-top">
+      <span class="dlg-brand">
+        <img src="../cirkular-world/media/wordmark.svg" alt="CIRKULAR">
+        <span class="dlg-meta">· INSTALL</span>
+      </span>
+      <form method="dialog"><button class="dlg-close" aria-label="Close">×</button></form>
+    </div>
+    <h2 id="download-title">Install in 30 seconds</h2>
+    <p class="dlg-sub"><code>cirkular-extension.zip</code> is downloading now.</p>
+    <ol class="dlg-steps">
+      <li><span class="dlg-num">01</span><span>Double-click <code>cirkular-extension.zip</code> to unzip the folder.</span></li>
+      <li><span class="dlg-num">02</span><span>Open <code>chrome://extensions</code> and turn on <strong>Developer mode</strong> (top-right).</span></li>
+      <li><span class="dlg-num">03</span><span>Drag the unzipped <code>cirkular-extension</code> folder straight onto the page.</span></li>
+    </ol>
+    <form method="dialog"><button class="dlg-cta" autofocus>Done</button></form>
+  </dialog>
+</body>
+</html>
