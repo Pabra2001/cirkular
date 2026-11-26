@@ -577,3 +577,16 @@ body[data-scene="upload"], html:has(body[data-scene="upload"]) { background: #00
   .v1-mid { grid-template-columns: 1fr; gap: 28px; }
   .opening-v1 .aperture.v1-aperture { justify-self: center; }
 }
+
+/* Catalog standalone fixes: pin back arrow to left corner + true full-bleed card strip */
+.cirkular-back.back-arrow {
+  left: 28px !important;
+  top: 24px !important;
+}
+.catalog {
+  overflow-x: hidden !important;
+}
+.catalog-strip {
+  width: 112vw !important;
+  margin-left: -6vw !important;
+}

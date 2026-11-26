@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cirkular</title>
+<link rel="stylesheet" href="./cursors.css?rev=solid-square">
+<script type="module" src="./cursors.js?rev=solid-square"></script>
+<link rel="stylesheet" href="./cirkular-back-arrow.css?rev=1">
+<link rel="stylesheet" href="world.css?rev=shared-back">
+<link rel="stylesheet" href="./cirkular-pagination.css?rev=1">
+<script type="module" src="world.js?rev=cinematic-loop"></script>
+<link rel="stylesheet" href="./video-surfaces.css">
+<script type="module" src="./video-loops.js"></script>
+  <link rel="stylesheet" href="./cirkular-gestures.css?rev=1">
+  <script defer src="./cirkular-gestures.js?rev=1"></script>
+</head>
+<body>
+<main>
+  <a class="cirkular-back back-arrow" href="./" target="_top" aria-label="Back to case study"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg></a>
+  <section class="opening scene" data-scene="home">
+    <a class="opening-mark" href="#home" aria-label="Cirkular home"><img src="media/mark.svg" alt=""></a>
+    <img class="opening-wordmark" src="media/wordmark.svg?rev=syne" alt="Cirkular">
+    <div class="aperture"><video autoplay muted playsinline loop preload="metadata" poster="media/homepage-cinematic-poster.jpg" src="media/homepage-cinematic-loop.mp4" aria-label="Dithered film of people, landscapes, and wildlife"></video></div>
+    <nav class="opening-nav" aria-label="Cirkular">
+      <a href="#manifesto">manifesto</a><a href="#catalog">catalog</a><a href="https://prnce.pages.dev/cirkular-product/?from=world" target="_top">marketplace</a><a href="./cirkular-plugin/" target="_top">plugin</a>
+    </nav>
+  </section>
+  <section class="manifesto scene" data-scene="manifesto" hidden>
+    <div class="manifesto-nav" aria-hidden="true"></div>
+    <div class="manifesto-prologue">
+      <p>a cheaply made shirt reaches you after being shipped thousands of miles. <strong>Its fibers unravel, its dyes bleed into rivers, its plastic packaging discarded before it even reaches your hands.</strong> From <strong>exploited production</strong> to <strong>landfill waste</strong>, its <u>lifespan</u> is <span>short</span>, its <u>damage</u> <span>long-lasting</span>. <strong>This is the fate of</strong> <span>billions</span> <strong>of products that are designed and produced to be</strong> <span>replaced</span>.</p>
+      <p class="manifesto-pivot">But the problem runs deeper.</p>
+    </div>
+    <h1>manifesto</h1>
+    <div class="manifesto-text">
+<article><h2>awakening</h2><p>We stand at the precipice of <mark class="draft-stroke">ecological collapse</mark>. The world is not a home but a machine of destruction, fueled by relentless greed and the illusion of endless growth. The crisis we face is not just environmental; it is <strong class="draft-underline">a crisis of imagination, access, and education</strong>. We have been conditioned to believe <span class="draft-crossout">there is no alternative</span>. We have lost our urgency to create, to share knowledge, to push for change. Our identities have been reduced to data points, our bodies transformed into cogs in a vast, vicious machine.</p><p>But within this dystopia lies the seed of revolution: a collective consciousness, <strong class="draft-arrow">a shift in power</strong>, a new way forward. Cirkular is the resistance.</p></article>
+<article><h2>vision</h2><p>Imagine a world where waste is not just eliminated, but transformed. Where <strong class="draft-underline">discarded objects become the foundation of creation</strong>. Where art and collective action is a weapon against oppression and a tool for reimagining our relationship with the planet and each other.</p><p>A world where knowledge is <mark class="draft-stroke">open, accessible, and actionable</mark>. Where systemic barriers are dismantled through education, creation, and collaboration. This is not a distant utopia; it is a reality we must forge together through interactive exhibitions, material transformation, community programming, acts of service, and radical storytelling. </p><p>Cirkular reveals a new way of life. A future built on community access to sustainable practices, where <strong class="draft-arrow">secondhand is first choice</strong>, and waste is given a new purpose. We are funding innovation, empowering experts, and pushing beyond individual action to demand systemic change.</p><p>We create spaces—both physical and digital—where art and activism intersect. Where the personal becomes universal. Where creation itself is rebellion.</p><p>We are designers of a new reality. <strong class="draft-underline">Our creativity is a survival strategy</strong>; it is how we process trauma, resist oppression, and reimagine alternatives to the dystopian present.</p></article>
+    </div>
+  </section>
+  <section class="catalog-entry scene" aria-label="Catalog entrance" hidden>
+    <div class="catalog-entry-frame">
+      <div class="catalog-entry-lettering">
+        <nav class="catalog-entry-choices" aria-label="Choose a Catalog view">
+          <img src="media/entry-2871.svg" alt="">
+          <img class="entry-hover-world" src="media/entry-2935.svg" alt="">
+          <img class="entry-hover-history" src="media/entry-2940.svg" alt="">
+          <div class="catalog-entry-cue" aria-hidden="true"><span></span>choose a view</div>
+          <button type="button" data-enter-collection="world" aria-label="World"></button>
+          <button type="button" data-enter-collection="history" aria-label="History"></button>
+        </nav>
+      </div>
+    </div>
+  </section>
+  <section class="catalog scene" data-scene="catalog" hidden>
+    <header class="catalog-head">
+      <h1 class="catalog-heading">
+        <picture>
+          <source media="(max-width: 640px), (max-height: 500px) and (pointer: coarse)" srcset="media/mark.svg">
+          <img src="media/catalog-label.svg" alt="Catalog">
+        </picture>
+      </h1>
+    </header>
+    <div class="catalog-stage">
+    <nav class="catalog-views" aria-label="Catalog view"><button type="button" data-collection="world" aria-pressed="true">world</button><button type="button" data-collection="history" aria-pressed="false">history</button></nav>
+    <div class="catalog-strip" id="catalog-strip" tabindex="0" aria-label="Catalog artworks"></div>
+    <nav class="catalog-pagination cirkular-pagination" aria-label="Catalog carousel navigation"><button data-slide="0" aria-label="Start"></button><button data-slide="2" aria-label="Middle"></button><button data-slide="4" aria-label="End"></button></nav>
+    </div>
+    <dialog class="art-dialog" aria-label="Inspect artwork">
+      <div class="art-controls">
+        <button type="button" data-art="invert" aria-pressed="false">invert</button>
+        <button type="button" data-art="magnify" aria-pressed="false">magnify</button>
+        <button type="button" data-art="upload">upload</button>
+        <a data-art="download" download>download</a>
+      </div>
+      <img class="art-image" alt="">
+      <video class="art-video" muted loop playsinline aria-label="Catalog moving artwork" hidden></video>
+      <div class="art-caption">
+        <span>101101100110</span>
+      </div>
+      <button class="art-close" type="button" data-art="close" autofocus aria-label="Close artwork">×</button>
+    </dialog>
+  </section>
+  <section class="catalog-upload scene" data-scene="upload" hidden>
+
+    <div class="upload-panel">
+      <h1>upload</h1>
+      <p class="upload-instruction" id="catalog-upload-instruction">Choose a video to dither and add to your Catalog.</p>
+      <label for="catalog-file" class="upload-picker">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/>
+        </svg>
+      </label>
+      <input id="catalog-file" type="file" accept="video/*" aria-label="Upload a video" aria-describedby="catalog-upload-instruction">
+      <canvas aria-label="Dithered video preview" hidden></canvas>
+      <p role="status"></p>
+      <button type="button" class="upload-save" hidden disabled>Add to Catalog</button>
+    </div>
+    <small class="upload-note">Saved on this device.</small>
+  </section>
+</main>
+<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "09eef96fe7b44e15b57fe6b0170f31a6"}'></script><!-- Cloudflare Pages Analytics --><script>
+window.addEventListener('hashchange', () => { if (!location.hash || location.hash === '#home') location.href = './'; });
+if (!location.hash || location.hash === '#home') location.href = './';
+</script></body>
+</html>
