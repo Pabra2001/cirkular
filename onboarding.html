@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Welcome to CIRKULAR</title>
+  <title>CIRKULAR PLUGIN</title>
   <style>
     @font-face {
       font-family: "Cirkular Inter";
@@ -16,43 +16,47 @@
       --lime: #bbff29;
       --stone: #d4d6ce;
       --black: #060705;
-      --surface: #10130d;
-      --border: #2c3326;
       --ink: #f5f7ee;
+      --muted: #8c9384;
+      --rule: #747b6d44;
     }
 
     * { box-sizing: border-box; }
+
     html, body {
       margin: 0;
-      min-height: 100%;
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
       background: var(--black);
       color: var(--ink);
-      font: 15px/1.5 "Cirkular Inter", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      font: 15px/1.45 "Cirkular Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
     body {
       display: grid;
       place-items: center;
-      padding: 32px 20px;
+      padding: 24px;
     }
 
     .frame {
-      width: min(680px, 100%);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 26px;
-      padding: 32px 36px 28px;
+      width: min(640px, 100%);
+      border: 1px solid var(--rule);
+      border-radius: 24px;
+      padding: 28px 32px;
+      background: #080a07;
       display: flex;
       flex-direction: column;
-      gap: 26px;
-      box-shadow: 0 28px 80px rgba(0, 0, 0, .55);
+      gap: 24px;
     }
 
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--rule);
     }
 
     .brand {
@@ -63,25 +67,24 @@
 
     .wordmark-img {
       display: block;
-      height: 17px;
+      height: 16px;
       width: auto;
       filter: brightness(0) saturate(100%) invert(89%) sepia(56%) saturate(1352%) hue-rotate(25deg) brightness(104%) contrast(103%);
     }
 
     .brand-sub {
-      font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace;
+      font: 700 10.5px ui-monospace, SFMono-Regular, Menlo, monospace;
       letter-spacing: .16em;
       text-transform: uppercase;
       color: var(--lime);
-      line-height: 1;
       transform: translateY(1px);
     }
 
     .step-counter {
-      font: 11px ui-monospace, SFMono-Regular, Menlo, monospace;
+      font: 10.5px ui-monospace, SFMono-Regular, Menlo, monospace;
       letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--lime);
+      color: var(--muted);
     }
 
     .slide {
@@ -91,158 +94,256 @@
       animation: fadeUp .28s ease-out both;
     }
 
-    .slide.active {
-      display: flex;
-    }
+    .slide.active { display: flex; }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .visual {
-      min-height: 210px;
-      border-radius: 18px;
-      background: radial-gradient(circle at 80% 20%, rgba(187, 255, 41, .12), transparent 55%), #090b07;
-      border: 1px solid #242a1f;
-      padding: 24px;
+    /* Visualizer stage — architectural hairline canvas, no boxy slop */
+    .viz {
+      height: 230px;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      position: relative;
       display: grid;
       place-items: center;
-      position: relative;
       overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(187, 255, 41, .06), transparent 64%),
+        repeating-linear-gradient(90deg, transparent 0 47px, rgba(116, 123, 109, .08) 47px 48px);
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(26px, 4vw, 34px);
-      line-height: 1.06;
-      letter-spacing: -.04em;
+      font-size: clamp(28px, 4.2vw, 36px);
       font-weight: 800;
+      letter-spacing: -.05em;
+      line-height: 1.02;
     }
 
     .lead {
-      margin: 0;
-      font-size: 15px;
-      line-height: 1.55;
-      color: #c8cec0;
-      max-width: 54ch;
+      margin: 8px 0 0;
+      font-size: 14.5px;
+      line-height: 1.5;
+      color: #a9b1a0;
+      max-width: 52ch;
     }
 
-    /* Slide 1 visual: mini rail preview */
-    .mini-browser {
+    /* === VIZ 1: Live Animated CIRKULAR Rail Sequence === */
+    .viz-rail-scene {
       width: 100%;
-      max-width: 440px;
-      height: 162px;
-      border-radius: 12px;
-      border: 1px solid #2b3226;
-      background: #141811;
+      max-width: 460px;
+      height: 186px;
       position: relative;
-      padding: 16px;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 8px;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 8px;
     }
 
-    .mini-line {
-      height: 10px;
-      border-radius: 6px;
-      background: #23291f;
-      width: 48%;
-    }
-    .mini-line.short { width: 32%; background: #1c2119; }
-    .mini-price {
-      font: 700 13px ui-monospace, monospace;
-      color: #8f9687;
-    }
-    .mini-price s { opacity: .65; margin-right: 8px; }
-    .mini-price span { color: var(--lime); }
-
-    .mini-rail {
+    .viz-card {
       position: absolute;
-      right: 12px;
+      left: 12px;
       bottom: 10px;
-      width: 46px;
-      padding: 6px;
-      border-radius: 26px;
+      width: 310px;
+      padding: 14px 16px;
       background: var(--black);
-      border: 1px solid #3c4435;
+      border: 1px solid #3f4738;
+      border-radius: 16px;
+      animation: viz-card-loop 4.8s ease-in-out infinite;
+    }
+
+    .viz-card-meta {
+      font: 9.5px ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .viz-card-title {
+      font-size: 17px;
+      font-weight: 750;
+      letter-spacing: -.04em;
+      margin: 0 0 4px;
+    }
+
+    .viz-card-price {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .viz-card-price strong {
+      font-size: 22px;
+      letter-spacing: -.05em;
+      color: var(--lime);
+    }
+
+    .viz-card-price s {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .viz-card-price span {
+      font: 700 11px ui-monospace, monospace;
+      color: var(--lime);
+    }
+
+    .viz-rail {
+      width: 56px;
+      height: 176px;
+      padding: 7px;
+      position: relative;
       display: flex;
       flex-direction: column;
+      justify-content: flex-end;
       align-items: center;
       gap: 6px;
+      isolation: isolate;
     }
 
-    .mini-dot {
-      width: 32px;
-      height: 32px;
+    .viz-rail::before {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 100%;
+      background: var(--black);
+      border: 1px solid #3f4738;
+      border-radius: 32px;
+      z-index: -1;
+      animation: viz-rail-rise 4.8s cubic-bezier(.2, .72, .3, 1) infinite;
+    }
+
+    .viz-thumb {
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
-      background: #20261c;
-      border: 1px solid #59634e;
+      background: #1a2016;
+      border: 1px solid #636c58;
+      position: relative;
+      animation: viz-thumb-pop 4.8s cubic-bezier(.2, .72, .3, 1) infinite;
     }
-    .mini-dot.picked {
-      border: 2px solid var(--lime);
-      background: linear-gradient(135deg, #2b3622, #151a12);
+
+    .viz-thumb.t1 { animation-delay: .18s; }
+    .viz-thumb.t2 { animation-delay: .09s; }
+    .viz-thumb.t3 { animation-delay: 0s; }
+
+    .viz-thumb.t1::after {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: conic-gradient(transparent 0 24%, var(--lime) 50% 89%, transparent 100%);
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+      animation: spin 1.65s linear infinite;
     }
-    .mini-c {
-      width: 32px;
-      height: 32px;
+
+    .viz-grade-dot {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: var(--stone);
       color: var(--black);
       display: grid;
       place-items: center;
-      font-weight: 900;
-      font-size: 18px;
+      font-weight: 800;
+      font-size: 22px;
+      animation: viz-c-pop 4.8s ease-out infinite;
     }
 
-    /* Slide 2 visual: interactive KORE grades */
-    .kore-demo {
+    @keyframes viz-c-pop {
+      0%, 6% { transform: scale(.65); opacity: 0; }
+      14%, 92% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(.85); opacity: 0; }
+    }
+
+    @keyframes viz-rail-rise {
+      0%, 14% { height: 40px; opacity: 0; }
+      28%, 92% { height: 100%; opacity: 1; }
+      100% { height: 40px; opacity: 0; }
+    }
+
+    @keyframes viz-thumb-pop {
+      0%, 24% { transform: translateY(12px) scale(.7); opacity: 0; }
+      34%, 92% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(8px) scale(.7); opacity: 0; }
+    }
+
+    @keyframes viz-card-loop {
+      0%, 36% { transform: translateX(14px); opacity: 0; }
+      46%, 90% { transform: translateX(0); opacity: 1; }
+      100% { transform: translateX(8px); opacity: 0; }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* === VIZ 2: Live Rotating KORE Grade Stamp === */
+    .kore-stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
       width: 100%;
+      padding: 0 12px;
+    }
+
+    .kore-stamp-wrap {
+      width: 132px;
+      height: 132px;
+      flex: none;
+    }
+
+    .kore-stamp-wrap svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      color: var(--lime);
+    }
+
+    .grade-arc {
+      transform-origin: 60px 60px;
+      animation: spin 6s linear infinite;
+    }
+
+    .kore-controls {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 16px;
+      gap: 12px;
+      max-width: 310px;
     }
 
     .kore-pills {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
     .kore-btn {
-      width: 46px;
-      height: 46px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
-      border: 2px solid #353d2e;
-      background: #141811;
-      color: var(--ink);
-      font: 800 18px "Cirkular Inter", sans-serif;
+      border: 1px solid var(--rule);
+      background: transparent;
+      color: var(--muted);
+      font: 800 15px "Cirkular Inter", sans-serif;
       cursor: pointer;
-      transition: transform .15s ease, background .15s ease, color .15s ease, border-color .15s ease;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
     }
 
-    .kore-btn:hover { transform: scale(1.06); }
     .kore-btn.active {
       background: var(--stone);
       color: var(--black);
       border-color: var(--lime);
-      transform: scale(1.08);
-    }
-
-    .kore-readout {
-      width: 100%;
-      max-width: 440px;
-      background: #12160f;
-      border: 1px solid #2d3527;
-      border-radius: 12px;
-      padding: 12px 14px;
-      text-align: center;
     }
 
     .kore-readout strong {
       display: block;
-      font: 11px ui-monospace, monospace;
+      font: 10.5px ui-monospace, SFMono-Regular, Menlo, monospace;
       letter-spacing: .12em;
       text-transform: uppercase;
       color: var(--lime);
@@ -252,61 +353,90 @@
     .kore-readout p {
       margin: 0;
       font-size: 13px;
-      color: #d6dcd0;
+      line-height: 1.45;
+      color: #c8cec0;
     }
 
-    /* Slide 3 visual: pin tip */
-    .ready-grid {
-      width: 100%;
+    /* === VIZ 3: Animated Toolbar Pulse Visualizer === */
+    .pin-viz {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .toolbar-mock {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 18px;
+      border-radius: 99px;
+      border: 1px solid var(--rule);
+      background: var(--black);
+    }
+
+    .bar-url {
+      font: 11px ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: var(--muted);
+      padding-right: 28px;
+      border-right: 1px solid var(--rule);
+    }
+
+    .pin-pulse {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--lime);
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      place-items: center;
+      position: relative;
     }
 
-    .ready-step {
-      background: #12160f;
-      border: 1px solid #2a3124;
-      border-radius: 12px;
-      padding: 14px;
+    .pin-pulse::after {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 1.5px solid var(--lime);
+      animation: ring-pulse 2s ease-out infinite;
     }
 
-    .ready-step .num {
-      font: 700 11px ui-monospace, monospace;
-      color: var(--lime);
-      margin-bottom: 6px;
+    .pin-pulse img {
+      width: 20px;
+      height: auto;
       display: block;
     }
 
-    .ready-step strong {
-      display: block;
-      font-size: 13px;
-      margin-bottom: 4px;
+    @keyframes ring-pulse {
+      0% { transform: scale(.85); opacity: .9; }
+      100% { transform: scale(1.45); opacity: 0; }
     }
 
-    .ready-step span {
-      font-size: 12px;
-      color: #a9b1a0;
-      line-height: 1.35;
-      display: block;
+    .pin-caption {
+      font: 10.5px ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
+    /* Footer — equal padding all around */
     .footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 22px;
-      margin-top: 4px;
-      border-top: 1px solid #22281d;
+      padding-top: 20px;
+      border-top: 1px solid var(--rule);
     }
 
     .dots {
       display: flex;
+      align-items: center;
       gap: 8px;
     }
 
     .dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 99px;
       background: #333b2c;
       border: 0;
@@ -322,28 +452,27 @@
 
     .actions {
       display: flex;
+      align-items: center;
       gap: 10px;
     }
 
     .btn {
       border: 0;
       border-radius: 99px;
-      padding: 11px 20px;
+      padding: 10px 20px;
       font: 700 13px "Cirkular Inter", sans-serif;
       cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
     }
+
+    .btn[hidden] { display: none; }
 
     .btn-ghost {
       background: transparent;
-      color: #a9b1a0;
-      border: 1px solid #2f3728;
+      color: var(--muted);
+      border: 1px solid var(--rule);
     }
 
-    .btn-ghost:hover { color: var(--ink); border-color: #4a5440; }
+    .btn-ghost:hover { color: var(--ink); border-color: #6a7360; }
 
     .btn-primary {
       background: var(--lime);
@@ -353,8 +482,10 @@
     .btn-primary:hover { filter: brightness(1.06); }
 
     @media (max-width: 560px) {
-      .frame { padding: 24px; }
-      .ready-grid { grid-template-columns: 1fr; }
+      .frame { padding: 22px; }
+      .kore-stage { flex-direction: column; gap: 16px; text-align: center; }
+      .kore-pills { justify-content: center; }
+      .viz-card { width: 220px; }
     }
   </style>
 </head>
@@ -370,70 +501,82 @@
 
     <!-- Slide 1 -->
     <section class="slide active" data-slide="0">
-      <div class="visual">
-        <div class="mini-browser">
-          <div class="mini-line"></div>
-          <div class="mini-line short"></div>
-          <div class="mini-price"><s>$320 retail</s> <span>$28 secondhand</span></div>
-          <div class="mini-rail" aria-hidden="true">
-            <span class="mini-dot picked"></span>
-            <span class="mini-dot"></span>
-            <span class="mini-c">C</span>
+      <div class="viz">
+        <div class="viz-rail-scene" aria-hidden="true">
+          <div class="viz-card">
+            <div class="viz-card-meta"><span>CIRKULAR · POSHMARK</span><span>×</span></div>
+            <div class="viz-card-title">Levi’s SilverTab Loose</div>
+            <div class="viz-card-price">
+              <strong>$28.00</strong>
+              <s>$320</s>
+              <span>$292 less</span>
+            </div>
+          </div>
+          <div class="viz-rail">
+            <span class="viz-thumb t1"></span>
+            <span class="viz-thumb t2"></span>
+            <span class="viz-thumb t3"></span>
+            <span class="viz-grade-dot">D</span>
           </div>
         </div>
       </div>
       <div>
         <h1>Shop anywhere. Find it secondhand.</h1>
-        <p class="lead">Browse your favorite retail stores like normal. Whenever you open a product page, the floating <strong>C</strong> rail appears in the bottom-right corner with live secondhand matches.</p>
+        <p class="lead">Browse retail stores like normal. When you land on a product page, CIRKULAR reveals live secondhand matches automatically — always priced below retail.</p>
       </div>
     </section>
 
     <!-- Slide 2 -->
     <section class="slide" data-slide="1">
-      <div class="visual">
-        <div class="kore-demo">
-          <div class="kore-pills" role="group" aria-label="Preview KORE grades">
-            <button class="kore-btn active" type="button" data-grade="B">B</button>
-            <button class="kore-btn" type="button" data-grade="C">C</button>
-            <button class="kore-btn" type="button" data-grade="D">D</button>
-            <button class="kore-btn" type="button" data-grade="F">F</button>
+      <div class="viz">
+        <div class="kore-stage">
+          <div class="kore-stamp-wrap" aria-hidden="true">
+            <svg viewBox="0 0 120 120">
+              <defs><path id="grade-arc-path" d="M 60,60 m -48,0 a 48,48 0 1,1 96,0 a 48,48 0 1,1 -96,0"/></defs>
+              <g class="grade-arc">
+                <text font-family="Cirkular Inter, sans-serif" font-size="13" font-weight="800" letter-spacing="3.2" fill="currentColor">
+                  <textPath href="#grade-arc-path" startOffset="19%">G R A D E</textPath>
+                </text>
+              </g>
+              <circle cx="60" cy="60" r="37" fill="#d4d6ce" stroke="#060705" stroke-width="2"/>
+              <circle cx="60" cy="60" r="29" fill="none" stroke="#060705" stroke-width="5"/>
+              <text id="stamp-letter" x="60" y="60" text-anchor="middle" dominant-baseline="central" font-family="Cirkular Inter, sans-serif" font-size="36" font-weight="800" fill="#060705">B</text>
+            </svg>
           </div>
-          <div class="kore-readout" id="kore-readout">
-            <strong>KORE Grade B · 100% Cotton</strong>
-            <p>Natural mono-material fiber — durable, breathable, and easier to recycle.</p>
+          <div class="kore-controls">
+            <div class="kore-pills" role="group" aria-label="Preview KORE grades">
+              <button class="kore-btn active" type="button" data-grade="B">B</button>
+              <button class="kore-btn" type="button" data-grade="C">C</button>
+              <button class="kore-btn" type="button" data-grade="D">D</button>
+              <button class="kore-btn" type="button" data-grade="F">F</button>
+            </div>
+            <div class="kore-readout" id="kore-readout">
+              <strong>KORE Grade B · 100% Cotton</strong>
+              <p>Natural mono-material fiber — durable, breathable, and easier to recycle.</p>
+            </div>
           </div>
         </div>
       </div>
       <div>
-        <h1>See what it’s really made of with KORE.</h1>
-        <p class="lead">KORE grades the sustainability of retail products beyond brand marketing — reading the actual fiber composition on the page so you can weigh material quality before you buy.</p>
+        <h1>Graded by KORE, beyond brand claims.</h1>
+        <p class="lead">KORE reads the real fiber construction on retail pages and grades sustainability from B to F. If an item already earns an A, CIRKULAR stays out of your way.</p>
       </div>
     </section>
 
     <!-- Slide 3 -->
     <section class="slide" data-slide="2">
-      <div class="visual">
-        <div class="ready-grid">
-          <div class="ready-step">
-            <span class="num">01</span>
-            <strong>Pin CIRKULAR</strong>
-            <span>Click the puzzle icon in Chrome’s toolbar and pin CIRKULAR for quick access.</span>
+      <div class="viz">
+        <div class="pin-viz">
+          <div class="toolbar-mock">
+            <span class="bar-url">ssense.com/en-us/men/product/…</span>
+            <span class="pin-pulse"><img src="./assets/mark.svg" alt=""></span>
           </div>
-          <div class="ready-step">
-            <span class="num">02</span>
-            <strong>Open any product</strong>
-            <span>Visit SSENSE, Zara, Nike, or Levi’s — the rail appears automatically.</span>
-          </div>
-          <div class="ready-step">
-            <span class="num">03</span>
-            <strong>Click the C</strong>
-            <span>Compare live secondhand prices, read KORE material grades, and buy direct.</span>
-          </div>
+          <span class="pin-caption">Pin CIRKULAR to track savings &amp; saved finds</span>
         </div>
       </div>
       <div>
         <h1>You’re ready to shop circular.</h1>
-        <p class="lead">CIRKULAR runs quietly in the background and only activates on product pages. You can toggle it on or off anytime from your toolbar.</p>
+        <p class="lead">Pin CIRKULAR in your Chrome toolbar to view your sustainability tracker and saved secondhand finds anytime.</p>
       </div>
     </section>
 

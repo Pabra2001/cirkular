@@ -59,10 +59,12 @@ document.addEventListener("keydown", (e) => {
 
 const koreButtons = Array.from(document.querySelectorAll(".kore-btn"));
 const koreReadout = document.getElementById("kore-readout");
+const stampLetter = document.getElementById("stamp-letter");
 koreButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     const g = btn.dataset.grade;
     koreButtons.forEach((b) => b.classList.toggle("active", b === btn));
+    if (stampLetter) stampLetter.textContent = g;
     const info = KORE_EXAMPLES[g];
     if (info) {
       koreReadout.innerHTML = `<strong>${info.title}</strong><p>${info.desc}</p>`;
