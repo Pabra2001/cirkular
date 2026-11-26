@@ -609,10 +609,10 @@ body[data-scene="upload"], html:has(body[data-scene="upload"]) { background: #00
   padding: 0 !important;
 }
 
-/* Outlined back arrow by default, filled on hover */
+/* Outlined back arrow by default (matching Marketplace 5px stroke), filled on hover */
 .cirkular-back.back-arrow {
   background: transparent !important;
-  border: 1.5px solid currentColor !important;
+  border: 5px solid currentColor !important;
   transition: background .18s ease, color .18s ease;
 }
 body[data-scene="catalog"] .cirkular-back.back-arrow {
