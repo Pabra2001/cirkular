@@ -39,14 +39,22 @@
       </div>
     </section>
   </main>
-  <dialog aria-labelledby="download-title">
-    <h2 id="download-title">Install CIRKULAR (30 sec)</h2>
-    <p><strong>cirkular-extension.zip</strong> is downloading now.<br><br>
-      1. Double-click the zip to unzip it.<br>
-      2. Open <code>chrome://extensions</code> and turn on <strong>Developer mode</strong> (top-right).<br>
-      3. Drag the unzipped <code>cirkular-extension</code> folder onto the page.
-    </p>
-    <form method="dialog"><button autofocus>Done</button></form>
+  <dialog class="install-dialog" aria-labelledby="download-title">
+    <div class="dlg-top">
+      <span class="dlg-brand">
+        <img src="./cirkular-world/media/wordmark.svg" alt="CIRKULAR">
+        <span class="dlg-meta">· INSTALL</span>
+      </span>
+      <form method="dialog"><button class="dlg-close" aria-label="Close">×</button></form>
+    </div>
+    <h2 id="download-title">Install in 30 seconds</h2>
+    <p class="dlg-sub"><code>cirkular-extension.zip</code> is downloading now.</p>
+    <ol class="dlg-steps">
+      <li><span class="dlg-num">01</span><span>Double-click <code>cirkular-extension.zip</code> to unzip the folder.</span></li>
+      <li><span class="dlg-num">02</span><span>Open <code>chrome://extensions</code> and turn on <strong>Developer mode</strong> (top-right).</span></li>
+      <li><span class="dlg-num">03</span><span>Drag the unzipped <code>cirkular-extension</code> folder straight onto the page.</span></li>
+    </ol>
+    <form method="dialog"><button class="dlg-cta" autofocus>Done</button></form>
   </dialog>
 </body>
 </html>
