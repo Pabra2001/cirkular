@@ -1,0 +1,2 @@
+.back-arrow { --cirkular-arrow-ink: #0b0d08; --cirkular-arrow-lime: #bbff29; text-decoration: none; display: grid; place-items: center; width: 54px; height: 54px; border: 5px solid var(--cirkular-arrow-ink); border-radius: 50%; background: var(--cirkular-arrow-ink); color: var(--cirkular-arrow-lime); }
+.back-arrow:is(:hover, :focus-visible) { background: var(--cirkular-arrow-lime); color: var(--cirkular-arrow-ink); }

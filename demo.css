@@ -1,0 +1,56 @@
+.stage { width: 100%; max-width: 430px; height: 390px; }
+@media (max-width: 460px) {
+  .stage { zoom: .75; }
+}
+
+/* Reserve the panel height so a shorter listing cannot shift its top edge. */
+.rail .detail {
+  height: 378px;
+  animation: none;
+}
+
+
+@media (prefers-reduced-motion: no-preference) {
+  .detail .product { position: relative; }
+  .detail .product img { animation: image-resolve 145ms steps(1, end) both; }
+  .detail .product::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 77px;
+    border-radius: 9px;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 8px, #090c05 8px 9px),
+      repeating-linear-gradient(0deg, color-mix(in srgb, var(--lime) 70%, transparent) 0 4px, #090c0588 4px 9px);
+    animation: signal-grid 145ms steps(1, end) both;
+  }
+  .detail :is(.product h2, .product strong, .why, .metrics dd) {
+    animation: text-resolve 135ms steps(1, end) both;
+  }
+  .detail .why { animation-delay: 12ms; }
+  .detail .metrics dd { animation-delay: 22ms; }
+}
+
+@media (max-width: 440px) {
+  .detail .product::after { width: 56px; }
+}
+
+@keyframes image-resolve {
+  0% { filter: grayscale(1) contrast(2) brightness(.65); }
+  35% { filter: grayscale(1) contrast(1.8); }
+  68% { filter: grayscale(1) contrast(1.2); }
+  100% { filter: none; }
+}
+@keyframes signal-grid {
+  0% { opacity: .95; clip-path: polygon(0 0,100% 0,100% 28%,63% 28%,63% 59%,100% 59%,100% 100%,0 100%); }
+  35% { opacity: .7; clip-path: polygon(0 0,54% 0,54% 28%,100% 28%,100% 79%,29% 79%,29% 100%,0 100%); }
+  68% { opacity: .25; }
+  85%, 100% { opacity: 0; }
+}
+@keyframes text-resolve {
+  0% { opacity: .44; text-shadow: 4px 0 var(--lime); clip-path: polygon(0 0,100% 0,100% 23%,0 23%,0 57%,100% 57%,100% 83%,0 83%); }
+  28% { opacity: .86; text-shadow: -2px 1px var(--lime); clip-path: inset(0); }
+  64% { opacity: 1; text-shadow: 1px 0 var(--lime); }
+  84%, 100% { opacity: 1; text-shadow: none; clip-path: inset(0); }
+}

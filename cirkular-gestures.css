@@ -1,0 +1,2 @@
+/* Horizontal gestures belong to the Cirkular carousels. */
+html, body { overscroll-behavior-x: none; }
