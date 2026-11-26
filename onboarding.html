@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Welcome to CIRKULAR</title>
+  <style>
+    @font-face {
+      font-family: "Cirkular Inter";
+      src: url("./assets/inter.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
+    :root {
+      --lime: #bbff29;
+      --stone: #d4d6ce;
+      --black: #060705;
+      --surface: #10130d;
+      --border: #2c3326;
+      --ink: #f5f7ee;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--black);
+      color: var(--ink);
+      font: 15px/1.5 "Cirkular Inter", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 32px 20px;
+    }
+
+    .frame {
+      width: min(680px, 100%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      padding: 32px 36px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, .55);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .wordmark-img {
+      display: block;
+      height: 17px;
+      width: auto;
+      filter: brightness(0) saturate(100%) invert(89%) sepia(56%) saturate(1352%) hue-rotate(25deg) brightness(104%) contrast(103%);
+    }
+
+    .brand-sub {
+      font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--lime);
+      line-height: 1;
+      transform: translateY(1px);
+    }
+
+    .step-counter {
+      font: 11px ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--lime);
+    }
+
+    .slide {
+      display: none;
+      flex-direction: column;
+      gap: 22px;
+      animation: fadeUp .28s ease-out both;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .visual {
+      min-height: 210px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 80% 20%, rgba(187, 255, 41, .12), transparent 55%), #090b07;
+      border: 1px solid #242a1f;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 34px);
+      line-height: 1.06;
+      letter-spacing: -.04em;
+      font-weight: 800;
+    }
+
+    .lead {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.55;
+      color: #c8cec0;
+      max-width: 54ch;
+    }
+
+    /* Slide 1 visual: mini rail preview */
+    .mini-browser {
+      width: 100%;
+      max-width: 440px;
+      height: 162px;
+      border-radius: 12px;
+      border: 1px solid #2b3226;
+      background: #141811;
+      position: relative;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .mini-line {
+      height: 10px;
+      border-radius: 6px;
+      background: #23291f;
+      width: 48%;
+    }
+    .mini-line.short { width: 32%; background: #1c2119; }
+    .mini-price {
+      font: 700 13px ui-monospace, monospace;
+      color: #8f9687;
+    }
+    .mini-price s { opacity: .65; margin-right: 8px; }
+    .mini-price span { color: var(--lime); }
+
+    .mini-rail {
+      position: absolute;
+      right: 12px;
+      bottom: 10px;
+      width: 46px;
+      padding: 6px;
+      border-radius: 26px;
+      background: var(--black);
+      border: 1px solid #3c4435;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mini-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #20261c;
+      border: 1px solid #59634e;
+    }
+    .mini-dot.picked {
+      border: 2px solid var(--lime);
+      background: linear-gradient(135deg, #2b3622, #151a12);
+    }
+    .mini-c {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--stone);
+      color: var(--black);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    /* Slide 2 visual: interactive KORE grades */
+    .kore-demo {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .kore-pills {
+      display: flex;
+      gap: 10px;
+    }
+
+    .kore-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 2px solid #353d2e;
+      background: #141811;
+      color: var(--ink);
+      font: 800 18px "Cirkular Inter", sans-serif;
+      cursor: pointer;
+      transition: transform .15s ease, background .15s ease, color .15s ease, border-color .15s ease;
+    }
+
+    .kore-btn:hover { transform: scale(1.06); }
+    .kore-btn.active {
+      background: var(--stone);
+      color: var(--black);
+      border-color: var(--lime);
+      transform: scale(1.08);
+    }
+
+    .kore-readout {
+      width: 100%;
+      max-width: 440px;
+      background: #12160f;
+      border: 1px solid #2d3527;
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-align: center;
+    }
+
+    .kore-readout strong {
+      display: block;
+      font: 11px ui-monospace, monospace;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--lime);
+      margin-bottom: 4px;
+    }
+
+    .kore-readout p {
+      margin: 0;
+      font-size: 13px;
+      color: #d6dcd0;
+    }
+
+    /* Slide 3 visual: pin tip */
+    .ready-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .ready-step {
+      background: #12160f;
+      border: 1px solid #2a3124;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .ready-step .num {
+      font: 700 11px ui-monospace, monospace;
+      color: var(--lime);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .ready-step strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .ready-step span {
+      font-size: 12px;
+      color: #a9b1a0;
+      line-height: 1.35;
+      display: block;
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 22px;
+      margin-top: 4px;
+      border-top: 1px solid #22281d;
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 99px;
+      background: #333b2c;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      transition: width .2s ease, background .2s ease;
+    }
+
+    .dot.active {
+      width: 24px;
+      background: var(--lime);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 99px;
+      padding: 11px 20px;
+      font: 700 13px "Cirkular Inter", sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #a9b1a0;
+      border: 1px solid #2f3728;
+    }
+
+    .btn-ghost:hover { color: var(--ink); border-color: #4a5440; }
+
+    .btn-primary {
+      background: var(--lime);
+      color: var(--black);
+    }
+
+    .btn-primary:hover { filter: brightness(1.06); }
+
+    @media (max-width: 560px) {
+      .frame { padding: 24px; }
+      .ready-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="frame">
+    <header class="header">
+      <div class="brand">
+        <img class="wordmark-img" src="./assets/wordmark.png" alt="CIRKULAR">
+        <span class="brand-sub">PLUGIN</span>
+      </div>
+      <span class="step-counter" id="step-counter">01 / 03</span>
+    </header>
+
+    <!-- Slide 1 -->
+    <section class="slide active" data-slide="0">
+      <div class="visual">
+        <div class="mini-browser">
+          <div class="mini-line"></div>
+          <div class="mini-line short"></div>
+          <div class="mini-price"><s>$320 retail</s> <span>$28 secondhand</span></div>
+          <div class="mini-rail" aria-hidden="true">
+            <span class="mini-dot picked"></span>
+            <span class="mini-dot"></span>
+            <span class="mini-c">C</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h1>Shop anywhere. Find it secondhand.</h1>
+        <p class="lead">Browse your favorite retail stores like normal. Whenever you open a product page, the floating <strong>C</strong> rail appears in the bottom-right corner with live secondhand matches.</p>
+      </div>
+    </section>
+
+    <!-- Slide 2 -->
+    <section class="slide" data-slide="1">
+      <div class="visual">
+        <div class="kore-demo">
+          <div class="kore-pills" role="group" aria-label="Preview KORE grades">
+            <button class="kore-btn active" type="button" data-grade="B">B</button>
+            <button class="kore-btn" type="button" data-grade="C">C</button>
+            <button class="kore-btn" type="button" data-grade="D">D</button>
+            <button class="kore-btn" type="button" data-grade="F">F</button>
+          </div>
+          <div class="kore-readout" id="kore-readout">
+            <strong>KORE Grade B · 100% Cotton</strong>
+            <p>Natural mono-material fiber — durable, breathable, and easier to recycle.</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h1>See what it’s really made of with KORE.</h1>
+        <p class="lead">KORE grades the sustainability of retail products beyond brand marketing — reading the actual fiber composition on the page so you can weigh material quality before you buy.</p>
+      </div>
+    </section>
+
+    <!-- Slide 3 -->
+    <section class="slide" data-slide="2">
+      <div class="visual">
+        <div class="ready-grid">
+          <div class="ready-step">
+            <span class="num">01</span>
+            <strong>Pin CIRKULAR</strong>
+            <span>Click the puzzle icon in Chrome’s toolbar and pin CIRKULAR for quick access.</span>
+          </div>
+          <div class="ready-step">
+            <span class="num">02</span>
+            <strong>Open any product</strong>
+            <span>Visit SSENSE, Zara, Nike, or Levi’s — the rail appears automatically.</span>
+          </div>
+          <div class="ready-step">
+            <span class="num">03</span>
+            <strong>Click the C</strong>
+            <span>Compare live secondhand prices, read KORE material grades, and buy direct.</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h1>You’re ready to shop circular.</h1>
+        <p class="lead">CIRKULAR runs quietly in the background and only activates on product pages. You can toggle it on or off anytime from your toolbar.</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="dots" role="tablist" aria-label="Onboarding steps">
+        <button class="dot active" type="button" data-goto="0" aria-label="Step 1"></button>
+        <button class="dot" type="button" data-goto="1" aria-label="Step 2"></button>
+        <button class="dot" type="button" data-goto="2" aria-label="Step 3"></button>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" id="prev-btn" type="button" hidden>Back</button>
+        <button class="btn btn-primary" id="next-btn" type="button">Next →</button>
+      </div>
+    </footer>
+  </main>
+  <script src="onboarding.js"></script>
+</body>
+</html>
