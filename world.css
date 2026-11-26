@@ -609,25 +609,29 @@ body[data-scene="upload"], html:has(body[data-scene="upload"]) { background: #00
   padding: 0 !important;
 }
 
-/* Outlined back arrow by default (matching Marketplace 5px stroke), filled on hover */
+/* Outlined back arrow by default (matching Marketplace 5px stroke), keeps outer ring on hover */
 .cirkular-back.back-arrow {
   background: transparent !important;
-  border: 5px solid currentColor !important;
+  border: 5px solid !important;
   transition: background .18s ease, color .18s ease;
 }
 body[data-scene="catalog"] .cirkular-back.back-arrow {
   color: #bbff29 !important;
+  border-color: #bbff29 !important;
 }
 body[data-scene="catalog"] .cirkular-back.back-arrow:hover {
   background: #bbff29 !important;
   color: #060705 !important;
+  border-color: #bbff29 !important;
 }
 body:not([data-scene="catalog"]) .cirkular-back.back-arrow {
   color: #060705 !important;
+  border-color: #060705 !important;
 }
 body:not([data-scene="catalog"]) .cirkular-back.back-arrow:hover {
   background: #060705 !important;
   color: #bbff29 !important;
+  border-color: #060705 !important;
 }
 
 /* Directional back arrows matching each page's exit direction */
