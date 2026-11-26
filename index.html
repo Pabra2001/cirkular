@@ -1,118 +1,137 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cirkular</title>
-<link rel="stylesheet" href="./cursors.css?rev=solid-square">
-<script type="module" src="./cursors.js?rev=solid-square"></script>
-<link rel="stylesheet" href="./cirkular-back-arrow.css?rev=1">
-<link rel="stylesheet" href="world.css?rev=shared-back">
-<link rel="stylesheet" href="./cirkular-pagination.css?rev=1">
-<script type="module" src="world.js?rev=cinematic-loop"></script>
-<link rel="stylesheet" href="./video-surfaces.css">
-<script type="module" src="./video-loops.js"></script>
-  <link rel="stylesheet" href="./cirkular-gestures.css?rev=1">
-  <script defer src="./cirkular-gestures.js?rev=1"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CIRKULAR — Smart · Sustainable · Secondhand</title>
+  <style>
+    @font-face {
+      font-family: "Cirkular Inter";
+      src: url("./assets/inter.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: swap;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      background: #bbff29;
+      color: #060705;
+      font: 15px/1.4 "Cirkular Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 28px 36px;
+    }
+    .top, .bot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .meta {
+      font: 10.5px ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .pill {
+      background: #060705;
+      color: #bbff29;
+      padding: 10px 18px;
+      border-radius: 99px;
+      font: 700 12.5px "Cirkular Inter", sans-serif;
+      text-decoration: none;
+      transition: transform .15s ease;
+    }
+    .pill:hover { transform: translateY(1px); }
+    .mid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      align-items: center;
+      gap: 48px;
+    }
+    .lockup img.mark {
+      display: block;
+      width: 36px;
+      margin-bottom: 14px;
+    }
+    .lockup img.wm {
+      display: block;
+      width: 210px;
+      margin-bottom: 34px;
+    }
+    nav {
+      display: flex;
+      flex-direction: column;
+    }
+    nav a {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+      border-top: 1px solid rgba(6, 7, 5, .25);
+      color: #060705;
+      text-decoration: none;
+      font: 600 15px "Cirkular Inter", sans-serif;
+      letter-spacing: -.02em;
+      transition: padding-left .15s ease;
+    }
+    nav a:last-child { border-bottom: 1px solid rgba(6, 7, 5, .25); }
+    nav a:hover { padding-left: 6px; }
+    nav a span.n {
+      font: 10px ui-monospace, SFMono-Regular, Menlo, monospace;
+      opacity: .65;
+    }
+    .oval {
+      width: 100%;
+      max-width: 740px;
+      aspect-ratio: 16 / 9.5;
+      border-radius: 50%;
+      justify-self: end;
+      overflow: hidden;
+      background: #060705;
+    }
+    .oval video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    @media (max-width: 820px) {
+      body { padding: 20px; gap: 24px; }
+      .mid { grid-template-columns: 1fr; gap: 28px; }
+      .oval { justify-self: center; }
+    }
+  </style>
 </head>
 <body>
-<main>
-  
-  <section class="opening scene opening-v1" data-scene="home">
-    <div class="v1-top">
-      <span class="v1-meta">CIRKULAR · WORLD</span>
-      <a class="v1-pill" href="./cirkular-extension.zip" download>Download plugin ↓</a>
-    </div>
-    <div class="v1-mid">
-      <div class="v1-lockup">
-        <a class="opening-mark v1-mark" href="#home" aria-label="Cirkular home"><img src="media/mark.svg" alt=""></a>
-        <img class="opening-wordmark v1-wordmark" src="media/wordmark.svg?rev=syne" alt="Cirkular">
-        <nav class="opening-nav v1-nav" aria-label="Cirkular">
-          <a href="#manifesto"><span>manifesto</span><span class="v1-num">01</span></a>
-          <a href="#catalog"><span>catalog</span><span class="v1-num">02</span></a>
-          <a href="https://prnce.pages.dev/cirkular-product/?from=world" target="_top"><span>marketplace</span><span class="v1-num">03</span></a>
-          <a href="./cirkular-plugin/" target="_top"><span>plugin</span><span class="v1-num">04 →</span></a>
-        </nav>
-      </div>
-      <div class="aperture v1-aperture"><video autoplay muted playsinline loop preload="metadata" poster="media/homepage-cinematic-poster.jpg" src="media/homepage-cinematic-loop.mp4" aria-label="Dithered film of people, landscapes, and wildlife"></video></div>
-    </div>
-    <div class="v1-bot">
-      <span class="v1-meta">SMART · SUSTAINABLE · SECONDHAND</span>
-      <span class="v1-meta">KORE B–F · LIVE</span>
-    </div>
-  </section>
-  <section class="manifesto scene" data-scene="manifesto" hidden>
-    <div class="manifesto-nav" aria-hidden="true"></div>
-    <div class="manifesto-prologue">
-      <p>a cheaply made shirt reaches you after being shipped thousands of miles. <strong>Its fibers unravel, its dyes bleed into rivers, its plastic packaging discarded before it even reaches your hands.</strong> From <strong>exploited production</strong> to <strong>landfill waste</strong>, its <u>lifespan</u> is <span>short</span>, its <u>damage</u> <span>long-lasting</span>. <strong>This is the fate of</strong> <span>billions</span> <strong>of products that are designed and produced to be</strong> <span>replaced</span>.</p>
-      <p class="manifesto-pivot">But the problem runs deeper.</p>
-    </div>
-    <h1>manifesto</h1>
-    <div class="manifesto-text">
-<article><h2>awakening</h2><p>We stand at the precipice of <mark class="draft-stroke">ecological collapse</mark>. The world is not a home but a machine of destruction, fueled by relentless greed and the illusion of endless growth. The crisis we face is not just environmental; it is <strong class="draft-underline">a crisis of imagination, access, and education</strong>. We have been conditioned to believe <span class="draft-crossout">there is no alternative</span>. We have lost our urgency to create, to share knowledge, to push for change. Our identities have been reduced to data points, our bodies transformed into cogs in a vast, vicious machine.</p><p>But within this dystopia lies the seed of revolution: a collective consciousness, <strong class="draft-arrow">a shift in power</strong>, a new way forward. Cirkular is the resistance.</p></article>
-<article><h2>vision</h2><p>Imagine a world where waste is not just eliminated, but transformed. Where <strong class="draft-underline">discarded objects become the foundation of creation</strong>. Where art and collective action is a weapon against oppression and a tool for reimagining our relationship with the planet and each other.</p><p>A world where knowledge is <mark class="draft-stroke">open, accessible, and actionable</mark>. Where systemic barriers are dismantled through education, creation, and collaboration. This is not a distant utopia; it is a reality we must forge together through interactive exhibitions, material transformation, community programming, acts of service, and radical storytelling. </p><p>Cirkular reveals a new way of life. A future built on community access to sustainable practices, where <strong class="draft-arrow">secondhand is first choice</strong>, and waste is given a new purpose. We are funding innovation, empowering experts, and pushing beyond individual action to demand systemic change.</p><p>We create spaces—both physical and digital—where art and activism intersect. Where the personal becomes universal. Where creation itself is rebellion.</p><p>We are designers of a new reality. <strong class="draft-underline">Our creativity is a survival strategy</strong>; it is how we process trauma, resist oppression, and reimagine alternatives to the dystopian present.</p></article>
-    </div>
-  </section>
-  <section class="catalog-entry scene" aria-label="Catalog entrance" hidden>
-    <div class="catalog-entry-frame">
-      <div class="catalog-entry-lettering">
-        <nav class="catalog-entry-choices" aria-label="Choose a Catalog view">
-          <img src="media/entry-2871.svg" alt="">
-          <img class="entry-hover-world" src="media/entry-2935.svg" alt="">
-          <img class="entry-hover-history" src="media/entry-2940.svg" alt="">
-          <div class="catalog-entry-cue" aria-hidden="true"><span></span>choose a view</div>
-          <button type="button" data-enter-collection="world" aria-label="World"></button>
-          <button type="button" data-enter-collection="history" aria-label="History"></button>
-        </nav>
-      </div>
-    </div>
-  </section>
-  <section class="catalog scene" data-scene="catalog" hidden>
-    <header class="catalog-head">
-      <h1 class="catalog-heading">
-        <picture>
-          <source media="(max-width: 640px), (max-height: 500px) and (pointer: coarse)" srcset="media/mark.svg">
-          <img src="media/catalog-label.svg" alt="Catalog">
-        </picture>
-      </h1>
-    </header>
-    <div class="catalog-stage">
-    <nav class="catalog-views" aria-label="Catalog view"><button type="button" data-collection="world" aria-pressed="true">world</button><button type="button" data-collection="history" aria-pressed="false">history</button></nav>
-    <div class="catalog-strip" id="catalog-strip" tabindex="0" aria-label="Catalog artworks"></div>
-    <nav class="catalog-pagination cirkular-pagination" aria-label="Catalog carousel navigation"><button data-slide="0" aria-label="Start"></button><button data-slide="2" aria-label="Middle"></button><button data-slide="4" aria-label="End"></button></nav>
-    </div>
-    <dialog class="art-dialog" aria-label="Inspect artwork">
-      <div class="art-controls">
-        <button type="button" data-art="invert" aria-pressed="false">invert</button>
-        <button type="button" data-art="magnify" aria-pressed="false">magnify</button>
-        <button type="button" data-art="upload">upload</button>
-        <a data-art="download" download>download</a>
-      </div>
-      <img class="art-image" alt="">
-      <video class="art-video" muted loop playsinline aria-label="Catalog moving artwork" hidden></video>
-      <div class="art-caption">
-        <span>101101100110</span>
-      </div>
-      <button class="art-close" type="button" data-art="close" autofocus aria-label="Close artwork">×</button>
-    </dialog>
-  </section>
-  <section class="catalog-upload scene" data-scene="upload" hidden>
+  <header class="top">
+    <span class="meta">CIRKULAR · WORLD</span>
+    <a class="pill" href="./cirkular-extension.zip" download>Download plugin ↓</a>
+  </header>
 
-    <div class="upload-panel">
-      <h1>upload</h1>
-      <p class="upload-instruction" id="catalog-upload-instruction">Choose a video to dither and add to your Catalog.</p>
-      <label for="catalog-file" class="upload-picker">
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-          <path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/>
-        </svg>
-      </label>
-      <input id="catalog-file" type="file" accept="video/*" aria-label="Upload a video" aria-describedby="catalog-upload-instruction">
-      <canvas aria-label="Dithered video preview" hidden></canvas>
-      <p role="status"></p>
-      <button type="button" class="upload-save" hidden disabled>Add to Catalog</button>
+  <main class="mid">
+    <div class="lockup">
+      <img class="mark" src="./media/mark.svg" alt="">
+      <img class="wm" src="./media/wordmark.svg" alt="CIRKULAR">
+      <nav aria-label="CIRKULAR">
+        <a href="https://prnce.pages.dev/cirkular-world/#manifesto"><span>manifesto</span><span class="n">01</span></a>
+        <a href="https://prnce.pages.dev/cirkular-world/#catalog"><span>catalog</span><span class="n">02</span></a>
+        <a href="https://prnce.pages.dev/cirkular-product/?from=world"><span>marketplace</span><span class="n">03</span></a>
+        <a href="./cirkular-plugin/"><span>plugin</span><span class="n">04 →</span></a>
+      </nav>
     </div>
-    <small class="upload-note">Saved on this device.</small>
-  </section>
-</main>
-<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "09eef96fe7b44e15b57fe6b0170f31a6"}'></script><!-- Cloudflare Pages Analytics --></body>
+    <div class="oval">
+      <video autoplay muted playsinline loop preload="metadata" src="./media/homepage-cinematic-loop.mp4" aria-label="Dithered film of people, landscapes, and wildlife"></video>
+    </div>
+  </main>
+
+  <footer class="bot">
+    <span class="meta">SMART · SUSTAINABLE · SECONDHAND</span>
+    <span class="meta">KORE B–F · LIVE</span>
+  </footer>
+</body>
 </html>
