@@ -444,16 +444,28 @@ body[data-scene="upload"], html:has(body[data-scene="upload"]) { background: #00
 /* Variation 01 — Swiss Poster Grid for standalone cirkular.pages.dev */
 .opening.opening-v1 {
   display: grid !important;
-  grid-template-rows: auto 1fr auto;
-  min-height: 100dvh;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto 1fr auto !important;
+  align-items: stretch !important;
+  justify-items: stretch !important;
+  width: 100vw !important;
+  min-height: 100dvh !important;
   padding: 28px 36px !important;
-  box-sizing: border-box;
+  box-sizing: border-box !important;
 }
 .opening.opening-v1[hidden] {
   display: none !important;
 }
+.opening.opening-v1 > * {
+  position: static !important;
+  grid-column: 1 !important;
+  grid-row: auto !important;
+  inset: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+}
 .v1-top, .v1-bot {
-  display: flex;
+  display: flex !important;
   justify-content: space-between;
   align-items: center;
   width: 100%;
