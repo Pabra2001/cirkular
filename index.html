@@ -94,10 +94,9 @@
       overflow: hidden;
       background: #060705;
     }
-    .oval video {
+    .oval canvas {
       width: 100%;
       height: 100%;
-      object-fit: cover;
       display: block;
     }
     @media (max-width: 820px) {
@@ -125,7 +124,7 @@
       </nav>
     </div>
     <div class="oval">
-      <video autoplay muted playsinline loop preload="metadata" src="./media/homepage-cinematic-loop.mp4" aria-label="Dithered film of people, landscapes, and wildlife"></video>
+      <canvas id="halftone" aria-label="Animated dotted halftone circular field"></canvas>
     </div>
   </main>
 
@@ -133,5 +132,84 @@
     <span class="meta">SMART · SUSTAINABLE · SECONDHAND</span>
     <span class="meta">KORE B–F · LIVE</span>
   </footer>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("halftone");
+      const ctx = canvas.getContext("2d");
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+      let w = 0, h = 0, dpr = Math.min(devicePixelRatio || 1, 2);
+      let mx = 0.5, my = 0.45, tx = 0.5, ty = 0.45;
+
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        w = rect.width;
+        h = rect.height;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      window.addEventListener("resize", resize);
+      window.addEventListener("pointermove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        tx = Math.max(0.15, Math.min(0.85, (e.clientX - rect.left) / (rect.width || 1)));
+        ty = Math.max(0.15, Math.min(0.85, (e.clientY - rect.top) / (rect.height || 1)));
+      });
+
+      resize();
+
+      function draw(now) {
+        const t = reduce.matches ? 2.4 : now * 0.00075;
+        mx += (tx - mx) * 0.05;
+        my += (ty - my) * 0.05;
+
+        ctx.fillStyle = "#bbff29";
+        ctx.fillRect(0, 0, w, h);
+
+        const step = 10;
+        const maxR = step * 0.54;
+        const cx = w * mx;
+        const cy = h * my;
+        const ox = w * 0.5;
+        const oy = h * 0.5;
+
+        ctx.fillStyle = "#060705";
+        for (let y = step * 0.5; y < h; y += step) {
+          const rowShift = ((Math.round(y / step) % 2) * step) * 0.5;
+          for (let x = step * 0.5 - rowShift; x < w + step; x += step) {
+            // Distance from cursor-reactive iris + organic flowing circular rings
+            const dx = (x - cx) / (w * 0.52);
+            const dy = (y - cy) / (h * 0.52);
+            const dIris = Math.hypot(dx, dy);
+
+            const ex = (x - ox) / (w * 0.5);
+            const ey = (y - oy) / (h * 0.5);
+            const dEdge = Math.hypot(ex, ey);
+
+            const wave1 = Math.sin(dIris * 6.2 - t * 2.1);
+            const wave2 = Math.cos((x * 0.014) + Math.sin(y * 0.012 + t) * 1.6 - t * 1.1);
+            const wave3 = Math.sin((y * 0.018) - Math.cos(x * 0.011 - t * 0.9) * 1.4);
+
+            // Combine into rich halftone density: luminous lime core, dense dark rim
+            let density = 0.42 + 0.34 * dEdge + 0.16 * wave1 + 0.14 * wave2 + 0.1 * wave3;
+            density -= Math.exp(-dIris * dIris * 3.8) * 0.58;
+            density = Math.max(0.04, Math.min(1, density));
+
+            const r = density * maxR;
+            if (r > 0.45) {
+              ctx.beginPath();
+              ctx.arc(x, y, r, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+
+        if (!reduce.matches) requestAnimationFrame(draw);
+      }
+
+      requestAnimationFrame(draw);
+    })();
+  </script>
 </body>
 </html>
