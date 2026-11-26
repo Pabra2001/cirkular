@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="./video-surfaces.css">
 <script type="module" src="./video-loops.js"></script>
   <link rel="stylesheet" href="./cirkular-gestures.css?rev=1">
+  <link rel="stylesheet" href="./transitions.css">
   <script defer src="./cirkular-gestures.js?rev=1"></script>
 </head>
 <body>
@@ -100,7 +101,26 @@
   </section>
 </main>
 <!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "09eef96fe7b44e15b57fe6b0170f31a6"}'></script><!-- Cloudflare Pages Analytics --><script>
-window.addEventListener('hashchange', () => { if (!location.hash || location.hash === '#home') location.href = './'; });
-if (!location.hash || location.hash === '#home') location.href = './';
+(() => {
+  const isManifesto = location.hash === '#manifesto';
+  const enterCls = isManifesto ? 'ck-enter-up' : 'ck-enter-down';
+  const exitCls = isManifesto ? 'ck-exit-down' : 'ck-exit-up';
+  document.body.classList.add(enterCls);
+
+  window.addEventListener('hashchange', () => {
+    if (!location.hash || location.hash === '#home') location.href = './';
+  });
+  if (!location.hash || location.hash === '#home') location.href = './';
+
+  document.addEventListener('click', (e) => {
+    const back = e.target.closest('.cirkular-back');
+    if (!back || back.getAttribute('href') !== './') return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    document.body.classList.remove(enterCls);
+    document.body.classList.add(exitCls);
+    setTimeout(() => { location.href = './'; }, 260);
+  }, true);
+})();
 </script></body>
 </html>

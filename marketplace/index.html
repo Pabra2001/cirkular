@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <base href="https://prnce.pages.dev/cirkular-product/">
+  <link rel="stylesheet" href="https://cirkular.pages.dev/transitions.css">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Find secondhand pieces with Cirkular Marketplace.">
@@ -39,9 +40,18 @@
     <p class="screen-reader" id="market-status" role="status"></p>
   </main>
 <!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "09eef96fe7b44e15b57fe6b0170f31a6"}'></script><!-- Cloudflare Pages Analytics --><script>
-window.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
+  document.body.classList.add('ck-enter-right');
   const b = document.querySelector('.back-arrow, .back, [aria-label*="Back"]');
-  if (b) { b.href = 'https://cirkular.pages.dev/'; b.onclick = (e) => { e.preventDefault(); location.href = 'https://cirkular.pages.dev/'; }; }
+  if (b) {
+    b.href = 'https://cirkular.pages.dev/';
+    b.onclick = (e) => {
+      e.preventDefault();
+      document.body.classList.remove('ck-enter-right');
+      document.body.classList.add('ck-exit-right');
+      setTimeout(() => { location.href = 'https://cirkular.pages.dev/'; }, 260);
+    };
+  }
 });
 </script></body>
 </html>
