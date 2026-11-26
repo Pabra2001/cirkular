@@ -144,7 +144,7 @@ export function initRecommendations(root, {listings = products, comparePrice = t
         ${labels.map((label, i) => `<div><dt>${label}</dt><dd>${product.facts[i]}</dd></div>`).join('')}
       </dl>
       <a class="buy" href="${product.url}" target="_blank" rel="noopener">
-        <span>Buy now</span>
+        <span>View listing</span>
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <p class="listing-note">Item price before shipping and tax. Confirm measurements with the seller.</p>`;
