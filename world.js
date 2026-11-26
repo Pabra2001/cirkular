@@ -88,9 +88,9 @@ function showRoute() {
     selectCollection(explicitCollection ? requested : 'world', returningFromUpload ? uploadReturnIndex : 2);
   }
   document.body.dataset.scene = activeRoute;
-  backLink.href = activeRoute === 'home' ? '../cirkular-case-study/' : activeRoute === 'upload' ? uploadReturn : '#home';
-  backLink.target = activeRoute === 'home' ? '_top' : '_self';
-  backLink.setAttribute('aria-label', activeRoute === 'home' ? 'Back to case study' : activeRoute === 'upload' ? 'Back to Catalog' : 'Back to Cirkular');
+  backLink.href = activeRoute === 'upload' ? uploadReturn : './';
+  backLink.target = '_self';
+  backLink.setAttribute('aria-label', activeRoute === 'upload' ? 'Back to Catalog' : 'Back to Cirkular');
   if (dialog.open) dialog.close();
   if (activeRoute !== 'catalog' || entering) focusVideo.pause();
   for (const clip of strip.querySelectorAll('video')) {
