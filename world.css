@@ -584,7 +584,14 @@ body[data-scene="upload"], html:has(body[data-scene="upload"]) { background: #00
   top: 24px !important;
 }
 .catalog {
+  width: 100vw !important;
+  max-width: 100vw !important;
   overflow-x: hidden !important;
+}
+.catalog-head, .catalog footer {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
 }
 .catalog-strip {
   width: 112vw !important;

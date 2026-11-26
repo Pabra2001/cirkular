@@ -26,7 +26,7 @@ const collections = {
     ...[12110, 488927, 485537, 436532, 438817].map(id => `history-${id}-lime.webp`),
   ],
 };
-for (const file of collections.history) new Image().src = `media/${file}`;
+for (const file of collections.history) new Image().src = `https://prnce.pages.dev/cirkular-world/media/${file}`;
 let requestedContribution = false;
 let collection = 'world';
 const localArt = new Set();
@@ -109,7 +109,7 @@ function renderCollection() {
   strip.replaceChildren(...positions.map(position => {
     const itemIndex = (position + items.length) % items.length;
     const isEdge = position < 0 || position >= items.length;
-    const src = localArt.has(items[itemIndex]) ? items[itemIndex] : `media/${items[itemIndex]}`;
+    const src = localArt.has(items[itemIndex]) ? items[itemIndex] : `https://prnce.pages.dev/cirkular-world/media/${items[itemIndex]}`;
     const moving = localArt.has(src) || src.endsWith('.mp4');
     const button = document.createElement('button');
     button.type = 'button';
@@ -137,7 +137,7 @@ function inspect(itemIndex) {
   const file = collection === 'world'
     ? items[itemIndex].replace('.mp4', '-full.mp4')
     : items[itemIndex];
-  const src = localArt.has(file) ? file : `media/${file}`;
+  const src = localArt.has(file) ? file : `https://prnce.pages.dev/cirkular-world/media/${file}`;
   const moving = localArt.has(src) || src.endsWith('.mp4');
   artVideo.pause();
   artwork.hidden = moving;
