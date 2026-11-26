@@ -160,50 +160,47 @@
       resize();
 
       function draw(now) {
-        const t = reduce.matches ? 2.4 : now * 0.00075;
-        mx += (tx - mx) * 0.05;
-        my += (ty - my) * 0.05;
+        const t = reduce.matches ? 2.4 : now * 0.00035;
+        mx += (tx - mx) * 0.04;
+        my += (ty - my) * 0.04;
 
-        ctx.fillStyle = "#bbff29";
+        // Deep matte black ground inside the oval — calm, high-contrast relief on the lime field
+        ctx.fillStyle = "#060705";
         ctx.fillRect(0, 0, w, h);
 
-        const step = 10;
-        const maxR = step * 0.54;
-        const cx = w * mx;
-        const cy = h * my;
-        const ox = w * 0.5;
-        const oy = h * 0.5;
+        const cx = w * (0.35 + mx * 0.3);
+        const cy = h * (0.35 + my * 0.3);
 
-        ctx.fillStyle = "#060705";
-        for (let y = step * 0.5; y < h; y += step) {
-          const rowShift = ((Math.round(y / step) % 2) * step) * 0.5;
-          for (let x = step * 0.5 - rowShift; x < w + step; x += step) {
-            // Distance from cursor-reactive iris + organic flowing circular rings
-            const dx = (x - cx) / (w * 0.52);
-            const dy = (y - cy) / (h * 0.52);
-            const dIris = Math.hypot(dx, dy);
-
-            const ex = (x - ox) / (w * 0.5);
-            const ey = (y - oy) / (h * 0.5);
-            const dEdge = Math.hypot(ex, ey);
-
-            const wave1 = Math.sin(dIris * 6.2 - t * 2.1);
-            const wave2 = Math.cos((x * 0.014) + Math.sin(y * 0.012 + t) * 1.6 - t * 1.1);
-            const wave3 = Math.sin((y * 0.018) - Math.cos(x * 0.011 - t * 0.9) * 1.4);
-
-            // Combine into rich halftone density: luminous lime core, dense dark rim
-            let density = 0.42 + 0.34 * dEdge + 0.16 * wave1 + 0.14 * wave2 + 0.1 * wave3;
-            density -= Math.exp(-dIris * dIris * 3.8) * 0.58;
-            density = Math.max(0.04, Math.min(1, density));
-
-            const r = density * maxR;
-            if (r > 0.45) {
-              ctx.beginPath();
-              ctx.arc(x, y, r, 0, Math.PI * 2);
-              ctx.fill();
-            }
+        // Sculptural organic concentric topographic rings in surgical lime
+        const rings = 15;
+        for (let i = 1; i <= rings; i++) {
+          const p = i / rings;
+          const baseRx = w * (0.08 + p * 0.44);
+          const baseRy = h * (0.08 + p * 0.44);
+          ctx.beginPath();
+          const segs = 120;
+          for (let s = 0; s <= segs; s++) {
+            const a = (s / segs) * Math.PI * 2;
+            const wobble =
+              Math.sin(a * 3 + t * 1.4 + i * 0.45) * (10 + p * 16) +
+              Math.cos(a * 2 - t * 0.9 + i * 0.3) * (6 + p * 10);
+            const x = cx + Math.cos(a) * (baseRx + wobble);
+            const y = cy + Math.sin(a) * (baseRy + wobble * 0.72);
+            if (s === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
           }
+          ctx.closePath();
+          const alpha = 0.14 + (1 - p) * 0.62;
+          ctx.strokeStyle = `rgba(187, 255, 41, ${alpha.toFixed(3)})`;
+          ctx.lineWidth = i === 1 || i === 5 || i === 10 ? 1.8 : 1;
+          ctx.stroke();
         }
+
+        // Subtle luminous core dot
+        ctx.beginPath();
+        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = "#bbff29";
+        ctx.fill();
 
         if (!reduce.matches) requestAnimationFrame(draw);
       }
