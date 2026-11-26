@@ -629,3 +629,8 @@ body:not([data-scene="catalog"]) .cirkular-back.back-arrow:hover {
   background: #060705 !important;
   color: #bbff29 !important;
 }
+
+/* Directional back arrows matching each page's exit direction */
+body[data-scene="catalog"] .cirkular-back.back-arrow svg {
+  transform: rotate(90deg);
+}
