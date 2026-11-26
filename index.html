@@ -38,15 +38,20 @@
       text-transform: uppercase;
     }
     .pill {
-      background: #060705;
-      color: #bbff29;
-      padding: 10px 18px;
+      background: transparent;
+      color: #060705;
+      border: 1.5px solid #060705;
+      padding: 9px 18px;
       border-radius: 99px;
       font: 700 12.5px "Cirkular Inter", sans-serif;
       text-decoration: none;
-      transition: transform .15s ease;
+      transition: background .18s ease, color .18s ease, transform .15s ease;
     }
-    .pill:hover { transform: translateY(1px); }
+    .pill:hover {
+      background: #060705;
+      color: #bbff29;
+      transform: translateY(1px);
+    }
     .mid {
       display: grid;
       grid-template-columns: 300px 1fr;
@@ -140,6 +145,13 @@
       const reduce = matchMedia("(prefers-reduced-motion: reduce)");
       let w = 0, h = 0, dpr = Math.min(devicePixelRatio || 1, 2);
       let mx = 0.5, my = 0.45, tx = 0.5, ty = 0.45;
+      const ripples = [];
+      let lastRipple = 0;
+
+      function spawnRipple(nx, ny, strength = 1) {
+        ripples.push({ x: nx, y: ny, r: 6, alpha: 0.75 * strength, speed: 1.8 + Math.random() * 1.1 });
+        if (ripples.length > 14) ripples.shift();
+      }
 
       function resize() {
         const rect = canvas.getBoundingClientRect();
@@ -153,25 +165,39 @@
       window.addEventListener("resize", resize);
       window.addEventListener("pointermove", (e) => {
         const rect = canvas.getBoundingClientRect();
-        tx = Math.max(0.15, Math.min(0.85, (e.clientX - rect.left) / (rect.width || 1)));
-        ty = Math.max(0.15, Math.min(0.85, (e.clientY - rect.top) / (rect.height || 1)));
+        const nx = (e.clientX - rect.left) / (rect.width || 1);
+        const ny = (e.clientY - rect.top) / (rect.height || 1);
+        tx = Math.max(0.15, Math.min(0.85, nx));
+        ty = Math.max(0.15, Math.min(0.85, ny));
+        const now = performance.now();
+        if (nx >= 0 && nx <= 1 && ny >= 0 && ny <= 1 && now - lastRipple > 140) {
+          lastRipple = now;
+          spawnRipple(nx, ny, 0.85);
+        }
+      });
+      canvas.addEventListener("pointerleave", () => {
+        spawnRipple(mx, my, 1.2);
+        tx = 0.5;
+        ty = 0.45;
+      });
+      canvas.addEventListener("pointerdown", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        spawnRipple((e.clientX - rect.left) / rect.width, (e.clientY - rect.top) / rect.height, 1.35);
       });
 
       resize();
 
       function draw(now) {
-        const t = reduce.matches ? 2.4 : now * 0.00035;
-        mx += (tx - mx) * 0.04;
-        my += (ty - my) * 0.04;
+        const t = reduce.matches ? 2.4 : now * 0.00038;
+        mx += (tx - mx) * 0.05;
+        my += (ty - my) * 0.05;
 
-        // Deep matte black ground inside the oval — calm, high-contrast relief on the lime field
         ctx.fillStyle = "#060705";
         ctx.fillRect(0, 0, w, h);
 
-        const cx = w * (0.35 + mx * 0.3);
-        const cy = h * (0.35 + my * 0.3);
+        const cx = w * (0.32 + mx * 0.36);
+        const cy = h * (0.32 + my * 0.36);
 
-        // Sculptural organic concentric topographic rings in surgical lime
         const rings = 15;
         for (let i = 1; i <= rings; i++) {
           const p = i / rings;
@@ -190,11 +216,32 @@
             else ctx.lineTo(x, y);
           }
           ctx.closePath();
-          const alpha = 0.06 + (1 - p) * 0.24;
+          const alpha = 0.14 + (1 - p) * 0.62;
           ctx.strokeStyle = `rgba(187, 255, 41, ${alpha.toFixed(3)})`;
-          ctx.lineWidth = i === 1 || i === 6 ? 1.15 : 0.75;
+          ctx.lineWidth = i === 1 || i === 5 || i === 10 ? 1.8 : 1;
           ctx.stroke();
         }
+
+        // Expanding interactive ripples on move, leave, and click
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const rp = ripples[i];
+          rp.r += rp.speed;
+          rp.alpha *= 0.972;
+          if (rp.alpha < 0.02) {
+            ripples.splice(i, 1);
+            continue;
+          }
+          ctx.beginPath();
+          ctx.ellipse(rp.x * w, rp.y * h, rp.r * 1.35, rp.r, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(187, 255, 41, ${rp.alpha.toFixed(3)})`;
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+        }
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = "#bbff29";
+        ctx.fill();
 
         if (!reduce.matches) requestAnimationFrame(draw);
       }
