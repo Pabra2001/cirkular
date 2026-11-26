@@ -29,6 +29,18 @@
 .ck-enter-down { animation: ck-in-down 340ms cubic-bezier(.16, 1, .3, 1) both; }
 .ck-exit-up { animation: ck-out-up 280ms cubic-bezier(.5, 0, .84, .16) both !important; }
 
+@keyframes ck-in-left {
+  from { transform: translateX(-100vw); }
+  to { transform: translateX(0); }
+}
+@keyframes ck-out-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100vw); }
+}
+
+.ck-enter-left { animation: ck-in-left 340ms cubic-bezier(.16, 1, .3, 1) both; }
+.ck-exit-left { animation: ck-out-left 280ms cubic-bezier(.5, 0, .84, .16) both !important; }
+
 .ck-enter-right { animation: ck-in-right 340ms cubic-bezier(.16, 1, .3, 1) both; }
 .ck-exit-right { animation: ck-out-right 280ms cubic-bezier(.5, 0, .84, .16) both !important; }
 

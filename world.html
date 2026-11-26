@@ -103,8 +103,8 @@
 <!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "09eef96fe7b44e15b57fe6b0170f31a6"}'></script><!-- Cloudflare Pages Analytics --><script>
 (() => {
   const isManifesto = location.hash === '#manifesto';
-  const enterCls = isManifesto ? 'ck-enter-up' : 'ck-enter-down';
-  const exitCls = isManifesto ? 'ck-exit-down' : 'ck-exit-up';
+  const enterCls = isManifesto ? 'ck-enter-left' : 'ck-enter-down';
+  const exitCls = isManifesto ? 'ck-exit-left' : 'ck-exit-up';
   document.body.classList.add(enterCls);
 
   window.addEventListener('hashchange', () => {
