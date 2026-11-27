@@ -74,7 +74,7 @@
     <dialog class="art-dialog" aria-label="Inspect artwork">
       <div class="art-controls">
         <button type="button" data-art="invert" aria-pressed="false">invert</button>
-        <button type="button" data-art="magnify" aria-pressed="false">magnify</button>
+        <button type="button" id="art-mute-btn" data-art="mute" aria-pressed="true">unmute</button>
         <button type="button" data-art="upload">upload</button>
         <a data-art="download" download>download</a>
       </div>
@@ -82,7 +82,6 @@
       <video class="art-video" muted loop playsinline aria-label="Catalog moving artwork" hidden></video>
       <div class="art-caption">
         <span>101101100110</span>
-        <button type="button" id="art-mute-btn" class="art-mute-btn" aria-pressed="true">unmute</button>
       </div>
       <button class="art-close" type="button" data-art="close" autofocus aria-label="Close artwork">×</button>
     </dialog>

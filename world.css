@@ -762,28 +762,25 @@ body:has(.catalog-entry:not([hidden])) .cirkular-back.back-arrow {
   box-sizing: border-box !important;
 }
 .art-dialog .art-controls [data-art="invert"] { grid-column: 1; justify-self: start; }
-.art-dialog .art-controls [data-art="magnify"] { grid-column: 2; justify-self: center; }
+.art-dialog .art-controls [data-art="mute"] { grid-column: 2; justify-self: center; }
 .art-dialog .art-controls [data-art="upload"] { grid-column: 4; justify-self: center; }
 .art-dialog .art-controls [data-art="download"] { grid-column: 5; justify-self: end; }
-.art-caption {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 18px !important;
+.art-dialog .art-controls button,
+.art-dialog .art-controls a {
+  font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+  color: #bbff29 !important;
+  border: 1px solid rgba(187, 255, 41, .45) !important;
+  border-radius: 99px !important;
+  padding: 5px 14px !important;
+  text-decoration: none !important;
+  transition: background .16s ease, color .16s ease;
 }
-.art-mute-btn {
-  font: 11px ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: #bbff29;
-  border: 1px solid rgba(187, 255, 41, .45);
-  border-radius: 99px;
-  padding: 3px 10px;
-  cursor: pointer;
-}
-.art-mute-btn:hover {
-  background: #bbff29;
-  color: #060705;
+.art-dialog .art-controls button:hover,
+.art-dialog .art-controls a:hover {
+  background: #bbff29 !important;
+  color: #060705 !important;
 }
 
 /* Square corners when inspecting artwork fullscreen in Catalog */
