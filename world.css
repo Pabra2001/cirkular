@@ -746,3 +746,8 @@ body[data-scene="catalog"] .cirkular-back.back-arrow svg {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.18; }
 }
+
+/* Hide back arrow on the Catalog Choose-a-View entrance screen */
+body:has(.catalog-entry:not([hidden])) .cirkular-back.back-arrow {
+  display: none !important;
+}
