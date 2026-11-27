@@ -1,5 +1,5 @@
 (() => {
-  if (window.__ckRadioBarMounted || location.pathname.startsWith("/radio")) return;
+  if (window.__ckRadioBarMounted || location.pathname.startsWith("/radio") || location.pathname.startsWith("/tv")) return;
   if (localStorage.getItem("ck_radio_playing") !== "1") return;
   window.__ckRadioBarMounted = true;
 
