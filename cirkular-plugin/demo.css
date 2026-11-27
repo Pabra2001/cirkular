@@ -58,3 +58,7 @@
   64% { opacity: 1; text-shadow: 1px 0 var(--lime); }
   84%, 100% { opacity: 1; text-shadow: none; clip-path: inset(0); }
 }
+
+@media (max-width: 440px) {
+  .rail .detail { height: 366px; }
+}

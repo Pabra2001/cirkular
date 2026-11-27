@@ -133,7 +133,7 @@ export function initRecommendations(root, {listings = products, comparePrice = t
       <div class="product">
         <img src="${product.image}" alt="">
         <div>
-          <span class="meta">Secondhand listing</span>
+          <span class="meta">Secondhand<span class="listing-label-suffix"> listing</span></span>
           <h2>${product.name}</h2>
           <strong>${product.price}</strong>
           ${comparePrice ? `<div class="deal"><s>$${retailPrice} at SSENSE</s><span class="saving">$${savings} less</span></div>` : ''}
