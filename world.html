@@ -109,6 +109,16 @@
   const isManifesto = location.hash === '#manifesto';
   const enterCls = isManifesto ? 'ck-enter-left' : 'ck-enter-down';
   const exitCls = isManifesto ? 'ck-exit-left' : 'ck-exit-up';
+  // Synchronously reveal the target scene BEFORE first paint so content never pops in mid-slide
+  if (isManifesto) {
+    const m = document.querySelector('[data-scene="manifesto"]');
+    if (m) m.hidden = false;
+    document.body.dataset.scene = 'manifesto';
+  } else if (location.hash === '#catalog-intro') {
+    const e = document.querySelector('.catalog-entry');
+    if (e) e.hidden = false;
+    document.body.dataset.scene = 'catalog';
+  }
   document.body.classList.add(enterCls);
 
   // Play Braille (CIRKULAR) -> Blurred Glowing Mark -> world / choose a view / history sequence on #catalog-intro
