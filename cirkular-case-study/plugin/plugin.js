@@ -8,7 +8,7 @@ const products = [
       "Light blue",
       "Loose, wide leg"
     ],
-    "why": "Faded blue with paint splatter and a loose leg. The seller notes a knee rip and frayed hems.",
+    "why": "Loose, paint-splattered denim. Knee rip and frayed hems.",
     "url": "https://poshmark.com/listing/Levis-SilverTab-Loose-Jeans-Mens-36x34-Light-Wash-Distressed-Paint-Splatter-90s-6ae259fc06c773904478166d",
     "image": "https://di2ponv0v5otw.cloudfront.net/posts/2026/10/28/6ae259fc06c773904478166d/m_6ae259fc06c773904478166e.jpg"
   },
@@ -21,7 +21,7 @@ const products = [
       "Light to medium blue",
       "Loose straight"
     ],
-    "why": "The faded blue wash, whiskering, and paint marks echo the Acne pair. The 569 has a straighter leg.",
+    "why": "Faded blue with paint marks and a straighter leg.",
     "url": "https://poshmark.com/listing/Levis-569-Loose-Straight-Jeans-Mens-36x32-Light-Wash-Paint-Splatter-Denim-6adf9f0a684147eefcc7e88b",
     "image": "https://di2ponv0v5otw.cloudfront.net/posts/2026/10/26/6adf9f0a684147eefcc7e88b/m_6adf9f0bab650b2c1417ffc4.jpg"
   },
@@ -34,7 +34,7 @@ const products = [
       "Faded light blue",
       "Baggy barrel leg"
     ],
-    "why": "Brown and white splatter gives this pair a dirty-wash look. A drawstring waist and barrel leg change the fit.",
+    "why": "Paint-splattered barrel jeans with a drawstring.",
     "url": "https://poshmark.com/listing/Barrel-Leg-Jeans-Paint-Splatter-Baggy-Denim-Y2K-Skater-Streetwear-Size-M-6ad937c7de48834720d99dcf",
     "image": "https://di2ponv0v5otw.cloudfront.net/posts/2026/10/21/6ad937c7de48834720d99dcf/m_6ad938118974d0d3c65496e3.jpg"
   }
@@ -147,7 +147,7 @@ export function initRecommendations(root, {listings = products, comparePrice = t
         <span>View listing</span>
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
-      <p class="listing-note">Item price before shipping and tax. Confirm measurements with the seller.</p>`;
+      <p class="listing-note">Shipping and tax extra.</p>`;
     const close = detail.querySelector('.close');
     close.addEventListener('click', () => select(-1, true));
     if (focusDetail) close.focus({preventScroll: true});

@@ -4,7 +4,7 @@ export const demoListings = [
   {
     name: 'Levi’s SilverTab Loose',
     price: '$24.00',
-    why: 'Faded denim with paint splatter and a loose leg. The seller notes a knee rip and frayed hems.',
+    why: 'Loose, paint-splattered denim. Knee rip and frayed hems.',
     facts: ['36 × 34', 'Pre-owned', 'Light blue', 'Loose, wide leg'],
     image: photo('jeans'),
     url: 'https://poshmark.com/listing/6ae259fc06c773904478166d',
@@ -12,7 +12,7 @@ export const demoListings = [
   {
     name: 'Salomon XT-6 Fiery Red',
     price: '$125.00',
-    why: 'Technical trail sneakers with silver overlays and a vivid red sole.',
+    why: 'Trail sneakers with silver overlays and red soles.',
     labels: ['Listed size', 'Model', 'Colorway', 'Style'],
     facts: ['5', 'XT-6', 'Black, red, silver', 'Trail sneaker'],
     image: photo('salomon-xt6'),
@@ -21,7 +21,7 @@ export const demoListings = [
   {
     name: 'GANNI Leopard Midi',
     price: '$139.00',
-    why: 'A ruched silk-blend midi with a square neckline and an allover leopard print.',
+    why: 'Ruched silk-blend midi in leopard print.',
     labels: ['Listed size', 'Fabric', 'Print', 'Length'],
     facts: ['EU 34 / US 2', 'Silk blend', 'Leopard', 'Midi'],
     image: photo('ganni-midi'),

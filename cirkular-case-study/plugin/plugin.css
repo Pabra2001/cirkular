@@ -70,13 +70,13 @@ button:focus-visible, a:focus-visible { outline: 3px solid #6d9600; outline-offs
 .product img { width:77px; height:88px; object-fit:cover; border-radius:9px; background:#eee }
 .product h2 { font-size:19px; letter-spacing:-.055em; line-height:1.02; margin:4px 0 }
 .product strong { font-size:23px; letter-spacing:-.06em; color:var(--lime) }
-.why { font-size:12px; line-height:1.4; margin-bottom:10px }
+.why { font-size:12px; line-height:1.4; margin-bottom:10px; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden }
 .metrics { display:grid; grid-template-columns:1fr 1fr; margin:0 0 11px }
 .metrics div { border-top:1px solid #747b6d66; padding:6px 3px 6px 0 }
 .metrics dt { font-size:10px; opacity:.76 }
 .metrics dd { font-size:12px; margin:2px 0 0; font-weight:600 }
 .buy { display:flex; justify-content:space-between; background:var(--lime); color:var(--black); text-decoration:none; font-weight:750; padding:11px 12px; border-radius:24px }
-.listing-note { font-size:9px; opacity:.75; margin-top:7px }
+.listing-note { font-size:9px; opacity:.75; margin-top:7px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
 .card-brand { display:block; width:67px; height:12px; background:currentColor; mask:url(wordmark.png) center / contain no-repeat }
 .card-source { display:flex; align-items:center; gap:7px; white-space:nowrap }
 .deal { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 8px; margin-top:3px; font-size:10px }
