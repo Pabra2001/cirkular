@@ -822,3 +822,4 @@ dialog.art-dialog canvas,
   box-shadow: none !important;
   outline: none !important;
 }
+#catalog-upload-instruction { display: none !important; }
