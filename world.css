@@ -752,13 +752,17 @@ body:has(.catalog-entry:not([hidden])) .cirkular-back.back-arrow {
   display: none !important;
 }
 
-/* Symmetric left/right control alignment around centered Catalog artwork + unmute/mute button */
+/* Symmetric left/right control alignment around centered Catalog artwork */
 .art-dialog .art-controls {
   display: grid !important;
-  grid-template-columns: 1fr 1fr minmax(min(36vw, 460px), auto) 1fr 1fr !important;
+  grid-template-columns: 1fr 1fr minmax(min(36vw, 440px), auto) 1fr 1fr !important;
   align-items: center !important;
+  left: 0 !important;
+  right: 0 !important;
+  margin: 0 !important;
   width: 100% !important;
-  padding-inline: 3vw !important;
+  max-width: 100vw !important;
+  padding-inline: 5vw !important;
   box-sizing: border-box !important;
 }
 .art-dialog .art-controls [data-art="invert"] { grid-column: 1; justify-self: start; }
@@ -780,7 +784,7 @@ body:has(.catalog-entry:not([hidden])) .cirkular-back.back-arrow {
   border-radius: 0 !important;
 }
 
-/* Cinematic black edge vignette on left & right of Catalog carousel */
+/* Seamless deep black edge vignette reaching smoothly into cards 2 & 4 */
 .catalog-stage {
   position: relative;
 }
@@ -790,15 +794,15 @@ body:has(.catalog-entry:not([hidden])) .cirkular-back.back-arrow {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 24vw;
+  width: 38vw;
   pointer-events: none;
   z-index: 6;
 }
 .catalog-stage::before {
   left: 0;
-  background: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, .82) 38%, transparent 100%);
+  background: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, .92) 22%, rgba(0, 0, 0, .62) 48%, rgba(0, 0, 0, .24) 74%, transparent 100%);
 }
 .catalog-stage::after {
   right: 0;
-  background: linear-gradient(270deg, #000 0%, rgba(0, 0, 0, .82) 38%, transparent 100%);
+  background: linear-gradient(270deg, #000 0%, rgba(0, 0, 0, .92) 22%, rgba(0, 0, 0, .62) 48%, rgba(0, 0, 0, .24) 74%, transparent 100%);
 }
