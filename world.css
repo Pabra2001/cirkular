@@ -779,9 +779,13 @@ body:has(.catalog-entry:not([hidden])) .cirkular-back.back-arrow {
 }
 
 /* Square corners when inspecting artwork fullscreen in Catalog */
+dialog.art-dialog img,
+dialog.art-dialog video,
+dialog.art-dialog canvas,
 .art-dialog .art-image,
 .art-dialog .art-video {
   border-radius: 0 !important;
+  clip-path: none !important;
 }
 
 /* Seamless deep black edge vignette reaching smoothly into cards 2 & 4 */
