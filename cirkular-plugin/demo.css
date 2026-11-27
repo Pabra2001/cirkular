@@ -10,7 +10,7 @@
 
 .rail .detail:not([hidden]) { display:flex; flex-direction:column; }
 .rail .detail > * { flex-shrink:0; }
-.rail .detail .buy { margin-top:auto; }
+.rail .detail .listing-note { margin-top:auto; }
 
 @media (prefers-reduced-motion: no-preference) {
   .detail .product { position: relative; }

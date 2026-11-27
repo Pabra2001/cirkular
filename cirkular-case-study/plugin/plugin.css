@@ -78,7 +78,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #6d9600; outline-offs
 .metrics dt { font-size:10px; opacity:.76 }
 .metrics dd { font-size:12px; margin:2px 0 0; font-weight:600 }
 .buy { display:flex; justify-content:space-between; background:var(--lime); color:var(--black); text-decoration:none; font-weight:750; padding:11px 12px; border-radius:24px }
-.listing-note { font-size:9px; opacity:.75; margin-top:7px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.listing-note { font-size:9px; opacity:.75; margin:0 0 11px; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
 .card-brand { display:block; width:67px; height:12px; background:currentColor; mask:url(wordmark.png) center / contain no-repeat }
 .card-source { display:flex; align-items:center; gap:7px; white-space:nowrap }
 .deal { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 8px; margin-top:3px; font-size:10px }
