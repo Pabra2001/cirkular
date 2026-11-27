@@ -82,6 +82,7 @@
       <video class="art-video" muted loop playsinline aria-label="Catalog moving artwork" hidden></video>
       <div class="art-caption">
         <span>101101100110</span>
+        <button type="button" id="art-mute-btn" class="art-mute-btn" aria-pressed="true">unmute</button>
       </div>
       <button class="art-close" type="button" data-art="close" autofocus aria-label="Close artwork">×</button>
     </dialog>
@@ -154,6 +155,17 @@
   window.addEventListener('pageshow', () => {
     document.body.classList.remove('ck-exit-up', 'ck-exit-down', 'ck-exit-left', 'ck-exit-right');
   });
+
+  // Unmute / Mute toggle for Catalog artwork video
+  const muteBtn = document.getElementById('art-mute-btn');
+  const artVideo = document.querySelector('.art-video');
+  if (muteBtn && artVideo) {
+    muteBtn.addEventListener('click', () => {
+      artVideo.muted = !artVideo.muted;
+      muteBtn.textContent = artVideo.muted ? 'unmute' : 'mute';
+      muteBtn.setAttribute('aria-pressed', String(artVideo.muted));
+    });
+  }
 
   window.addEventListener('hashchange', () => {
     if (!location.hash || location.hash === '#home') location.href = './';
