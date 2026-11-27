@@ -35,13 +35,12 @@ function render(nextIndex) {
   dots.forEach((d, i) => d.classList.toggle("active", i === index));
   counter.textContent = `0${index + 1} / 0${slides.length}`;
   prevBtn.hidden = index === 0;
-  nextBtn.textContent = index === slides.length - 1 ? "Start shopping →" : "Next →";
+  nextBtn.textContent = index === slides.length - 1 ? "Activate CIRKULAR" : "Next →";
 }
 
 prevBtn.addEventListener("click", () => render(index - 1));
 nextBtn.addEventListener("click", () => {
   if (index === slides.length - 1) {
-    window.open("https://www.ssense.com", "_blank", "noopener");
     window.close();
   } else {
     render(index + 1);
