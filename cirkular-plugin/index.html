@@ -58,6 +58,7 @@
     <form method="dialog"><button class="dlg-cta" autofocus>Done</button></form>
   </dialog>
   <script>
+    window.addEventListener('pageshow', () => document.body.classList.remove('ck-exit-down'));
     document.querySelector('.back-arrow')?.addEventListener('click', (e) => {
       e.preventDefault();
       document.body.classList.remove('ck-enter-up');
