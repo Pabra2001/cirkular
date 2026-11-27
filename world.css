@@ -785,3 +785,9 @@ body:has(.catalog-entry:not([hidden])) .cirkular-back.back-arrow {
   background: #bbff29;
   color: #060705;
 }
+
+/* Square corners when inspecting artwork fullscreen in Catalog */
+.art-dialog .art-image,
+.art-dialog .art-video {
+  border-radius: 0 !important;
+}
