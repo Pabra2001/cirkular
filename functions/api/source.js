@@ -36,10 +36,12 @@ async function request(url, options = {}) {
   if (!response.ok) throw new Error(`Marketplace HTTP ${response.status}`);
   return response;
 }
+const poshmarkSorts = [null, 'added_desc', 'price_asc', 'price_desc'];
 async function poshmark(query, retrievedAt, page = 1) {
   const url = new URL('https://poshmark.com/search');
   const sp = new URLSearchParams({query, type:'listings'});
-  if (page > 1) sp.set('page', String(page));
+  const sort = poshmarkSorts[(page - 1) % poshmarkSorts.length];
+  if (sort) sp.set('sort_by', sort);
   url.search = sp;
   const html = await (await request(url, {headers})).text();
   const raw = html.match(/window\.__INITIAL_STATE__\s*=\s*([\s\S]*?)(?:;\(function\(|<\/script>)/)?.[1];
@@ -319,7 +321,7 @@ export async function onRequestGet({request, env = {}}) {
   }));
   const rawListings = results.flatMap(result=>result.status==='fulfilled'?result.value:[]);
   const filtered = excludeSet.size ? rawListings.filter(item => !excludeSet.has(item.id)) : rawListings;
-  const listings = filtered.length >= 3 ? filtered : rawListings;
+  const listings = filtered.length > 0 ? filtered : rawListings;
   const status = sources.some(source => source.status === 'live') ? 200 : 503;
   return Response.json({query,retrievedAt,sources,listings},{status,headers:{'Cache-Control':'no-store'}});
 }

@@ -52,6 +52,16 @@
       let reloadAttempt = 0;
       let lastQuery = '';
       const seenIds = new Set();
+
+      function recordDisplayedIds() {
+        document.querySelectorAll('#marketplace-results .result-card a.result-open').forEach((link) => {
+          try {
+            const id = new URL(link.href, location.origin).searchParams.get('item');
+            if (id) seenIds.add(id);
+          } catch {}
+        });
+      }
+
       const origFetch = window.fetch.bind(window);
       window.fetch = async function(input, init) {
         const urlStr = typeof input === 'string' ? input : input?.url || '';
@@ -64,17 +74,31 @@
             seenIds.clear();
           }
           if (reloadAttempt > 0) {
+            recordDisplayedIds();
             u.searchParams.set('attempt', String(reloadAttempt));
-            if (seenIds.size) u.searchParams.set('exclude', Array.from(seenIds).slice(-36).join(','));
+            if (seenIds.size) u.searchParams.set('exclude', Array.from(seenIds).slice(-120).join(','));
           }
           const res = await origFetch(u.pathname + u.search, init);
-          try {
-            const clone = res.clone();
-            const data = await clone.json();
-            if (Array.isArray(data?.listings)) {
-              data.listings.slice(0, 6).forEach((item) => { if (item?.id) seenIds.add(item.id); });
-            }
-          } catch {}
+          if (reloadAttempt > 0 && seenIds.size && res.ok) {
+            try {
+              const data = await res.clone().json();
+              if (Array.isArray(data?.listings)) {
+                const unseen = data.listings.filter((item) => item?.id && !seenIds.has(item.id));
+                if (unseen.length > 0 && unseen.length < data.listings.length) {
+                  data.listings = unseen;
+                  return new Response(JSON.stringify(data), {
+                    status: res.status,
+                    statusText: res.statusText,
+                    headers: res.headers,
+                  });
+                }
+                if (unseen.length === 0) {
+                  // Cycled through all available listings; reset so next reload starts fresh
+                  seenIds.clear();
+                }
+              }
+            } catch {}
+          }
           return res;
         }
         return origFetch(input, init);
@@ -83,6 +107,7 @@
       const RELOAD_SVG = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 8A5.2 5.2 0 1 1 11.7 4.3L13.5 6"/><path d="M13.5 2.5V6H10"/></svg>';
 
       function injectReloadButtons() {
+        recordDisplayedIds();
         document.querySelectorAll('#marketplace-results .result-card').forEach((card) => {
           if (card.querySelector('.ck-market-reload')) return;
           const btn = document.createElement('button');
@@ -94,6 +119,7 @@
           btn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            recordDisplayedIds();
             btn.classList.add('is-loading');
             reloadAttempt += 1;
             const form = document.getElementById('sourcing-form');
