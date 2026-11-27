@@ -59,6 +59,9 @@
   </dialog>
   <script>
     window.addEventListener('pageshow', () => document.body.classList.remove('ck-exit-down'));
+    document.querySelector('.back-arrow')?.addEventListener('click', () => {
+      sessionStorage.setItem('ck-vt', 'exit-down');
+    });
   </script>
 </body>
 </html>

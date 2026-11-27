@@ -176,6 +176,7 @@
     if (!back || back.getAttribute('href') !== './') return;
     e.preventDefault();
     e.stopImmediatePropagation();
+    sessionStorage.setItem('ck-vt', isManifesto ? 'exit-left' : 'exit-up');
     location.href = './';
   }, true);
 })();

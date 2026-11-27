@@ -8,6 +8,13 @@
   <link rel="preload" href="./media/mark.svg" as="image">
   <link rel="preload" href="./media/wordmark.svg" as="image">
   <link rel="stylesheet" href="./transitions.css">
+  <script>
+    const vt = sessionStorage.getItem("ck-vt");
+    if (vt) {
+      document.documentElement.dataset.vt = vt;
+      sessionStorage.removeItem("ck-vt");
+    }
+  </script>
   <style>
     @font-face {
       font-family: "Cirkular Inter";

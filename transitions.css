@@ -2,6 +2,27 @@
   navigation: auto;
 }
 
+::view-transition-new(root) {
+  animation: none;
+  z-index: 1;
+}
+::view-transition-old(root) {
+  z-index: 2;
+}
+
+html[data-vt="exit-left"]::view-transition-old(root) {
+  animation: ck-out-left 360ms cubic-bezier(.22, 1, .36, 1) both;
+}
+html[data-vt="exit-up"]::view-transition-old(root) {
+  animation: ck-out-up 360ms cubic-bezier(.22, 1, .36, 1) both;
+}
+html[data-vt="exit-right"]::view-transition-old(root) {
+  animation: ck-out-right 360ms cubic-bezier(.22, 1, .36, 1) both;
+}
+html[data-vt="exit-down"]::view-transition-old(root) {
+  animation: ck-out-down 360ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
 html {
   overflow-x: hidden;
 }
