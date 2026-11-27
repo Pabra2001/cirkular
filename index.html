@@ -73,11 +73,28 @@
       width: 210px;
       margin-bottom: 34px;
     }
-    .lockup nav {
-      display: grid;
-      gap: 6px;
+    nav {
+      display: flex;
+      flex-direction: column;
     }
-    .lockup nav .pill { text-align: center; }
+    nav a {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+      border-top: var(--home-rule);
+      color: #060705;
+      text-decoration: none;
+      font: 600 15px "Cirkular Inter", sans-serif;
+      letter-spacing: -.02em;
+      transition: padding-left .15s ease;
+    }
+    nav a:last-child { border-bottom: var(--home-rule); }
+    nav a:hover { padding-left: 6px; }
+    nav a span.n {
+      font: 10px ui-monospace, SFMono-Regular, Menlo, monospace;
+      opacity: .65;
+    }
     .oval {
       width: 100%;
       max-width: 740px;
@@ -112,10 +129,10 @@
       <img class="mark" src="./media/mark.svg" alt="">
       <img class="wm" src="./media/wordmark.svg" alt="CIRKULAR">
       <nav aria-label="CIRKULAR">
-        <a class="pill" href="./world#manifesto">Manifesto</a>
-        <a class="pill" href="./world#catalog-intro">Catalog</a>
-        <a class="pill" href="./marketplace/">Marketplace</a>
-        <a class="pill" href="./cirkular-plugin/">Plugin</a>
+        <a href="./world#manifesto"><span>manifesto</span><span class="n">01</span></a>
+        <a href="./world#catalog-intro"><span>catalog</span><span class="n">02</span></a>
+        <a href="./marketplace/"><span>marketplace</span><span class="n">03</span></a>
+        <a href="./cirkular-plugin/"><span>plugin</span><span class="n">04</span></a>
       </nav>
     </div>
     <div class="oval">
