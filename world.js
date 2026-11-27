@@ -80,6 +80,10 @@ function showRoute() {
   const entering = requested === 'catalog-intro' && !('embed' in document.body.dataset);
   const explicitCollection = Object.hasOwn(collections, requested);
   const activeRoute = explicitCollection || entering ? 'catalog' : route;
+  if (activeRoute === 'home') {
+    location.replace('./');
+    return;
+  }
   scenes.forEach(scene => { scene.hidden = scene.dataset.scene !== activeRoute || entering; });
   entry.hidden = !entering;
   if (activeRoute === 'catalog' && !entering) {
