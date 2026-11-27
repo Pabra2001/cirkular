@@ -15,6 +15,102 @@
 <script type="module" src="https://prnce.pages.dev/cirkular-search.js?rev=rotating-examples"></script>
   <link rel="stylesheet" href="https://prnce.pages.dev/cirkular-gestures.css?rev=1">
   <script defer src="https://prnce.pages.dev/cirkular-gestures.js?rev=1"></script>
+  <style>
+    .result-card { position: relative; }
+    .ck-market-reload {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      z-index: 4;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 0;
+      padding: 0;
+      background: rgba(255, 255, 255, .07);
+      color: #c8cec0;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease, transform .15s ease;
+    }
+    .ck-market-reload:hover {
+      background: rgba(255, 255, 255, .14);
+      color: #bbff29;
+    }
+    .ck-market-reload.is-loading {
+      color: #bbff29;
+      pointer-events: none;
+    }
+    .ck-market-reload.is-loading svg {
+      animation: ck-m-spin 680ms linear infinite;
+    }
+    @keyframes ck-m-spin { to { transform: rotate(360deg); } }
+  </style>
+  <script>
+    (() => {
+      let reloadAttempt = 0;
+      let lastQuery = '';
+      const seenIds = new Set();
+      const origFetch = window.fetch.bind(window);
+      window.fetch = async function(input, init) {
+        const urlStr = typeof input === 'string' ? input : input?.url || '';
+        if (urlStr.startsWith('/api/source?q=')) {
+          const u = new URL(urlStr, location.origin);
+          const q = (u.searchParams.get('q') || '').trim().toLowerCase();
+          if (q !== lastQuery) {
+            lastQuery = q;
+            reloadAttempt = 0;
+            seenIds.clear();
+          }
+          if (reloadAttempt > 0) {
+            u.searchParams.set('attempt', String(reloadAttempt));
+            if (seenIds.size) u.searchParams.set('exclude', Array.from(seenIds).slice(-36).join(','));
+          }
+          const res = await origFetch(u.pathname + u.search, init);
+          try {
+            const clone = res.clone();
+            const data = await clone.json();
+            if (Array.isArray(data?.listings)) {
+              data.listings.slice(0, 6).forEach((item) => { if (item?.id) seenIds.add(item.id); });
+            }
+          } catch {}
+          return res;
+        }
+        return origFetch(input, init);
+      };
+
+      const RELOAD_SVG = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 8A5.2 5.2 0 1 1 11.7 4.3L13.5 6"/><path d="M13.5 2.5V6H10"/></svg>';
+
+      function injectReloadButtons() {
+        document.querySelectorAll('#marketplace-results .result-card').forEach((card) => {
+          if (card.querySelector('.ck-market-reload')) return;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'ck-market-reload';
+          btn.setAttribute('aria-label', 'Load new listings');
+          btn.title = 'Load a fresh set of listings';
+          btn.innerHTML = RELOAD_SVG;
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            btn.classList.add('is-loading');
+            reloadAttempt += 1;
+            const form = document.getElementById('sourcing-form');
+            if (form) form.requestSubmit();
+          });
+          card.appendChild(btn);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('marketplace-results');
+        if (!container) return;
+        new MutationObserver(injectReloadButtons).observe(container, { childList: true, subtree: true });
+        injectReloadButtons();
+      });
+    })();
+  </script>
 </head>
 <body>
   <main data-search-start>

@@ -36,9 +36,11 @@ async function request(url, options = {}) {
   if (!response.ok) throw new Error(`Marketplace HTTP ${response.status}`);
   return response;
 }
-async function poshmark(query, retrievedAt) {
+async function poshmark(query, retrievedAt, page = 1) {
   const url = new URL('https://poshmark.com/search');
-  url.search = new URLSearchParams({query, type:'listings'});
+  const sp = new URLSearchParams({query, type:'listings'});
+  if (page > 1) sp.set('page', String(page));
+  url.search = sp;
   const html = await (await request(url, {headers})).text();
   const raw = html.match(/window\.__INITIAL_STATE__\s*=\s*([\s\S]*?)(?:;\(function\(|<\/script>)/)?.[1];
   if (!raw) return [];
@@ -94,10 +96,10 @@ const goodwillSearch = {
   "partNumber": "",
   "catIds": ""
 };
-async function shopGoodwill(query,retrievedAt) {
+async function shopGoodwill(query,retrievedAt,page = 1) {
   const options = {method:'POST', headers:{...headers,'Content-Type':'application/json',
     Origin:'https://shopgoodwill.com',Referer:'https://shopgoodwill.com/'},
-    body:JSON.stringify({...goodwillSearch,searchText:query,closedAuctionEndingDate:new Date().toLocaleDateString('en-US')})};
+    body:JSON.stringify({...goodwillSearch,searchText:query,page:String(page),closedAuctionEndingDate:new Date().toLocaleDateString('en-US')})};
   const data = await (await request(goodwill+'/api/Search/ItemListing',options)).json();
   const items = (data.searchResults?.items ?? []).slice(0,14).filter(item=>item.itemId);
   return Promise.all(items.map(async (item,index)=>{
@@ -296,11 +298,14 @@ export async function onRequestGet({request, env = {}}) {
   }
   const query = params.get('q')?.trim();
   if (!query || query.length > 300) return Response.json({error:'Enter a query of 1–300 characters.'},{status:400});
+  const attempt = Math.max(0, parseInt(params.get('attempt') || '0', 10) || 0);
+  const page = attempt + 1;
+  const excludeSet = new Set((params.get('exclude') || '').split(',').map(s => s.trim()).filter(Boolean));
   const retrievedAt = new Date().toISOString();
   const clean = cleanQuery(query);
   const providers = [
-    ['Poshmark', () => poshmark(clean, retrievedAt)],
-    ['ShopGoodwill', () => shopGoodwill(clean, retrievedAt)],
+    ['Poshmark', () => poshmark(clean, retrievedAt, page)],
+    ['ShopGoodwill', () => shopGoodwill(clean, retrievedAt, page)],
     ...publicResaleStores.map(([name, origin]) => [name, () => publicStoreSearch(name, origin, clean, retrievedAt)]),
   ];
   if (env.EBAY_CLIENT_ID && env.EBAY_CLIENT_SECRET) {
@@ -312,7 +317,9 @@ export async function onRequestGet({request, env = {}}) {
     status:result.status==='fulfilled'?'live':'unavailable',
     count:result.status==='fulfilled'?result.value.length:0,
   }));
-  const listings=results.flatMap(result=>result.status==='fulfilled'?result.value:[]);
+  const rawListings = results.flatMap(result=>result.status==='fulfilled'?result.value:[]);
+  const filtered = excludeSet.size ? rawListings.filter(item => !excludeSet.has(item.id)) : rawListings;
+  const listings = filtered.length >= 3 ? filtered : rawListings;
   const status = sources.some(source => source.status === 'live') ? 200 : 503;
   return Response.json({query,retrievedAt,sources,listings},{status,headers:{'Cache-Control':'no-store'}});
 }
