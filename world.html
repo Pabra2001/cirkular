@@ -40,7 +40,11 @@
     </div>
   </section>
   <section class="catalog-entry scene" aria-label="Catalog entrance" hidden>
-    <div class="catalog-entry-frame">
+    <div class="catalog-intro-seq" id="catalog-intro-seq" aria-hidden="true">
+      <div class="seq-braille" id="seq-braille"></div>
+      <img class="seq-logo" src="./media/mark.svg" alt="">
+    </div>
+    <div class="catalog-entry-frame" id="catalog-entry-frame">
       <div class="catalog-entry-lettering">
         <nav class="catalog-entry-choices" aria-label="Choose a Catalog view">
           <img src="media/entry-2871.svg" alt="">
@@ -106,6 +110,38 @@
   const enterCls = isManifesto ? 'ck-enter-left' : 'ck-enter-down';
   const exitCls = isManifesto ? 'ck-exit-left' : 'ck-exit-up';
   document.body.classList.add(enterCls);
+
+  // Play Braille (CIRKULAR) -> Blurred Glowing Mark -> world / choose a view / history sequence on #catalog-intro
+  if (location.hash === '#catalog-intro') {
+    const seq = document.getElementById('catalog-intro-seq');
+    const brailleEl = document.getElementById('seq-braille');
+    const frame = document.getElementById('catalog-entry-frame');
+    if (seq && brailleEl && frame) {
+      // Exact Braille cells for C I R K U L A R
+      const cells = [
+        [1,0,0,1,0,0], // C
+        [0,1,0,1,0,0], // I
+        [1,1,1,0,1,0], // R
+        [1,0,1,0,0,0], // K
+        [1,0,1,0,0,1], // U
+        [1,1,1,0,0,0], // L
+        [1,0,0,0,0,0], // A
+        [1,1,1,0,1,0]  // R
+      ];
+      brailleEl.innerHTML = cells.map((dots, ci) => `
+        <span class="br-cell" style="--ci:${ci}">
+          ${dots.map((on, di) => `<i class="${on ? 'on' : ''}" style="--di:${di}"></i>`).join('')}
+        </span>`).join('');
+      frame.classList.add('seq-hidden');
+      seq.classList.add('seq-active');
+      setTimeout(() => seq.classList.add('seq-phase-logo'), 1150);
+      setTimeout(() => {
+        seq.classList.add('seq-done');
+        frame.classList.remove('seq-hidden');
+        frame.classList.add('seq-reveal');
+      }, 2150);
+    }
+  }
 
   window.addEventListener('hashchange', () => {
     if (!location.hash || location.hash === '#home') location.href = './';

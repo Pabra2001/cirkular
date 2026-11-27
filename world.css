@@ -643,3 +643,83 @@ body[data-scene="catalog"] .cirkular-back.back-arrow svg {
 .manifesto {
   animation: none !important;
 }
+
+/* Catalog Intro Sequence: Braille (CIRKULAR) -> Glowing Blurred Mark -> world / choose a view / history */
+.catalog-intro-seq {
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  background: #000;
+  z-index: 20;
+  pointer-events: none;
+  transition: opacity 420ms ease;
+}
+.catalog-intro-seq.seq-active { display: grid; }
+.catalog-intro-seq.seq-done { opacity: 0; }
+
+.seq-braille {
+  display: flex;
+  gap: 22px;
+  transition: opacity 320ms ease, filter 320ms ease, transform 320ms ease;
+}
+.catalog-intro-seq.seq-phase-logo .seq-braille {
+  opacity: 0;
+  filter: blur(8px);
+  transform: scale(0.92);
+}
+.br-cell {
+  display: grid;
+  grid-template-columns: repeat(2, 9px);
+  grid-template-rows: repeat(3, 9px);
+  grid-auto-flow: column;
+  gap: 6px;
+}
+.br-cell i {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: transparent;
+}
+.br-cell i.on {
+  background: #bbff29;
+  opacity: 0;
+  animation: br-dot-in 320ms cubic-bezier(.2, .8, .2, 1) forwards;
+  animation-delay: calc(var(--ci) * 85ms + var(--di) * 28ms);
+}
+@keyframes br-dot-in {
+  from { opacity: 0; transform: scale(0.3); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.seq-logo {
+  position: absolute;
+  width: 118px;
+  height: auto;
+  filter: brightness(0) invert(1) blur(3.5px) drop-shadow(0 0 18px rgba(255, 255, 255, .45));
+  opacity: 0;
+  transform: scale(0.84);
+  transition: opacity 420ms ease, transform 520ms cubic-bezier(.22, 1, .36, 1), filter 420ms ease;
+}
+.catalog-intro-seq.seq-phase-logo .seq-logo {
+  opacity: 1;
+  transform: scale(1);
+}
+.catalog-intro-seq.seq-done .seq-logo {
+  opacity: 0;
+  transform: scale(1.08);
+  filter: brightness(0) invert(1) blur(10px);
+}
+
+.catalog-entry-frame.seq-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.catalog-entry-frame.seq-reveal {
+  animation: seq-frame-in 480ms cubic-bezier(.22, 1, .36, 1) both;
+}
+@keyframes seq-frame-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
