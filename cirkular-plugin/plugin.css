@@ -48,12 +48,12 @@ h1 { font-size: clamp(2.55rem, 6.2vw, 5.5rem); line-height: .94; letter-spacing:
   color: var(--paper);
 }
 .preview .copy { padding: clamp(16px, 4vw, 52px); min-width: 0; }
-.preview .download { background: var(--paper); color: var(--ink); }
+.preview .download { background: var(--paper); color: var(--ink); font-weight: 800; }
 @media (hover: hover) {
   .preview .download:hover { background: var(--lime); }
 }
 .preview .download:is(:focus-visible, :active) { background: var(--lime); }
-.wordmark { display: flex; align-items: center; gap: 9px; font-weight: 650; }
+.wordmark { display: flex; align-items: center; gap: 9px; font-weight: 700; }
 .wordmark img { width: 115px; }
 .plugin-preview {
   min-width: 0;
