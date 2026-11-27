@@ -737,6 +737,7 @@ body[data-scene="catalog"] .cirkular-back.back-arrow svg {
   text-transform: uppercase !important;
   text-decoration: none !important;
   color: #bbff29 !important;
+  filter: blur(1.2px);
   animation: choose-blink 1.4s ease-in-out infinite !important;
 }
 .catalog-entry-cue span {
