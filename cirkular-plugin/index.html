@@ -59,12 +59,6 @@
   </dialog>
   <script>
     window.addEventListener('pageshow', () => document.body.classList.remove('ck-exit-down'));
-    document.querySelector('.back-arrow')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      document.body.classList.remove('ck-enter-up');
-      document.body.classList.add('ck-exit-down');
-      setTimeout(() => { location.href = '../'; }, 260);
-    });
   </script>
 </body>
 </html>

@@ -176,9 +176,7 @@
     if (!back || back.getAttribute('href') !== './') return;
     e.preventDefault();
     e.stopImmediatePropagation();
-    document.body.classList.remove(enterCls);
-    document.body.classList.add(exitCls);
-    setTimeout(() => { location.href = './'; }, 260);
+    location.href = './';
   }, true);
 })();
 </script></body>
