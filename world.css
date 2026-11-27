@@ -767,20 +767,11 @@ body:has(.catalog-entry:not([hidden])) .cirkular-back.back-arrow {
 .art-dialog .art-controls [data-art="download"] { grid-column: 5; justify-self: end; }
 .art-dialog .art-controls button,
 .art-dialog .art-controls a {
-  font: 11px ui-monospace, SFMono-Regular, Menlo, monospace !important;
-  letter-spacing: .12em !important;
-  text-transform: uppercase !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
   color: #bbff29 !important;
-  border: 1px solid rgba(187, 255, 41, .45) !important;
-  border-radius: 99px !important;
-  padding: 5px 14px !important;
-  text-decoration: none !important;
-  transition: background .16s ease, color .16s ease;
-}
-.art-dialog .art-controls button:hover,
-.art-dialog .art-controls a:hover {
-  background: #bbff29 !important;
-  color: #060705 !important;
 }
 
 /* Square corners when inspecting artwork fullscreen in Catalog */
