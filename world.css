@@ -779,3 +779,26 @@ body:has(.catalog-entry:not([hidden])) .cirkular-back.back-arrow {
 .art-dialog .art-video {
   border-radius: 0 !important;
 }
+
+/* Cinematic black edge vignette on left & right of Catalog carousel */
+.catalog-stage {
+  position: relative;
+}
+.catalog-stage::before,
+.catalog-stage::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24vw;
+  pointer-events: none;
+  z-index: 6;
+}
+.catalog-stage::before {
+  left: 0;
+  background: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, .82) 38%, transparent 100%);
+}
+.catalog-stage::after {
+  right: 0;
+  background: linear-gradient(270deg, #000 0%, rgba(0, 0, 0, .82) 38%, transparent 100%);
+}

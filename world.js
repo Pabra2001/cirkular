@@ -97,7 +97,9 @@ function showRoute() {
   if (dialog.open) dialog.close();
   if (activeRoute !== 'catalog' || entering) focusVideo.pause();
   for (const clip of strip.querySelectorAll('video')) {
-    if (activeRoute === 'catalog' && !entering) clip.play().catch(() => {});
+    const card = clip.closest('[data-catalog-item]');
+    const isCenter = card && card.getAttribute('aria-current') === 'true';
+    if (activeRoute === 'catalog' && !entering && isCenter) clip.play().catch(() => {});
     else clip.pause();
   }
   if (activeRoute === 'home') video.play().catch(() => {});
