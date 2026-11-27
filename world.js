@@ -19,7 +19,6 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const collections = {
   world: [
     'world-1.mp4', 'world-2.mp4', 'world-3-dance.mp4', 'world-4.mp4', 'world-5.mp4',
-    'world-installation-1.mp4', 'world-body-2.mp4', 'world-body-3.mp4', 'world-body-4.mp4', 'world-body-5.mp4',
   ],
   history: [
     ...Array.from({length: 5}, (_, index) => `catalog-${index + 1}.webp`),
