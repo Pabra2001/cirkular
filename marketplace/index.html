@@ -46,6 +46,35 @@
       animation: ck-m-spin 680ms linear infinite;
     }
     @keyframes ck-m-spin { to { transform: rotate(360deg); } }
+
+    /* Lock KORE 2x2 pillar headers to 1 clean line so status labels never wrap and break alignment */
+    .kore-grid > *,
+    .kore-pillars > *,
+    [class*="kore"] [class*="head"],
+    [class*="kore"] [class*="row"],
+    [class*="pillar"] [class*="head"] {
+      min-width: 0;
+    }
+    .kore-pillar-head,
+    .kore-row-head,
+    [class*="kore"] dt,
+    [class*="kore"] header {
+      display: flex;
+      flex-wrap: nowrap !important;
+      align-items: baseline !important;
+      justify-content: space-between !important;
+      gap: 6px !important;
+      white-space: nowrap !important;
+    }
+    .kore-pillar-head > :last-child,
+    .kore-row-head > :last-child,
+    [class*="kore"] header > :last-child {
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      min-width: 0 !important;
+      flex-shrink: 1 !important;
+    }
   </style>
   <script>
     (() => {
@@ -104,9 +133,28 @@
         return origFetch(input, init);
       };
 
+      function normalizeKoreLabels() {
+        const map = {
+          'limited disclosure': 'Limited',
+          'partial disclosure': 'Partial',
+          'minimal disclosure': 'Minimal',
+          'no disclosure': 'Undisclosed',
+          'material disclosed': 'Disclosed'
+        };
+        document.querySelectorAll('span, dd, strong, p, div').forEach((el) => {
+          if (el.children.length > 0) return;
+          const raw = (el.textContent || '').trim();
+          const key = raw.toLowerCase();
+          if (map[key] && raw !== map[key]) {
+            el.textContent = map[key];
+          }
+        });
+      }
+
       const RELOAD_SVG = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 8A5.2 5.2 0 1 1 11.7 4.3L13.5 6"/><path d="M13.5 2.5V6H10"/></svg>';
 
       function injectReloadButtons() {
+        normalizeKoreLabels();
         recordDisplayedIds();
         document.querySelectorAll('#marketplace-results .result-card').forEach((card) => {
           if (card.querySelector('.ck-market-reload')) return;
@@ -173,5 +221,6 @@ document.addEventListener('click', (e) => {
   sessionStorage.setItem('ck-vt', 'exit-right');
   location.href = 'https://cirkular.pages.dev/';
 }, true);
-</script></body>
+</script><script defer src="/cirkular-radio-bar.js"></script>
+</body>
 </html>

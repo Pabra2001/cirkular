@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050604">
+  <title>CIRKULAR.radio</title>
+  <link rel="preload" href="../assets/inter.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../cirkular-back-arrow.css">
+  <link rel="stylesheet" href="../transitions.css">
+  <style>
+    @font-face {
+      font-family: "Cirkular Inter";
+      src: url("../assets/inter.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+
+    :root {
+      --bg: #050604;
+      --lime: #bbff29;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--lime);
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 28px;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .top-bar a { pointer-events: auto; }
+
+    .brand-lockup {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 1px;
+      text-decoration: none;
+      color: var(--lime);
+    }
+
+    .brand-lockup .wordmark-mask {
+      display: block;
+      height: 16px;
+      aspect-ratio: 1283 / 110;
+      background: var(--lime);
+      -webkit-mask: url("../media/wordmark.svg") left center / contain no-repeat;
+      mask: url("../media/wordmark.svg") left center / contain no-repeat;
+    }
+
+    .radio-dot-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: baseline;
+    }
+
+    .brand-lockup .radio-dot {
+      font: 700 14px/1 "Cirkular Inter", sans-serif;
+      letter-spacing: -0.01em;
+      text-transform: lowercase;
+      color: var(--lime);
+    }
+
+    /* Superscript blinking live dot ("to the power of" radio) */
+    .live-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 8px var(--lime);
+      margin-left: 3px;
+      transform: translateY(-9px);
+      animation: blink 1.4s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.15; }
+    }
+
+    #waves {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: pointer;
+    }
+
+    @media (max-width: 640px) {
+      .top-bar { padding: 14px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <a class="back-arrow" href="../" aria-label="Back to Cirkular home">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg>
+    </a>
+    <a class="brand-lockup" href="../" aria-label="CIRKULAR Radio">
+      <span class="wordmark-mask" role="img" aria-label="CIRKULAR"></span>
+      <span class="radio-dot-wrap">
+        <span class="radio-dot">.radio</span>
+        <span class="live-dot" aria-hidden="true"></span>
+      </span>
+    </a>
+  </header>
+
+  <canvas id="waves" aria-label="CIRKULAR live acoustic architecture"></canvas>
+
+  <script>
+    (() => {
+      let isPlaying = false;
+      let audioEl = null;
+      let ctx = null;
+      let analyser = null;
+      let freqData = null;
+
+      function createCavernImpulse(audioCtx, duration = 4.2, decay = 2.8) {
+        const rate = audioCtx.sampleRate;
+        const length = Math.floor(rate * duration);
+        const impulse = audioCtx.createBuffer(2, length, rate);
+        for (let ch = 0; ch < 2; ch++) {
+          const data = impulse.getChannelData(ch);
+          let lp = 0;
+          for (let i = 0; i < length; i++) {
+            const t = i / length;
+            const env = Math.pow(1 - t, decay) * (1 - Math.exp(-i / (rate * 0.025)));
+            lp = lp * 0.72 + (Math.random() * 2 - 1) * 0.28;
+            data[i] = lp * env;
+          }
+        }
+        return impulse;
+      }
+
+      function initAudio() {
+        if (ctx) return;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        ctx = new AudioCtx();
+        audioEl = new Audio();
+        audioEl.crossOrigin = "anonymous";
+        audioEl.preload = "none";
+
+        const src = ctx.createMediaElementSource(audioEl);
+        const filter = ctx.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.value = 9500;
+
+        // 68ms pre-delay + air-absorption lowpass + heavy wet mix = massive, gargantuan hall/cavern
+        const preDelay = ctx.createDelay(0.5);
+        preDelay.delayTime.value = 0.068;
+
+        const wetFilter = ctx.createBiquadFilter();
+        wetFilter.type = "lowpass";
+        wetFilter.frequency.value = 2800;
+
+        const conv = ctx.createConvolver();
+        conv.buffer = createCavernImpulse(ctx, 6.2, 2.2);
+
+        const dry = ctx.createGain();
+        const wet = ctx.createGain();
+        dry.gain.value = 0.28;
+        wet.gain.value = 0.92;
+
+        analyser = ctx.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.85;
+        freqData = new Uint8Array(analyser.frequencyBinCount);
+
+        src.connect(filter);
+        filter.connect(dry);
+        filter.connect(preDelay);
+        preDelay.connect(conv);
+        conv.connect(wetFilter);
+        wetFilter.connect(wet);
+        dry.connect(analyser);
+        wet.connect(analyser);
+        analyser.connect(ctx.destination);
+      }
+
+      async function startStream() {
+        initAudio();
+        if (ctx.state === "suspended") await ctx.resume();
+        audioEl.src = `/api/radio?ch=dub&t=${Date.now()}`;
+        try {
+          await audioEl.play();
+          isPlaying = true;
+          localStorage.setItem("ck_radio_ch", "dub");
+          localStorage.setItem("ck_radio_playing", "1");
+        } catch {
+          isPlaying = false;
+        }
+      }
+
+      function togglePlay() {
+        if (isPlaying && audioEl) {
+          audioEl.pause();
+          audioEl.removeAttribute("src");
+          audioEl.load();
+          isPlaying = false;
+          localStorage.setItem("ck_radio_playing", "0");
+        } else {
+          startStream();
+        }
+      }
+
+      const canvas = document.getElementById("waves");
+      const c = canvas.getContext("2d");
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.addEventListener("click", togglePlay);
+      window.addEventListener("keydown", (e) => {
+        if (e.code === "Space") { e.preventDefault(); togglePlay(); }
+      });
+
+      startStream();
+
+      let w = 0, h = 0;
+      let mx = 0.5, my = 0.5, tx = 0.5, ty = 0.5;
+      let pointerActive = false;
+      let warpStrength = 0;
+
+      function resize() {
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      window.addEventListener("resize", resize);
+      window.addEventListener("pointermove", (e) => {
+        tx = e.clientX / (w || 1);
+        ty = e.clientY / (h || 1);
+        pointerActive = true;
+      });
+      window.addEventListener("pointerdown", (e) => {
+        tx = e.clientX / (w || 1);
+        ty = e.clientY / (h || 1);
+        pointerActive = true;
+      });
+      window.addEventListener("pointerleave", () => { pointerActive = false; });
+      window.addEventListener("pointerup", (e) => {
+        if (e.pointerType === "touch") pointerActive = false;
+      });
+      resize();
+
+      function draw(now) {
+        const t = now * 0.00075;
+        mx += (tx - mx) * 0.1;
+        my += (ty - my) * 0.1;
+        warpStrength += ((pointerActive ? 1 : 0) - warpStrength) * 0.08;
+
+        let bass = 0;
+        if (analyser && isPlaying) {
+          analyser.getByteFrequencyData(freqData);
+          for (let i = 0; i < 10; i++) bass += freqData[i];
+          bass /= (10 * 255);
+        }
+
+        c.fillStyle = "#050604";
+        c.fillRect(0, 0, w, h);
+
+        const lines = 32;
+        const padX = w * 0.14;
+        const spanW = w - padX * 2;
+        const topY = h * 0.24;
+        const botY = h * 0.80;
+        const stepY = (botY - topY) / (lines - 1);
+        const segs = 140;
+        const mxPx = mx * w;
+        const myPx = my * h;
+        const warpRadius = Math.min(w, h) * 0.16;
+
+        function computePoint(i, rowNorm, baseY, s) {
+          const u = s / segs;
+          let x = padX + u * spanW;
+
+          const centerDist = (u - (0.44 + mx * 0.12)) / 0.23;
+          const env = Math.exp(-centerDist * centerDist);
+
+          let spec = 0;
+          if (analyser && isPlaying) {
+            const bin = Math.min(60, Math.floor(u * 48));
+            spec = (freqData[bin] / 255) * 46;
+          }
+
+          const ridge =
+            (Math.sin(u * 10 - t * 1.6 + rowNorm * 3.2) * 0.5 + 0.5) * (34 + bass * 42) +
+            Math.cos(u * 5 + t * 0.9 - rowNorm * 2.1) * 14 +
+            spec;
+
+          let y = baseY - env * ridge * (0.45 + Math.sin(rowNorm * Math.PI) * 0.75);
+
+          // Tactile warp field: lines smoothly bend and part around cursor / touch
+          if (warpStrength > 0.005) {
+            const dx = x - mxPx;
+            const dy = y - myPx;
+            const dist = Math.hypot(dx, dy);
+            const falloff = Math.exp(-(dist * dist) / (warpRadius * warpRadius));
+            const pushY = (dy >= 0 ? 1 : -1) * falloff * 52 * warpStrength;
+            const pushX = (dx / (dist + 24)) * falloff * 18 * warpStrength;
+            x += pushX;
+            y += pushY;
+          }
+
+          return [x, y];
+        }
+
+        for (let i = 0; i < lines; i++) {
+          const rowNorm = i / (lines - 1);
+          const baseY = topY + i * stepY;
+          const depthAlpha = 0.22 + Math.sin(rowNorm * Math.PI) * 0.76;
+
+          const pts = new Array(segs + 1);
+          for (let s = 0; s <= segs; s++) {
+            pts[s] = computePoint(i, rowNorm, baseY, s);
+          }
+
+          c.beginPath();
+          for (let s = 0; s <= segs; s++) {
+            if (s === 0) c.moveTo(pts[s][0], pts[s][1]);
+            else c.lineTo(pts[s][0], pts[s][1]);
+          }
+          c.lineTo(padX + spanW, baseY + 36);
+          c.lineTo(padX, baseY + 36);
+          c.closePath();
+          c.fillStyle = "#050604";
+          c.fill();
+
+          c.beginPath();
+          for (let s = 0; s <= segs; s++) {
+            if (s === 0) c.moveTo(pts[s][0], pts[s][1]);
+            else c.lineTo(pts[s][0], pts[s][1]);
+          }
+          c.strokeStyle = `rgba(187, 255, 41, ${depthAlpha})`;
+          c.lineWidth = 1.1;
+          c.stroke();
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      requestAnimationFrame(draw);
+    })();
+  </script>
+</body>
+</html>

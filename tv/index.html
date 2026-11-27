@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060705">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CIRKULAR TV">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <title>CIRKULAR TV</title>
+  <link rel="preload" href="../assets/inter.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../cirkular-back-arrow.css">
+  <link rel="stylesheet" href="../transitions.css">
+  <style>
+    @font-face {
+      font-family: "Cirkular Inter";
+      src: url("../assets/inter.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+    :root {
+      --bg: #050604;
+      --lime: #bbff29;
+      --lime-dim: rgba(187, 255, 41, .42);
+      --rule: 1px solid rgba(187, 255, 41, .55);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--lime);
+      font-family: var(--mono);
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+    body {
+      display: grid;
+      grid-template-rows: 46px minmax(0, 1fr);
+    }
+
+    /* Top hairline header */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-bottom: var(--rule);
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .back-link {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: transparent;
+      border: 1px solid var(--lime);
+      color: var(--lime);
+      text-decoration: none;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition: background .15s ease, color .15s ease, transform .15s ease;
+    }
+    .back-link:hover {
+      background: var(--lime);
+      color: #050604;
+      transform: translateX(-2px);
+    }
+    .brand-lockup {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 1px;
+    }
+    .brand-lockup .wordmark-mask {
+      display: block;
+      height: 16px;
+      aspect-ratio: 1283 / 110;
+      background: var(--lime);
+      -webkit-mask: url("../media/wordmark.svg") left center / contain no-repeat;
+      mask: url("../media/wordmark.svg") left center / contain no-repeat;
+    }
+    .tv-dot-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: baseline;
+    }
+    .brand-lockup .tv-dot {
+      font: 700 14px/1 "Cirkular Inter", sans-serif;
+      letter-spacing: -.01em;
+      text-transform: lowercase;
+      color: var(--lime);
+    }
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 11px;
+    }
+    .live-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--lime);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--lime);
+      margin-left: 3px;
+      transform: translateY(-9px);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
+
+    /* Main 2-column Signal Archive grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 330px minmax(0, 1fr);
+      min-height: 0;
+      min-width: 0;
+      width: 100%;
+      max-width: 100vw;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Left control column */
+    .sidebar {
+      border-right: var(--rule);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 0;
+      min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .channels {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .channels::-webkit-scrollbar { display: none; }
+    .ch-row {
+      appearance: none;
+      width: 100%;
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      text-align: left;
+      background: transparent;
+      color: var(--lime);
+      border: 0;
+      border-bottom: var(--rule);
+      padding: 13px 18px;
+      font: 500 12px/1.3 var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .12s ease, color .12s ease;
+    }
+    .ch-row:hover {
+      background: rgba(187, 255, 41, .12);
+    }
+    .ch-row[aria-pressed="true"] {
+      background: var(--lime);
+      color: #050604;
+      font-weight: 700;
+    }
+    .ch-title {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ch-source {
+      display: inline-grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      color: inherit;
+      text-decoration: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .12s ease, transform .12s ease;
+    }
+    .ch-row[aria-pressed="true"] .ch-source {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .ch-source:hover {
+      transform: translateX(3px);
+    }
+
+    .sidebar-lower {
+      border-top: var(--rule);
+      padding: 18px 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .privacy-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .braille {
+      font-size: 14px;
+      letter-spacing: .24em;
+      opacity: .72;
+    }
+
+    /* Two-quadrant split: Left = DISPLAY fader, Right = Live scrolling transcript */
+    .lower-quadrants {
+      display: grid;
+      grid-template-columns: 118px minmax(0, 1fr);
+      gap: 0;
+      align-items: stretch;
+    }
+    .fader-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 12px;
+      border-right: 1px solid rgba(187, 255, 41, .28);
+    }
+    .fader-title {
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .fader-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-left: 4px;
+    }
+    .subs-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-left: 14px;
+      min-width: 0;
+    }
+    .subs-feed {
+      position: relative;
+      height: 118px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 6px;
+      mask-image: linear-gradient(to bottom, transparent 0%, #000 32%, #000 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 32%, #000 100%);
+    }
+    .sub-line {
+      font: 400 10.5px/1.35 var(--mono);
+      letter-spacing: .04em;
+      color: rgba(187, 255, 41, .48);
+      transition: color .2s ease, opacity .2s ease;
+    }
+    .sub-line.is-now {
+      color: var(--lime);
+      font-weight: 600;
+    }
+    .fader-track {
+      position: relative;
+      width: 10px;
+      height: 118px;
+      border: 1px solid var(--lime);
+      cursor: pointer;
+    }
+    .fader-thumb {
+      position: absolute;
+      left: -5px;
+      width: 18px;
+      height: 28px;
+      background: var(--lime);
+      border-radius: 2px;
+      transition: top .16s cubic-bezier(.22, 1, .36, 1);
+    }
+    .fader-stops {
+      height: 118px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 11px;
+      letter-spacing: .1em;
+    }
+    .fader-stop {
+      appearance: none;
+      background: none;
+      border: 0;
+      color: var(--lime-dim);
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: uppercase;
+      text-align: left;
+      padding: 0;
+      cursor: pointer;
+    }
+    .fader-stop[aria-pressed="true"] {
+      color: var(--lime);
+      font-weight: 700;
+    }
+
+    .util-row {
+      display: flex;
+      gap: 14px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(187, 255, 41, .2);
+      font-size: 11px;
+      letter-spacing: .12em;
+    }
+    .util-btn {
+      appearance: none;
+      background: none;
+      border: 0;
+      color: var(--lime);
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: uppercase;
+      padding: 0;
+      cursor: pointer;
+      opacity: .78;
+    }
+    .util-btn:hover, .util-btn[aria-pressed="true"] { opacity: 1; text-decoration: underline; }
+
+    /* Right framed rounded dithered screen */
+    .stage {
+      position: relative;
+      background: var(--bg);
+      padding: 20px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      min-height: 0;
+    }
+    .tv-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+    }
+    .tv-frame canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .tv-frame video {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* Keep video full-size under canvas so iOS Safari hardware decoder actually plays it */
+    .tv-frame video.is-hidden {
+      opacity: 0.01;
+      pointer-events: none;
+    }
+    .stage-status {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      font-size: 10.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--lime);
+      background: rgba(5, 6, 4, .72);
+      padding: 4px 8px;
+      pointer-events: none;
+    }
+    .stage-timecode {
+      position: absolute;
+      bottom: 14px;
+      right: 16px;
+      font-size: 11px;
+      letter-spacing: .14em;
+      color: var(--lime);
+      background: rgba(5, 6, 4, .72);
+      padding: 4px 8px;
+      pointer-events: none;
+    }
+
+    /* Mobile & fallback full-screen mode (iOS Safari doesn't support div.requestFullscreen) */
+    body.is-tv-fs .stage {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      padding: 0;
+      background: #000;
+    }
+    body.is-tv-fs .tv-frame {
+      border-radius: 0;
+    }
+    .fs-exit-btn {
+      display: none;
+      position: absolute;
+      top: max(14px, env(safe-area-inset-top));
+      right: 14px;
+      z-index: 10;
+      background: rgba(5, 6, 4, .82);
+      border: 1px solid var(--lime);
+      color: var(--lime);
+      font: 600 11px/1 var(--mono);
+      letter-spacing: .12em;
+      padding: 7px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    body.is-tv-fs .fs-exit-btn { display: inline-flex; }
+
+    @media (max-width: 820px) {
+      #header-signal { display: none; }
+      .grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) auto;
+      }
+      .stage { order: 1; padding: 12px; }
+      .sidebar {
+        order: 2;
+        border-right: 0;
+        border-top: var(--rule);
+      }
+      .channels {
+        max-height: 156px;
+      }
+      .sidebar-lower {
+        padding: 12px 16px;
+        gap: 12px;
+      }
+      .privacy-block { display: none; }
+      .fader-wrap { padding-left: 0; }
+      .fader-track { height: 74px; }
+      .fader-stops { height: 74px; }
+      .subs-feed { height: 74px; }
+      .ch-row { padding: 10px 14px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body class="ck-enter-up">
+  <header class="top-bar">
+    <div class="top-left">
+      <a class="back-link" href="/" aria-label="Back to CIRKULAR">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter"/>
+        </svg>
+      </a>
+    </div>
+    <div class="top-right">
+      <span class="brand-lockup">
+        <span class="wordmark-mask" role="img" aria-label="CIRKULAR"></span><span class="tv-dot-wrap"><span class="tv-dot">.tv</span><span class="live-dot" aria-hidden="true"></span></span>
+      </span>
+    </div>
+  </header>
+
+  <main class="grid">
+    <aside class="sidebar">
+      <div class="channels" id="channels" role="group" aria-label="TV Channels"></div>
+
+      <div class="sidebar-lower">
+        <div class="lower-quadrants">
+          <div class="fader-section">
+            <div class="fader-title">DISPLAY</div>
+            <div class="fader-wrap">
+              <div class="fader-track" id="fader-track" title="Click to switch display mode">
+                <div class="fader-thumb" id="fader-thumb" style="top:0px;"></div>
+              </div>
+              <div class="fader-stops">
+                <button class="fader-stop" data-mode="green" aria-pressed="true" type="button">— GREEN</button>
+                <button class="fader-stop" data-mode="color" aria-pressed="false" type="button">— COLOR</button>
+                <button class="fader-stop" data-mode="raw" aria-pressed="false" type="button">— RAW</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="subs-section">
+            <div class="fader-title">TRANSCRIPT</div>
+            <div class="subs-feed" id="subs-feed" aria-live="polite">
+              <div class="sub-line is-now">Listening for captions…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="util-row">
+          <button class="util-btn" id="btn-mute" aria-pressed="false" type="button">UNMUTE</button>
+          <button class="util-btn" id="btn-fs" aria-pressed="false" type="button">FULLSCREEN</button>
+        </div>
+      </div>
+    </aside>
+
+    <section class="stage" id="tv-stage">
+      <div class="tv-frame" id="tv-frame">
+        <video id="tv-video" class="is-hidden" playsinline webkit-playsinline autoplay muted loop preload="auto"></video>
+        <canvas id="tv-canvas" aria-label="CIRKULAR.tv live dithered broadcast"></canvas>
+        <button class="fs-exit-btn" id="btn-fs-exit" type="button">EXIT ✕</button>
+        <div class="stage-status" id="stage-status">TUNING CH.01…</div>
+        <div class="stage-timecode" id="stage-timecode">00:00:00</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let CHANNELS = [
+      { id: "01", label: "CH.01 / BUÑUEL & DALÍ — UN CHIEN ANDALOU", src: "/api/tv?ch=01" },
+      { id: "02", label: "CH.02 / MAYA DEREN — MESHES OF THE AFTERNOON", src: "/api/tv?ch=02" },
+      { id: "03", label: "CH.03 / MAN RAY & LÉGER — BALLET MÉCANIQUE", src: "/api/tv?ch=03" },
+      { id: "04", label: "CH.04 / JEAN COCTEAU — BLOOD OF A POET", src: "/api/tv?ch=04" },
+      { id: "05", label: "CH.05 / DZIGA VERTOV — MOVIE CAMERA", src: "/api/tv?ch=05" },
+      { id: "06", label: "CH.06 / PICABIA & SATIE — ENTR'ACTE", src: "/api/tv?ch=06" },
+      { id: "07", label: "CH.07 / MARCEL DUCHAMP — ANÉMIC CINÉMA", src: "/api/tv?ch=07" },
+      { id: "08", label: "CH.08 / HANS RICHTER — RHYTHMUS 21", src: "/api/tv?ch=08" },
+      { id: "09", label: "CH.09 / CARL DREYER — VAMPYR (1932)", src: "/api/tv?ch=09" },
+      { id: "10", label: "CH.10 / INDUSTRIAL DESIGN — 1958", src: "/api/tv?ch=10" },
+      { id: "11", label: "CH.11 / NYC 16MM — THIRD AVE EL", src: "/api/tv?ch=11" },
+      { id: "12", label: "CH.12 / GREENWICH VILLAGE — 1960", src: "/api/tv?ch=12" }
+    ];
+
+    const MODES = ["green", "color", "raw"];
+    const video = document.getElementById("tv-video");
+    const canvas = document.getElementById("tv-canvas");
+    const stageEl = document.getElementById("tv-frame");
+    const statusEl = document.getElementById("stage-status");
+    const timecodeEl = document.getElementById("stage-timecode");
+    const channelsEl = document.getElementById("channels");
+    const faderTrack = document.getElementById("fader-track");
+    const faderThumb = document.getElementById("fader-thumb");
+    const muteBtn = document.getElementById("btn-mute");
+    const fsBtn = document.getElementById("btn-fs");
+    const subsFeed = document.getElementById("subs-feed");
+
+    let activeCh = 0;
+    let renderMode = "green";
+    let cues = [];
+    let lastCueIdx = -2;
+
+    function parseSrtTime(str) {
+      const m = String(str || "").match(/(\d+):(\d+):(\d+)[,.](\d+)/);
+      if (!m) return 0;
+      return (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]) + (+m[4]) / 1000;
+    }
+
+    function parseSrt(srtText) {
+      const blocks = String(srtText || "").replace(/\r/g, "").trim().split(/\n\n+/);
+      const out = [];
+      for (const b of blocks) {
+        const lines = b.split("\n").map((l) => l.trim()).filter(Boolean);
+        const timeIdx = lines.findIndex((l) => l.includes("-->"));
+        if (timeIdx < 0) continue;
+        const [startStr, endStr] = lines[timeIdx].split("-->").map((s) => s.trim());
+        const text = lines.slice(timeIdx + 1).join(" ").replace(/<[^>]+>/g, "").trim();
+        if (text) out.push({ start: parseSrtTime(startStr), end: parseSrtTime(endStr), text });
+      }
+      return out;
+    }
+
+    async function loadSubtitles(chId) {
+      cues = [];
+      lastCueIdx = -2;
+      subsFeed.innerHTML = '<div class="sub-line is-now">Syncing transcript…</div>';
+      try {
+        const chObj = CHANNELS[activeCh];
+        const subUrl = chObj?.src ? `${chObj.src}&subs=1` : `/api/tv?ch=${chId}&subs=1`;
+        const res = await fetch(subUrl);
+        if (!res.ok) return;
+        const txt = await res.text();
+        if (CHANNELS[activeCh]?.id !== chId) return;
+        cues = parseSrt(txt);
+        if (!cues.length) {
+          subsFeed.innerHTML = '<div class="sub-line">Instrumental / ambient reel</div>';
+        }
+      } catch {
+        subsFeed.innerHTML = '<div class="sub-line">Archive reel · no captions</div>';
+      }
+    }
+
+    function updateSubtitles(nowSec) {
+      if (!cues.length) return;
+      let idx = -1;
+      for (let i = 0; i < cues.length; i++) {
+        if (nowSec >= cues[i].start) idx = i;
+        else break;
+      }
+      if (idx === lastCueIdx) return;
+      lastCueIdx = idx;
+      if (idx < 0) {
+        subsFeed.innerHTML = '<div class="sub-line">…</div>';
+        return;
+      }
+      const windowCues = cues.slice(Math.max(0, idx - 3), idx + 1);
+      subsFeed.innerHTML = windowCues
+        .map((c, i) => `<div class="sub-line${i === windowCues.length - 1 ? " is-now" : ""}">${c.text}</div>`)
+        .join("");
+    }
+
+    // 60fps WebGL Bayer 4x4 Dither Shader
+    const gl = canvas.getContext("webgl", { alpha: false, antialias: false });
+    let program = null, tex = null, uModeLoc = null;
+
+    if (gl) {
+      const vs = `
+        attribute vec2 a_pos;
+        varying vec2 v_uv;
+        void main() {
+          v_uv = vec2(a_pos.x * 0.5 + 0.5, 0.5 - a_pos.y * 0.5);
+          gl_Position = vec4(a_pos, 0.0, 1.0);
+        }
+      `;
+      const fs = `
+        precision mediump float;
+        uniform sampler2D u_tex;
+        uniform int u_mode;
+        varying vec2 v_uv;
+
+        float bayer4(vec2 p) {
+          vec2 c = mod(floor(p), 4.0);
+          int idx = int(c.y) * 4 + int(c.x);
+          if (idx == 0) return 0.0/16.0;
+          if (idx == 1) return 8.0/16.0;
+          if (idx == 2) return 2.0/16.0;
+          if (idx == 3) return 10.0/16.0;
+          if (idx == 4) return 12.0/16.0;
+          if (idx == 5) return 4.0/16.0;
+          if (idx == 6) return 14.0/16.0;
+          if (idx == 7) return 6.0/16.0;
+          if (idx == 8) return 3.0/16.0;
+          if (idx == 9) return 11.0/16.0;
+          if (idx == 10) return 1.0/16.0;
+          if (idx == 11) return 9.0/16.0;
+          if (idx == 12) return 15.0/16.0;
+          if (idx == 13) return 7.0/16.0;
+          if (idx == 14) return 13.0/16.0;
+          return 5.0/16.0;
+        }
+
+        void main() {
+          vec3 rgb = texture2D(u_tex, v_uv).rgb;
+          float t = bayer4(gl_FragCoord.xy * 0.5);
+          if (u_mode == 0) {
+            float luma = dot(rgb, vec3(0.299, 0.587, 0.114));
+            luma = clamp((luma - 0.06) * 1.15, 0.0, 1.0);
+            float bit = step(t, luma);
+            gl_FragColor = vec4(mix(vec3(0.02, 0.024, 0.016), vec3(0.733, 1.0, 0.161), bit), 1.0);
+          } else {
+            vec3 q = floor(rgb * 3.0 + vec3(t)) / 3.0;
+            gl_FragColor = vec4(clamp(q, 0.0, 1.0), 1.0);
+          }
+        }
+      `;
+      const mk = (type, src) => {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        return s;
+      };
+      program = gl.createProgram();
+      gl.attachShader(program, mk(gl.VERTEX_SHADER, vs));
+      gl.attachShader(program, mk(gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(program);
+      gl.useProgram(program);
+
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(program, "a_pos");
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+      tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      uModeLoc = gl.getUniformLocation(program, "u_mode");
+    }
+
+    function syncSize() {
+      const rect = stageEl.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = Math.max(2, Math.round(rect.width * dpr));
+      const h = Math.max(2, Math.round(rect.height * dpr));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+      if (gl) gl.viewport(0, 0, w, h);
+    }
+    window.addEventListener("resize", syncSize);
+
+    function setMode(mode) {
+      renderMode = mode;
+      const idx = MODES.indexOf(mode);
+      const trackH = faderTrack.clientHeight || 118;
+      const thumbH = faderThumb.clientHeight || 28;
+      const top = idx === 0 ? 0 : idx === 1 ? Math.round((trackH - thumbH) / 2) : trackH - thumbH;
+      faderThumb.style.top = `${top}px`;
+
+      document.querySelectorAll(".fader-stop").forEach((b) => {
+        b.setAttribute("aria-pressed", String(b.dataset.mode === mode));
+      });
+      const isRaw = mode === "raw" || !gl;
+      video.classList.toggle("is-hidden", !isRaw);
+      canvas.style.display = isRaw ? "none" : "block";
+      if (!video.paused) {
+        statusEl.textContent = `CH.${CHANNELS[activeCh].id} · ${mode.toUpperCase()}`;
+      }
+    }
+
+    function tuneChannel(idx) {
+      activeCh = idx;
+      const ch = CHANNELS[idx];
+      statusEl.textContent = `TUNING CH.${ch.id}…`;
+      channelsEl.querySelectorAll(".ch-row").forEach((b, i) => {
+        b.setAttribute("aria-pressed", String(i === idx));
+      });
+      video.src = ch.src;
+      video.load();
+      video.play().catch(() => {});
+      loadSubtitles(ch.id);
+    }
+
+    function renderChannelButtons() {
+      channelsEl.innerHTML = "";
+      CHANNELS.forEach((ch, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "ch-row";
+        btn.setAttribute("aria-pressed", String(idx === activeCh));
+
+        const title = document.createElement("span");
+        title.className = "ch-title";
+        title.textContent = ch.label;
+        btn.appendChild(title);
+
+        if (ch.identifier) {
+          const link = document.createElement("a");
+          link.className = "ch-source";
+          link.href = `https://archive.org/details/${encodeURIComponent(ch.identifier)}`;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.title = "Open source film on Internet Archive";
+          link.setAttribute("aria-label", `Explore ${ch.label} source`);
+          link.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h17M14 5l7 7-7 7" stroke="currentColor" stroke-width="2.6" stroke-linejoin="miter"/></svg>';
+          link.addEventListener("click", (e) => e.stopPropagation());
+          btn.appendChild(link);
+        }
+
+        btn.addEventListener("click", () => tuneChannel(idx));
+        channelsEl.appendChild(btn);
+      });
+    }
+
+    async function bootChannels() {
+      try {
+        const res = await fetch("/api/tv?list=1", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.channels) && data.channels.length) {
+            CHANNELS = data.channels;
+          }
+        }
+      } catch {}
+      const startIdx = Math.floor(Math.random() * CHANNELS.length);
+      renderChannelButtons();
+      tuneChannel(startIdx);
+    }
+
+    document.querySelectorAll(".fader-stop").forEach((b) => {
+      b.addEventListener("click", () => setMode(b.dataset.mode));
+    });
+    faderTrack.addEventListener("click", (e) => {
+      const rect = faderTrack.getBoundingClientRect();
+      const frac = (e.clientY - rect.top) / rect.height;
+      setMode(frac < 0.33 ? "green" : frac < 0.67 ? "color" : "raw");
+    });
+
+    muteBtn.addEventListener("click", () => {
+      video.muted = !video.muted;
+      muteBtn.textContent = video.muted ? "UNMUTE" : "MUTE";
+      muteBtn.setAttribute("aria-pressed", String(!video.muted));
+      if (video.paused) video.play().catch(() => {});
+    });
+
+    const fsExitBtn = document.getElementById("btn-fs-exit");
+    function toggleFullscreen() {
+      if (document.body.classList.contains("is-tv-fs")) {
+        document.body.classList.remove("is-tv-fs");
+        fsBtn.setAttribute("aria-pressed", "false");
+        return;
+      }
+      if (document.fullscreenElement) {
+        document.exitFullscreen?.().catch(() => {});
+        return;
+      }
+      if (stageEl.requestFullscreen) {
+        stageEl.requestFullscreen().catch(() => {
+          document.body.classList.add("is-tv-fs");
+          fsBtn.setAttribute("aria-pressed", "true");
+        });
+      } else {
+        // iOS Safari fallback: true full-viewport dithered canvas
+        document.body.classList.add("is-tv-fs");
+        fsBtn.setAttribute("aria-pressed", "true");
+      }
+    }
+    fsBtn.addEventListener("click", toggleFullscreen);
+    fsExitBtn?.addEventListener("click", toggleFullscreen);
+    stageEl.addEventListener("click", () => {
+      if (video.paused) video.play().catch(() => {});
+    });
+
+    video.addEventListener("loadedmetadata", () => {
+      if (Number.isFinite(video.duration) && video.duration > 5) {
+        try { video.currentTime = (Date.now() / 1000) % video.duration; } catch {}
+      }
+      video.play().catch(() => {});
+    });
+    video.addEventListener("playing", () => {
+      statusEl.textContent = `CH.${CHANNELS[activeCh].id} · ${renderMode.toUpperCase()}`;
+    });
+    video.addEventListener("error", () => {
+      // Auto-skip to next channel if an archive reel fails to decode
+      const next = (activeCh + 1) % CHANNELS.length;
+      if (next !== activeCh) tuneChannel(next);
+    });
+
+    function fmt(sec) {
+      const s = Math.max(0, Math.floor(sec || 0));
+      return [Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60]
+        .map((n) => String(n).padStart(2, "0"))
+        .join(":");
+    }
+
+    function loop() {
+      syncSize();
+      if (video.readyState >= 2) {
+        timecodeEl.textContent = fmt(video.currentTime);
+        updateSubtitles(video.currentTime);
+        if (gl && renderMode !== "raw") {
+          gl.useProgram(program);
+          gl.uniform1i(uModeLoc, renderMode === "green" ? 0 : 1);
+          gl.bindTexture(gl.TEXTURE_2D, tex);
+          try {
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+          } catch {}
+        }
+      }
+      requestAnimationFrame(loop);
+    }
+
+    setMode("green");
+    bootChannels();
+    requestAnimationFrame(loop);
+  </script>
+<script defer src="/cirkular-radio-bar.js"></script>
+</body>
+</html>
