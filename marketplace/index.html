@@ -42,15 +42,14 @@
 window.addEventListener('pageshow', () => document.body.classList.remove('ck-exit-right'));
 document.addEventListener('DOMContentLoaded', () => {
   document.body.classList.add('ck-enter-right');
-  const b = document.querySelector('.back-arrow, .back, [aria-label*="Back"]');
-  if (b) {
-    b.href = 'https://cirkular.pages.dev/';
-    b.onclick = (e) => {
-      e.preventDefault();
-      sessionStorage.setItem('ck-vt', 'exit-right');
-      location.href = 'https://cirkular.pages.dev/';
-    };
-  }
 });
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('.back-arrow, .back, [aria-label*="Back"]');
+  if (!b) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  sessionStorage.setItem('ck-vt', 'exit-right');
+  location.href = 'https://cirkular.pages.dev/';
+}, true);
 </script></body>
 </html>
