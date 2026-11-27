@@ -19,23 +19,23 @@
     .result-card { position: relative; }
     .ck-market-reload {
       position: absolute;
-      top: 18px;
-      right: 18px;
+      top: 12px;
+      right: 12px;
       z-index: 4;
-      width: 34px;
-      height: 34px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       border: 0;
       padding: 0;
-      background: rgba(255, 255, 255, .07);
-      color: #c8cec0;
+      background: transparent;
+      color: #f5f7ee;
       display: grid;
       place-items: center;
       cursor: pointer;
-      transition: background .15s ease, color .15s ease, transform .15s ease;
+      transition: color .15s ease, opacity .15s ease;
     }
     .ck-market-reload:hover {
-      background: rgba(255, 255, 255, .14);
+      background: transparent;
       color: #bbff29;
     }
     .ck-market-reload.is-loading {
