@@ -810,3 +810,15 @@ dialog.art-dialog canvas,
   right: 0;
   background: linear-gradient(270deg, #000 0%, rgba(0, 0, 0, .92) 22%, rgba(0, 0, 0, .62) 48%, rgba(0, 0, 0, .24) 74%, transparent 100%);
 }
+
+/* Clean blurred upload heading + flat borderless upload icon on black */
+.catalog-upload h1 {
+  filter: blur(2.2px) !important;
+}
+.catalog-upload .upload-button,
+.catalog-upload .upload-picker button {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
