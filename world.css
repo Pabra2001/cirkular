@@ -359,7 +359,6 @@ body[data-scene="upload"], html:has(body[data-scene="upload"]) { background: #00
 .upload-panel { justify-items: center; text-align: center; }
 .upload-picker { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; }
 .upload-picker svg { width: 1.75rem; }
-.upload-picker:has(+ input:focus-visible) { outline: 1px solid currentColor; }
 .upload-panel input { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); }
 .upload-note { justify-self: center; font-size: .75rem; }
 .upload-panel p:empty { display: none; }
@@ -417,14 +416,10 @@ body[data-scene="upload"], html:has(body[data-scene="upload"]) { background: #00
 .upload-panel h1 { color:color-mix(in srgb, var(--lime) 68%, #b4baa4); filter:blur(.45px); opacity:.8; }
 .upload-picker {
  color:color-mix(in srgb, var(--lime) 66%, #cbd1bd);
- background:linear-gradient(145deg, #dbe9bc19, #c3d4ae08);
- border:1px solid #dbe9bc26;
- border-radius:14px;
- backdrop-filter:blur(12px);
  cursor:pointer;
 }
 .upload-picker svg { opacity:.82; }
-.upload-picker:is(:hover, :has(+ input:focus-visible)) { background-color:#dbe9bc18; }
+.upload-picker:is(:hover, :has(+ input:focus-visible)) svg { color:var(--lime); opacity:1; }
 
 .catalog .catalog-strip[data-collection="history"] img,
 .art-dialog .art-image {
@@ -815,12 +810,5 @@ dialog.art-dialog canvas,
 /* Clean blurred upload heading + flat borderless upload icon on black */
 .catalog-upload h1 {
   filter: blur(2.2px) !important;
-}
-.catalog-upload .upload-button,
-.catalog-upload .upload-picker button {
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  outline: none !important;
 }
 #catalog-upload-instruction { display: none !important; }
