@@ -69,8 +69,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid #6d9600; outline-offs
 .product { display:grid; grid-template-columns:77px 1fr; align-items:center; gap:12px; margin:7px 0 11px }
 .product img { width:77px; height:88px; object-fit:cover; border-radius:9px; background:#eee }
 .product h2 { font-size:19px; letter-spacing:-.055em; line-height:1.02; margin:4px 0 }
+.product h2 { min-block-size:2lh; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; overflow-wrap:anywhere }
 .product strong { font-size:23px; letter-spacing:-.06em; color:var(--lime) }
-.why { font-size:12px; line-height:1.4; min-height:2.8em; margin-bottom:10px; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden }
+.why { font-size:12px; line-height:1.4; min-height:3lh; margin-bottom:10px; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; overflow-wrap:anywhere }
 .metrics { display:grid; grid-template-columns:1fr 1fr; margin:0 0 11px }
 .metrics div { border-top:1px solid #747b6d66; padding:6px 3px 6px 0 }
 .metrics :is(dt, dd) { white-space:nowrap; overflow:hidden; text-overflow:ellipsis }

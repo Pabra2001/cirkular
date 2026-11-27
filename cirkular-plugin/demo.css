@@ -1,10 +1,10 @@
-.stage { width: 100%; max-width: 430px; height: 390px; }
+.stage { width: 100%; max-width: 430px; height: 410px; }
 @media (max-width: 460px) {
   .stage { zoom: .75; }
 }
 
 .rail .detail {
-  height: 378px;
+  height: 398px;
   animation: enter 320ms cubic-bezier(.16, 1, .3, 1) both;
 }
 
@@ -60,5 +60,5 @@
 }
 
 @media (max-width: 440px) {
-  .rail .detail { height: 366px; }
+  .rail .detail { height: 398px; }
 }
