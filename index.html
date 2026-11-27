@@ -40,13 +40,14 @@
       letter-spacing: .14em;
       text-transform: uppercase;
     }
+    :root { --home-rule: 1px solid rgba(6, 7, 5, .25); }
     .pill {
       background: transparent;
       color: #060705;
-      border: 2.5px solid #060705;
+      border: var(--home-rule);
       padding: 9px 18px;
       border-radius: 99px;
-      font: 700 12.5px "Cirkular Inter", sans-serif;
+      font: 400 12.5px "Cirkular Inter", sans-serif;
       text-decoration: none;
       white-space: nowrap;
       transition: background .18s ease, color .18s ease, transform .15s ease;
@@ -81,14 +82,14 @@
       justify-content: space-between;
       align-items: center;
       padding: 11px 0;
-      border-top: 1px solid rgba(6, 7, 5, .25);
+      border-top: var(--home-rule);
       color: #060705;
       text-decoration: none;
       font: 600 15px "Cirkular Inter", sans-serif;
       letter-spacing: -.02em;
       transition: padding-left .15s ease;
     }
-    nav a:last-child { border-bottom: 1px solid rgba(6, 7, 5, .25); }
+    nav a:last-child { border-bottom: var(--home-rule); }
     nav a:hover { padding-left: 6px; }
     nav a span.n {
       font: 10px ui-monospace, SFMono-Regular, Menlo, monospace;
