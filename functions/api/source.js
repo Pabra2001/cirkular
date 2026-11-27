@@ -132,10 +132,18 @@ async function shopGoodwill(query,retrievedAt,page = 1) {
     };
   }));
 }
-// These US storefronts publish their public catalog prices in USD.
+// These storefronts publish their public secondhand/vintage catalogs via Shopify search.
 const publicResaleStores = [
+  ['2nd STREET USA', 'https://ec.2ndstreetusa.com'],
+  ['Thrifted', 'https://www.thrifted.com'],
   ['The Vintage Twin', 'https://www.thevintagetwin.com'],
   ['Fashionphile', 'https://www.fashionphile.com'],
+  ['Rebag', 'https://shop.rebag.com'],
+  ['Gossamer Vintage', 'https://shopgossamer.com'],
+  ['Front General Store', 'https://frontgeneralstore.com'],
+  ['Desert Vintage', 'https://desertvintage.com'],
+  ['Awoke Vintage', 'https://awokevintage.com'],
+  ['Ragstock', 'https://ragstock.com'],
 ];
 
 async function publicStoreSearch(name, origin, query, retrievedAt) {
@@ -153,13 +161,15 @@ async function publicStoreSearch(name, origin, query, retrievedAt) {
     .map(item => {
       const title = cleanText(item.title);
       const description = cleanText(item.body);
+      const brand = cleanText(item.vendor) || name;
+      const size = title.match(/\b(?:size|sz|us)?\s*(xxs|xs|s|m|l|xl|xxl|2xl|\d{1,2}(?:\.\d)?(?:\s*[wml])?)\b/i)?.[1]?.toUpperCase() || 'See title/desc';
       const price = money(item.price);
       return {
         id: `${new URL(origin).hostname}-${item.id}`, marketplace: name,
         url: new URL(`/products/${encodeURIComponent(item.handle)}`, origin).href,
-        title, description, brand: '', size: 'See title/desc', department: '', price,
+        title, description, brand, size, department: '', price,
         image: new URL(item.image, origin).href, retrievedAt, availability: 'Available when retrieved',
-        conditionTag: 'Secondhand storefront', isAuction: false, ...evidence(`${title} ${description}`),
+        conditionTag: 'Secondhand storefront', isAuction: false, ...evidence(`${title} ${description} ${brand}`),
       };
     });
 }
