@@ -1,6 +1,6 @@
 import {loopRecommendations} from './demo-loop.js';
-import {initRecommendations} from './cirkular-case-study/plugin/plugin.js?rev=card-copy';
-import {demoListings} from './listings.js?rev=card-copy';
+import {initRecommendations} from './cirkular-case-study/plugin/plugin.js?rev=even-cards';
+import {demoListings} from './listings.js?rev=even-cards';
 
 const downloadDialog = document.querySelector('dialog');
 

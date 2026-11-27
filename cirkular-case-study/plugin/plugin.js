@@ -6,7 +6,7 @@ const products = [
       "36 × 34",
       "Pre-owned",
       "Light blue",
-      "Loose, wide leg"
+      "Wide leg"
     ],
     "why": "Loose, paint-splattered denim. Knee rip and frayed hems.",
     "url": "https://poshmark.com/listing/Levis-SilverTab-Loose-Jeans-Mens-36x34-Light-Wash-Distressed-Paint-Splatter-90s-6ae259fc06c773904478166d",
@@ -18,7 +18,7 @@ const products = [
     "facts": [
       "36 × 32",
       "Pre-owned",
-      "Light to medium blue",
+      "Light blue",
       "Loose straight"
     ],
     "why": "Faded blue with paint marks and a straighter leg.",
@@ -31,8 +31,8 @@ const products = [
     "facts": [
       "Women’s M",
       "Like new",
-      "Faded light blue",
-      "Baggy barrel leg"
+      "Light blue",
+      "Barrel leg"
     ],
     "why": "Paint-splattered barrel jeans with a drawstring.",
     "url": "https://poshmark.com/listing/Barrel-Leg-Jeans-Paint-Splatter-Baggy-Denim-Y2K-Skater-Streetwear-Size-M-6ad937c7de48834720d99dcf",
