@@ -65,11 +65,13 @@
       gap: 9px;
     }
 
-    .wordmark-img {
+    .wordmark-mask {
       display: block;
+      width: 96px;
       height: 16px;
-      width: auto;
-      filter: brightness(0) saturate(100%) invert(89%) sepia(56%) saturate(1352%) hue-rotate(25deg) brightness(104%) contrast(103%);
+      background: var(--lime);
+      -webkit-mask: url("./assets/wordmark.png") left center / contain no-repeat;
+      mask: url("./assets/wordmark.png") left center / contain no-repeat;
     }
 
     .brand-sub {
@@ -493,7 +495,7 @@
   <main class="frame">
     <header class="header">
       <div class="brand">
-        <img class="wordmark-img" src="./assets/wordmark.png" alt="CIRKULAR">
+        <span class="wordmark-mask" role="img" aria-label="CIRKULAR"></span>
         <span class="brand-sub">PLUGIN</span>
       </div>
       <span class="step-counter" id="step-counter">01 / 03</span>
@@ -558,8 +560,8 @@
         </div>
       </div>
       <div>
-        <h1>Graded by KORE, beyond brand claims.</h1>
-        <p class="lead">KORE reads the real fiber construction on retail pages and grades sustainability from B to F. If an item already earns an A, CIRKULAR stays out of your way.</p>
+        <h1>Graded by KORE, on demand.</h1>
+        <p class="lead">Click the CIRKULAR mark on any product page to inspect its KORE material grade (B–F) and real fiber composition. On A-grade items, CIRKULAR stays quietly out of your way.</p>
       </div>
     </section>
 
