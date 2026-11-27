@@ -73,7 +73,7 @@ document.addEventListener('click', event => {
 function showRoute() {
   const requested = location.hash.slice(1);
   if (requested === 'marketplace') {
-    location.replace('../cirkular-product/?from=world');
+    location.replace('./marketplace/');
     return;
   }
   const route = scenes.some(scene => scene.dataset.scene === requested) ? requested : 'home';
