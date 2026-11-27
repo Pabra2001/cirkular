@@ -45,6 +45,7 @@
       border-radius: 99px;
       font: 700 12.5px "Cirkular Inter", sans-serif;
       text-decoration: none;
+      white-space: nowrap;
       transition: background .18s ease, color .18s ease, transform .15s ease;
     }
     .pill:hover {
@@ -106,6 +107,8 @@
     }
     @media (max-width: 820px) {
       body { padding: 20px; gap: 24px; }
+      .top { gap: 12px; }
+      .pill-arrow { display: none; }
       .mid { grid-template-columns: 1fr; gap: 28px; }
       .oval { justify-self: center; }
     }
@@ -113,8 +116,8 @@
 </head>
 <body>
   <header class="top">
-    <span class="meta">CIRKULAR · WORLD</span>
-    <a class="pill" href="./cirkular-extension.zip" download>Download plugin ↓</a>
+    <span class="meta">Secondhand shopping</span>
+    <a class="pill" href="./cirkular-extension.zip" download>Download Plugin<span class="pill-arrow" aria-hidden="true"> ↓</span></a>
   </header>
 
   <main class="mid">
