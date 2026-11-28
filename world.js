@@ -30,6 +30,85 @@ let requestedContribution = false;
 let collection = 'world';
 const localArt = new Set();
 const localColor = new Map();
+
+async function ditherMuseumImage(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const maxDim = 480;
+        const scale = Math.min(1, maxDim / Math.max(img.naturalWidth || 1, img.naturalHeight || 1));
+        const w = Math.max(32, Math.round((img.naturalWidth || 300) * scale));
+        const h = Math.max(32, Math.round((img.naturalHeight || 300) * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, w, h);
+        const id = ctx.getImageData(0, 0, w, h);
+        const d = id.data;
+        const luma = new Float32Array(w * h);
+        for (let i = 0, p = 0; i < luma.length; i++, p += 4) {
+          luma[i] = 0.299 * d[p] + 0.587 * d[p + 1] + 0.114 * d[p + 2];
+        }
+        // Floyd-Steinberg dither into CIRKULAR obsidian (#060705) + acid lime (#bbff29)
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const idx = y * w + x;
+            const old = luma[idx];
+            const val = old >= 122 ? 255 : 0;
+            const err = old - val;
+            if (x + 1 < w) luma[idx + 1] += err * 7 / 16;
+            if (y + 1 < h) {
+              if (x > 0) luma[idx + w - 1] += err * 3 / 16;
+              luma[idx + w] += err * 5 / 16;
+              if (x + 1 < w) luma[idx + w + 1] += err * 1 / 16;
+            }
+            const p = idx * 4;
+            if (val > 0) {
+              d[p] = 187; d[p + 1] = 255; d[p + 2] = 41; d[p + 3] = 255;
+            } else {
+              d[p] = 6; d[p + 1] = 7; d[p + 2] = 5; d[p + 3] = 255;
+            }
+          }
+        }
+        ctx.putImageData(id, 0, 0);
+        resolve(canvas.toDataURL('image/webp', 0.86));
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+(async function loadFreshMuseumHistory() {
+  try {
+    const res = await fetch('/api/history', { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    const items = Array.isArray(data?.items) ? data.items : [];
+    const dithered = [];
+    for (const item of items.slice(0, 8)) {
+      const limeUrl = await ditherMuseumImage(item.src);
+      if (limeUrl) {
+        localArt.add(limeUrl);
+        localColor.set(limeUrl, item.src);
+        dithered.push(limeUrl);
+      }
+    }
+    if (dithered.length) {
+      collections.history = [...dithered, ...collections.history];
+      if (document.body.dataset.scene === 'catalog' && collection === 'history') {
+        if (typeof renderCatalog === 'function') renderCatalog(0);
+      }
+    }
+  } catch {
+    // Keep default history collection on network error
+  }
+})();
 const backLink = document.querySelector('.cirkular-back');
 let uploadReturn = '#world';
 let uploadReturnIndex = 2;
