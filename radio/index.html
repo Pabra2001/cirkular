@@ -49,6 +49,8 @@
     }
 
     .top-bar a { pointer-events: auto; }
+    .radio-embedded .top-bar { top: 10px; justify-content: flex-end !important; }
+    .radio-embedded .back-arrow { display: none !important; }
 
     .brand-lockup {
       display: inline-flex;
@@ -111,6 +113,13 @@
       .top-bar { padding: 14px 16px; }
     }
   </style>
+  <script>
+    (() => {
+      let embedded = new URLSearchParams(location.search).has("embed");
+      try { if (window.self !== window.top) embedded = true; } catch { embedded = true; }
+      if (embedded) document.documentElement.classList.add("radio-embedded");
+    })();
+  </script>
 </head>
 <body>
   <header class="top-bar">
@@ -126,6 +135,12 @@
     </a>
   </header>
 
+  <script>
+    if (document.documentElement.classList.contains("radio-embedded")) {
+      document.querySelector(".brand-lockup").removeAttribute("href");
+    }
+  </script>
+
   <canvas id="waves" aria-label="CIRKULAR live acoustic architecture"></canvas>
 
   <script>
@@ -134,7 +149,22 @@
       let audioEl = null;
       let ctx = null;
       let analyser = null;
-      let freqData = null;
+      let output = null;
+      let muted = false;
+      const embedded = document.documentElement.classList.contains("radio-embedded");
+
+      function updateOutput() {
+        if (output) output.gain.value = embedded && (muted || !isPlaying) ? 0 : 1;
+      }
+
+      if (embedded) {
+        window.addEventListener("message", event => {
+          if (event.source !== window.parent || event.origin !== "https://prnce.pages.dev") return;
+          if (event.data?.type !== "cirkular-radio-mute" || typeof event.data.muted !== "boolean") return;
+          muted = event.data.muted;
+          updateOutput();
+        });
+      }
 
       function createCavernImpulse(audioCtx, duration = 4.2, decay = 2.8) {
         const rate = audioCtx.sampleRate;
@@ -195,7 +225,10 @@
         wetFilter.connect(wet);
         dry.connect(analyser);
         wet.connect(analyser);
-        analyser.connect(ctx.destination);
+        output = ctx.createGain();
+        updateOutput();
+        analyser.connect(output);
+        output.connect(ctx.destination);
       }
 
       async function startStream() {
@@ -205,10 +238,12 @@
         try {
           await audioEl.play();
           isPlaying = true;
+          updateOutput();
           localStorage.setItem("ck_radio_ch", "dub");
           localStorage.setItem("ck_radio_playing", "1");
         } catch {
           isPlaying = false;
+          updateOutput();
         }
       }
 
@@ -218,6 +253,7 @@
           audioEl.removeAttribute("src");
           audioEl.load();
           isPlaying = false;
+          updateOutput();
           localStorage.setItem("ck_radio_playing", "0");
         } else {
           startStream();
