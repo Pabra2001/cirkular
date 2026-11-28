@@ -107,7 +107,10 @@
         </svg>
       </button>
     </div>
-    <span class="install-hint">Share → Add to Home Screen</span>
+    <span class="preview-controls" id="preview-controls" style="display:none;align-items:center;gap:10px;color:#bbff29;opacity:.85;">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 3v2h-1v5l2 2v2h-4v7l-1 1-1-1v-7H7v-2l2-2V5H8V3h8z"/></svg>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </span>
   </header>
 
   <main class="deck">
@@ -139,6 +142,10 @@
     btnTv.addEventListener("click", () => setMode("tv"));
     btnRadio.addEventListener("click", () => setMode("radio"));
 
+    if (new URLSearchParams(location.search).has("preview")) {
+      const c = document.getElementById("preview-controls");
+      if (c) c.style.display = "inline-flex";
+    }
     if (localStorage.getItem("ck_mobile_mode") === "radio") setMode("radio");
   </script>
 </body>
