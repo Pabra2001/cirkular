@@ -11,8 +11,7 @@
   <link rel="apple-touch-icon" href="./icon-512.png">
   <link rel="preload" href="../assets/inter.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../cirkular-back-arrow.css">
-  <link rel="stylesheet" href="../transitions.css">
-  <title>CIRKULAR.app</title>
+    <title>CIRKULAR.app</title>
   <style>
     @font-face {
       font-family: "Cirkular Inter";
@@ -125,7 +124,7 @@
     .win-btn[aria-pressed="false"] { color: rgba(187, 255, 41, .45); }
     .win-btn[aria-pressed="true"] { color: #bbff29; }
     .win-btn[hidden] { display: none; }
-    .win-x { font: 600 15px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .win-x { font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
     .widget-shell:fullscreen, .widget-shell.is-fs {
       width: 100vw; height: 100dvh; max-width: none; border-radius: 0; box-shadow: none;
     }
@@ -136,6 +135,7 @@
       height: 100%;
       overflow: hidden;
     }
+    .mode-shop { display: none; }
     .track {
       display: flex;
       width: 200%;
@@ -143,6 +143,13 @@
       transition: transform .28s cubic-bezier(.4, 0, .2, 1);
     }
     .track.is-radio { transform: translateX(-50%); }
+    @media (pointer: coarse) {
+      .mode-shop { display: grid; }
+      .track { width: 300%; }
+      .pane { width: 33.3334%; }
+      .track.is-radio { transform: translateX(-33.3334%); }
+      .track.is-shop { transform: translateX(-66.6667%); }
+    }
     .pane {
       width: 50%;
       height: 100%;
@@ -187,7 +194,7 @@
     }
   </style>
 </head>
-<body class="ck-enter-right">
+<body>
   <header class="page-top">
     <a class="back back-arrow" href="../" aria-label="Back to CIRKULAR">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -217,10 +224,16 @@
               <path d="M14 12h4M14 16h4"/>
             </svg>
           </button>
+          <button class="mode-btn mode-shop" id="btn-shop" type="button" role="tab" aria-pressed="false" aria-label="Shop CIRKULAR marketplace">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 8h14l-1 12H6L5 8z"/>
+              <path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+            </svg>
+          </button>
         </div>
         <div class="win-controls" id="win-controls">
           <button class="win-btn" id="btn-pin" type="button" aria-pressed="false" aria-label="Pin on top" title="Pin on top" hidden>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><g transform="rotate(45 12 12)"><path d="M15.5 3h-7v2h1.2v5.2L7 13v2h4.2v6.2l.8.8.8-.8V15H17v-2l-2.7-2.8V5h1.2z"/></g></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 3h9v2h-1.4l.8 6.2H18v2H6v-2h1.1l.8-6.2H7.5z"/><path d="M11.2 13.4h1.6V21l-.8 1.2-.8-1.2z"/></svg>
           </button>
           <button class="win-btn win-x" id="btn-close" type="button" aria-label="Close" title="Close">&times;</button>
         </div>
@@ -230,6 +243,7 @@
         <div class="track" id="track">
           <iframe class="pane" id="frame-tv" src="/tv/?embed=1" allow="autoplay; fullscreen" title="CIRKULAR TV"></iframe>
           <iframe class="pane" id="frame-radio" src="about:blank" allow="autoplay" title="CIRKULAR Radio"></iframe>
+          <iframe class="pane" id="frame-shop" src="about:blank" title="CIRKULAR Marketplace"></iframe>
         </div>
       </div>
     </div>
@@ -250,17 +264,29 @@
     const frameRadio = document.getElementById("frame-radio");
     let radioLoaded = false;
 
+    const btnShop = document.getElementById("btn-shop");
+    const frameShop = document.getElementById("frame-shop");
+    let shopLoaded = false;
+
     function setMode(mode) {
       const isRadio = mode === "radio";
+      const isShop = mode === "shop";
       if (isRadio && !radioLoaded) {
         frameRadio.src = "/radio/?embed=1";
         radioLoaded = true;
       }
+      if (isShop && !shopLoaded) {
+        frameShop.src = "/marketplace/?embed=1";
+        shopLoaded = true;
+      }
       track.classList.toggle("is-radio", isRadio);
-      btnTv.setAttribute("aria-pressed", String(!isRadio));
+      track.classList.toggle("is-shop", isShop);
+      btnTv.setAttribute("aria-pressed", String(!isRadio && !isShop));
       btnRadio.setAttribute("aria-pressed", String(isRadio));
+      btnShop.setAttribute("aria-pressed", String(isShop));
       localStorage.setItem("ck_mobile_mode", mode);
     }
+    btnShop.addEventListener("click", () => setMode("shop"));
 
     btnTv.addEventListener("click", () => setMode("tv"));
     btnRadio.addEventListener("click", () => setMode("radio"));
@@ -309,7 +335,11 @@
       setCardFullscreen(!shell.classList.contains("is-fs"));
     });
 
-    if (localStorage.getItem("ck_mobile_mode") === "radio") setMode("radio");
+    {
+      const saved = localStorage.getItem("ck_mobile_mode");
+      const coarse = matchMedia("(pointer: coarse)").matches;
+      if (saved === "radio" || (saved === "shop" && coarse)) setMode(saved);
+    }
   </script>
 </body>
 </html>
