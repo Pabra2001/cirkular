@@ -9,25 +9,78 @@
   <meta name="apple-mobile-web-app-title" content="CIRKULAR">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./icon-512.png">
-  <title>CIRKULAR — TV &amp; Radio</title>
+  <link rel="preload" href="../assets/inter.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../cirkular-back-arrow.css">
+  <link rel="stylesheet" href="../transitions.css">
+  <title>CIRKULAR.app</title>
   <style>
+    @font-face {
+      font-family: "Cirkular Inter";
+      src: url("../assets/inter.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
       margin: 0;
       width: 100%;
       height: 100%;
-      height: 100dvh;
-      background: #060705;
-      color: #bbff29;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      min-height: 100dvh;
+      background: #bbff29;
+      color: #060705;
+      font: 14px/1.4 "Cirkular Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
     body {
       display: grid;
-      grid-template-rows: calc(40px + env(safe-area-inset-top)) minmax(0, 1fr);
+      grid-template-rows: auto 1fr auto;
+      padding: 20px 24px 24px;
+      gap: 14px;
+    }
+    .page-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .back {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #060705;
+      color: #bbff29;
+      display: grid;
+      place-items: center;
+      text-decoration: none;
+      transition: transform .15s ease;
+    }
+    .back:hover { transform: translateX(-2px); }
+    .wordmark {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 2px;
+      color: #060705;
+    }
+    .wordmark img { height: 16px; display: block; }
+    .app-dot { font: 400 17px/1 "Cirkular Inter", sans-serif; letter-spacing: -.03em; }
+
+    .center-stage {
+      display: grid;
+      place-items: center;
+      min-height: 0;
+    }
+    .widget-shell {
+      width: min(360px, 100%);
+      height: min(540px, calc(100dvh - 150px));
+      border-radius: 18px;
+      overflow: hidden;
+      background: #060705;
+      color: #bbff29;
+      box-shadow: 0 24px 60px rgba(6, 7, 5, .28);
+      display: grid;
+      grid-template-rows: 36px minmax(0, 1fr);
     }
     .app-bar {
-      padding: env(safe-area-inset-top) 14px 0;
+      padding: 0 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -42,8 +95,8 @@
     }
     .mode-btn {
       width: 46px;
-      height: 22px;
-      border-radius: 11px;
+      height: 21px;
+      border-radius: 10.5px;
       border: 0;
       background: transparent;
       color: rgba(187, 255, 41, .45);
@@ -55,16 +108,6 @@
     .mode-btn[aria-pressed="true"] {
       background: rgba(187, 255, 41, .18);
       color: #bbff29;
-    }
-    .install-hint {
-      font: 500 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: rgba(187, 255, 41, .55);
-      text-decoration: none;
-    }
-    @media (display-mode: standalone) {
-      .install-hint { display: none; }
     }
     .deck {
       position: relative;
@@ -78,47 +121,100 @@
       height: 100%;
       transition: transform .28s cubic-bezier(.4, 0, .2, 1);
     }
-    .track.is-radio {
-      transform: translateX(-50%);
-    }
+    .track.is-radio { transform: translateX(-50%); }
     .pane {
       width: 50%;
       height: 100%;
       border: 0;
       background: #060705;
     }
+
+    .caption {
+      text-align: center;
+      font: 500 13px/1.4 "Cirkular Inter", sans-serif;
+      color: rgba(6, 7, 5, .82);
+    }
+    .caption a {
+      color: #060705;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-bottom: 1px solid rgba(6, 7, 5, .35);
+      padding-bottom: 1px;
+    }
+    .caption a:hover { border-bottom-color: #060705; }
+    .cap-mobile { display: none; }
+    @media (pointer: coarse) {
+      .cap-desktop { display: none; }
+      .cap-mobile { display: inline; }
+    }
+
+    /* Fullscreen standalone mobile PWA mode — zero green frame, pure edge-to-edge app */
+    @media (display-mode: standalone) {
+      html, body { background: #060705; overflow: hidden; }
+      body { padding: 0; gap: 0; grid-template-rows: 1fr; }
+      .page-top, .caption { display: none; }
+      .widget-shell {
+        width: 100%;
+        height: 100dvh;
+        border-radius: 0;
+        box-shadow: none;
+        grid-template-rows: calc(40px + env(safe-area-inset-top)) minmax(0, 1fr);
+      }
+      .app-bar { padding: env(safe-area-inset-top) 14px 0; }
+    }
   </style>
 </head>
-<body>
-  <header class="app-bar">
-    <div class="mode-pills" role="tablist" aria-label="CIRKULAR mode">
-      <button class="mode-btn" id="btn-tv" type="button" role="tab" aria-pressed="true" aria-label="CIRKULAR TV">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="2" y="4" width="20" height="14" rx="2"/>
-          <path d="M8 21h8"/>
-        </svg>
-      </button>
-      <button class="mode-btn" id="btn-radio" type="button" role="tab" aria-pressed="false" aria-label="CIRKULAR Radio">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="3" y="8" width="18" height="12" rx="2"/>
-          <path d="M7 8l10-4"/>
-          <circle cx="8.5" cy="14" r="2"/>
-          <path d="M14 12h4M14 16h4"/>
-        </svg>
-      </button>
+<body class="ck-enter-right">
+  <header class="page-top">
+    <a class="back back-arrow" href="../" aria-label="Back to CIRKULAR">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="2.8" stroke-linecap="square" stroke-linejoin="miter"/>
+      </svg>
+    </a>
+    <div class="wordmark">
+      <img src="../cirkular-world/media/wordmark.svg" alt="CIRKULAR"><span class="app-dot">.app</span>
     </div>
-    <span class="preview-controls" id="preview-controls" style="display:none;align-items:center;gap:10px;color:#bbff29;opacity:.85;">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 3v2h-1v5l2 2v2h-4v7l-1 1-1-1v-7H7v-2l2-2V5H8V3h8z"/></svg>
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </span>
   </header>
 
-  <main class="deck">
-    <div class="track" id="track">
-      <iframe class="pane" id="frame-tv" src="/tv/?embed=1" allow="autoplay; fullscreen" title="CIRKULAR TV"></iframe>
-      <iframe class="pane" id="frame-radio" src="about:blank" allow="autoplay" title="CIRKULAR Radio"></iframe>
+  <main class="center-stage">
+    <div class="widget-shell">
+      <div class="app-bar">
+        <div class="mode-pills" role="tablist" aria-label="CIRKULAR mode">
+          <button class="mode-btn" id="btn-tv" type="button" role="tab" aria-pressed="true" aria-label="CIRKULAR TV">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="4" width="20" height="14" rx="2"/>
+              <path d="M8 21h8"/>
+            </svg>
+          </button>
+          <button class="mode-btn" id="btn-radio" type="button" role="tab" aria-pressed="false" aria-label="CIRKULAR Radio">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="8" width="18" height="12" rx="2"/>
+              <path d="M7 8l10-4"/>
+              <circle cx="8.5" cy="14" r="2"/>
+              <path d="M14 12h4M14 16h4"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="deck">
+        <div class="track" id="track">
+          <iframe class="pane" id="frame-tv" src="/tv/?embed=1" allow="autoplay; fullscreen" title="CIRKULAR TV"></iframe>
+          <iframe class="pane" id="frame-radio" src="about:blank" allow="autoplay" title="CIRKULAR Radio"></iframe>
+        </div>
+      </div>
     </div>
   </main>
+
+  <footer class="caption">
+    <span class="cap-desktop">
+      <a href="../cirkular-mac.zip" download>Download Mac widget <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" aria-hidden="true"><path d="M12 4v11m0 0l-5-5m5 5l5-5M4 20h16"/></svg></a>
+      &nbsp;·&nbsp; On phone, tap Share → Add to Home Screen
+    </span>
+    <span class="cap-mobile">Tap Share → Add to Home Screen to install as an app</span>
+  </footer>
 
   <script>
     const track = document.getElementById("track");
@@ -142,10 +238,6 @@
     btnTv.addEventListener("click", () => setMode("tv"));
     btnRadio.addEventListener("click", () => setMode("radio"));
 
-    if (new URLSearchParams(location.search).has("preview")) {
-      const c = document.getElementById("preview-controls");
-      if (c) c.style.display = "inline-flex";
-    }
     if (localStorage.getItem("ck_mobile_mode") === "radio") setMode("radio");
   </script>
 </body>
