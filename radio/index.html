@@ -49,7 +49,13 @@
     }
 
     .top-bar a { pointer-events: auto; }
-    .radio-embedded .top-bar { justify-content: flex-end !important; }
+    .radio-embedded .top-bar {
+      justify-content: flex-end !important;
+      height: 46px;
+      padding: 0 22px;
+      background: var(--bg);
+      border-bottom: 1px solid rgba(187, 255, 41, .28);
+    }
     .radio-embedded .back-arrow,
     .radio-embedded .radio-get-app { display: none !important; }
     .radio-get-app {

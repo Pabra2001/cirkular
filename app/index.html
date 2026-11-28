@@ -109,6 +109,20 @@
       background: rgba(187, 255, 41, .18);
       color: #bbff29;
     }
+    .win-controls { display: flex; align-items: center; gap: 4px; }
+    .win-btn {
+      width: 18px;
+      height: 18px;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: #bbff29;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .win-btn[aria-pressed="false"] { color: rgba(187, 255, 41, .4); }
     .deck {
       position: relative;
       width: 100%;
@@ -154,7 +168,7 @@
     @media (display-mode: standalone) {
       html, body { background: #060705; overflow: hidden; }
       body { padding: 0; gap: 0; grid-template-rows: 1fr; }
-      .page-top, .caption { display: none; }
+      .page-top, .caption, .win-controls { display: none; }
       .widget-shell {
         width: 100%;
         height: 100dvh;
@@ -197,12 +211,28 @@
             </svg>
           </button>
         </div>
+        <div class="win-controls" id="win-controls">
+          <button class="win-btn" id="btn-pin" type="button" aria-pressed="true" aria-label="Pin on top" title="Pin">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 3v2h-1v5l2 2v2h-4v7l-1 1-1-1v-7H7v-2l2-2V5H8V3h8z"/></svg>
+          </button>
+          <a class="win-btn" href="../" aria-label="Close" title="Close">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </a>
+        </div>
       </div>
 
       <div class="deck">
         <div class="track" id="track">
           <iframe class="pane" id="frame-tv" src="/tv/?embed=1" allow="autoplay; fullscreen" title="CIRKULAR TV"></iframe>
           <iframe class="pane" id="frame-radio" src="about:blank" allow="autoplay" title="CIRKULAR Radio"></iframe>
+        </div>
+        <div class="win-controls" id="win-controls">
+          <button class="win-btn" id="btn-pin" type="button" aria-pressed="true" aria-label="Pin on top" title="Pin">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 3v2h-1v5l2 2v2h-4v7l-1 1-1-1v-7H7v-2l2-2V5H8V3h8z"/></svg>
+          </button>
+          <a class="win-btn" href="../" aria-label="Close" title="Close">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </a>
         </div>
       </div>
     </div>
@@ -236,6 +266,8 @@
     }
 
     btnTv.addEventListener("click", () => setMode("tv"));
+    const pinBtn = document.getElementById("btn-pin");
+    pinBtn.addEventListener("click", () => pinBtn.setAttribute("aria-pressed", String(pinBtn.getAttribute("aria-pressed") !== "true")));
     btnRadio.addEventListener("click", () => setMode("radio"));
 
     if (localStorage.getItem("ck_mobile_mode") === "radio") setMode("radio");
