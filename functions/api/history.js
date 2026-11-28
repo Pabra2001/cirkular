@@ -44,6 +44,7 @@ export async function onRequestGet({ request }) {
       title: a.title,
       artist: a.creators?.[0]?.description || "Archive",
       date: a.creation_date || "",
+      url: a.url || `https://www.clevelandart.org/art/${a.accession_number || a.id}`,
       src: `/api/history?img=${encodeURIComponent(a.images.web.url)}`
     }));
 

@@ -30,6 +30,7 @@ let requestedContribution = false;
 let collection = 'world';
 const localArt = new Set();
 const localColor = new Map();
+const localSourceUrl = new Map();
 
 async function ditherMuseumImage(url) {
   return new Promise((resolve) => {
@@ -132,6 +133,7 @@ async function ditherMuseumImage(url) {
         if (!pair) return null;
         localArt.add(pair.limeUrl);
         localColor.set(pair.limeUrl, pair.colorUrl);
+        if (item.url) localSourceUrl.set(pair.limeUrl, item.url);
         return pair.limeUrl;
       })
     );
@@ -276,6 +278,20 @@ function inspect(itemIndex) {
   artwork.alt = `${collection} artwork ${itemIndex + 1}`;
   download.href = src;
   download.download = localArt.has(src) ? 'cirkular-compost.' + (src.endsWith('#mp4') ? 'mp4' : 'webm') : file;
+
+  // Wire clickable binary number -> direct artwork source URL + 3-dot fullscreen carousel indicator
+  const captionSpan = dialog.querySelector('.art-caption span');
+  if (captionSpan) {
+    const sourceUrl = localSourceUrl.get(src);
+    captionSpan.style.cursor = sourceUrl ? 'pointer' : '';
+    captionSpan.title = sourceUrl ? 'Open artwork source' : '';
+    captionSpan.onclick = sourceUrl ? () => window.open(sourceUrl, '_blank', 'noopener,noreferrer') : null;
+  }
+  const fsDots = dialog.querySelectorAll('.fs-dot');
+  if (fsDots.length === 3) {
+    const bucket = Math.round(itemIndex * 2 / Math.max(1, items.length - 1));
+    fsDots.forEach((d, idx) => d.setAttribute('aria-current', String(idx === bucket)));
+  }
   for (const control of dialog.querySelectorAll('[aria-pressed]')) {
     control.setAttribute('aria-pressed', 'false');
     dialog.dataset[control.dataset.art] = 'false';
@@ -340,48 +356,85 @@ function stepArtwork(direction) {
   const wrap = Math.abs(next - selectedIndex) > 1;
   centerSlide(next, wrap || reducedMotion.matches ? 'instant' : 'smooth');
 }
-let lastWheelEvent = -Infinity;
+// Inject 3-dot carousel indicator directly above the binary number in fullscreen dialog
+(() => {
+  const cap = dialog.querySelector('.art-caption');
+  if (!cap || dialog.querySelector('.fs-dots')) return;
+  const dots = document.createElement('div');
+  dots.className = 'fs-dots';
+  dots.style.cssText = 'display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:8px;';
+  [0, 1, 2].forEach((bucket) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'fs-dot';
+    b.setAttribute('aria-label', `Jump to position ${bucket + 1}`);
+    b.style.cssText = 'width:8px;height:8px;border-radius:999px;border:0;padding:0;background:rgba(187,255,41,.35);cursor:pointer;transition:width .18s ease,background .18s ease;';
+    b.addEventListener('click', () => {
+      const len = collections[collection].length;
+      const target = Math.round(bucket * (len - 1) / 2);
+      inspect(target);
+    });
+    dots.appendChild(b);
+  });
+  const style = document.createElement('style');
+  style.textContent = '.fs-dot[aria-current="true"]{width:22px!important;background:#bbff29!important;}';
+  dialog.appendChild(style);
+  cap.prepend(dots);
+})();
+
 let lastWheelTurn = -Infinity;
-let lastWheelDelta = 0;
-let wheelTravel = 0;
-let wheelConsumed = false;
 let lastTouchSwipe = -Infinity;
 const catalogReady = () => document.body.dataset.scene === 'catalog' && !strip.closest('.catalog').hidden && !dialog.open;
-window.addEventListener('wheel', event => {
-  if (!catalogReady() || event.ctrlKey) return;
-  event.preventDefault();
-  const axis = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
-  const delta = axis * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? innerHeight : 1);
-  if (!delta || event.timeStamp - lastTouchSwipe < 320) return;
 
-  const pause = event.timeStamp - lastWheelEvent;
-  const sinceTurn = event.timeStamp - lastWheelTurn;
-  const magnitude = Math.abs(delta);
-  const previousMagnitude = Math.abs(lastWheelDelta);
-  const renewed = sinceTurn > 65 && magnitude >= 36 &&
-    (Math.sign(delta) !== Math.sign(lastWheelDelta) || magnitude > previousMagnitude * 1.55 ||
-      (magnitude >= 100 && magnitude === previousMagnitude && pause >= 85));
-  if (pause > 250 || renewed || event.deltaMode !== 0) {
-    wheelTravel = 0;
-    wheelConsumed = false;
-  }
-  lastWheelEvent = event.timeStamp;
-  lastWheelDelta = delta;
-  if (wheelConsumed) return;
-  wheelTravel += delta;
-  if (Math.abs(wheelTravel) < 18) return;
-  wheelConsumed = true;
-  lastWheelTurn = event.timeStamp;
-  stepArtwork(Math.sign(wheelTravel));
-}, {passive:false});
-strip.addEventListener('keydown', event => {
-  if (!catalogReady() || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+window.addEventListener('wheel', event => {
+  if (event.ctrlKey) return;
+  const inCatalog = catalogReady();
+  const inDialog = dialog.open;
+  if (!inCatalog && !inDialog) return;
   event.preventDefault();
-  if (event.repeat) return;
-  stepArtwork(event.key === 'ArrowLeft' ? -1 : 1);
-  if (event.target.matches('[data-catalog-item]')) catalogCards()[selectedIndex].focus({preventScroll: true});
+  const axis = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+  if (Math.abs(axis) < 12) return;
+  if (event.timeStamp - lastWheelTurn < 260 || event.timeStamp - lastTouchSwipe < 320) return;
+  lastWheelTurn = event.timeStamp;
+  const dir = Math.sign(axis);
+  if (inDialog) {
+    const len = collections[collection].length;
+    inspect((viewerReturnIndex + dir + len) % len);
+  } else {
+    stepArtwork(dir);
+  }
+}, {passive:false});
+
+window.addEventListener('keydown', event => {
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+  const dir = event.key === 'ArrowLeft' ? -1 : 1;
+  if (dialog.open) {
+    event.preventDefault();
+    const len = collections[collection].length;
+    inspect((viewerReturnIndex + dir + len) % len);
+    return;
+  }
+  if (!catalogReady()) return;
+  event.preventDefault();
+  stepArtwork(dir);
 });
+
+// Swipe left/right inside fullscreen dialog to cycle artworks without closing
+let fsTouchX = null;
+dialog.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) fsTouchX = e.touches[0].clientX;
+}, {passive: true});
+dialog.addEventListener('touchend', (e) => {
+  if (fsTouchX === null || !e.changedTouches.length) return;
+  const dx = e.changedTouches[0].clientX - fsTouchX;
+  fsTouchX = null;
+  if (Math.abs(dx) >= 42) {
+    lastTouchSwipe = performance.now();
+    const len = collections[collection].length;
+    inspect((viewerReturnIndex + (dx < 0 ? 1 : -1) + len) % len);
+  }
+}, {passive: true});
 pagination.forEach(dot => dot.addEventListener('click', () => centerSlide(Math.round(Number(dot.dataset.slide) * (collections[collection].length - 1) / 4), reducedMotion.matches ? 'instant' : 'smooth')));
 dialog.querySelectorAll('button[data-art]').forEach(button => button.addEventListener('click', () => {
   if (button.dataset.art === 'close') {
