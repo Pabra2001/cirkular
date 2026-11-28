@@ -76,13 +76,13 @@ export async function onRequestGet({ request }) {
         '("Vito Acconci" OR "Bruce Nauman" OR "Chris Burden" OR "John Baldessari" OR "Gordon Matta-Clark" OR "Richard Serra" OR "Robert Smithson")',
         '("Matthew Barney" OR "Douglas Gordon" OR "Steve McQueen" OR "Isaac Julien" OR "Arthur Jafa" OR "Hito Steyerl" OR "Ryan Trecartin")',
         '("Chris Cunningham" OR "Michel Gondry" OR "Spike Jonze" OR "Jonathan Glazer" OR "Gaspar Noe" OR "Nicolas Winding Refn" OR "Yorgos Lanthimos")',
-        '("Alexander McQueen" OR "Rei Kawakubo" OR "Yohji Yamamoto" OR "Issey Miyake" OR "Martin Margiela" OR "Helmut Newton" OR "Wolfgang Tillmans")',
-        '("Cindy Sherman" OR "Nan Goldin" OR "Robert Mapplethorpe" OR "Diane Arbus" OR "Nobuyoshi Araki" OR "Daido Moriyama" OR "Hiroshi Sugimoto")',
-        '("Takashi Murakami" OR "Yoshitomo Nara" OR "Ryoji Ikeda" OR "Carsten Nicolai" OR "Olafur Eliasson" OR "James Turrell" OR "Anish Kapoor")',
-        '("Ai Weiwei" OR "Tino Sehgal" OR "Christian Marclay" OR "Tacita Dean" OR "William Kentridge" OR "Shirazeh Houshiary" OR "Shirin Neshat")',
+        '("Mika Rottenberg" OR "Cao Fei" OR "Camille Henrot" OR "Ed Atkins" OR "Jon Rafman" OR "Wu Tsang" OR "Korakrit Arunanondchai")',
+        '("Laure Prouvost" OR "Agnieszka Polska" OR "Cecile B. Evans" OR "Jacolby Satterwhite" OR "Sadie Benning" OR "Leslie Thornton" OR "Peggy Ahwesh")',
+        '("Su Friedrich" OR "Yvonne Rainer" OR "Trinh T. Minh-ha" OR "Coco Fusco" OR "Ana Mendieta" OR "Adrian Piper" OR "Dara Birnbaum")',
+        '("Lynn Hershman Leeson" OR "Steina Vasulka" OR "Woody Vasulka" OR "Peter Campus" OR "Gary Hill" OR "Tony Oursler" OR "Paul McCarthy")',
+        '("Mike Kelley" OR "Sophie Calle" OR "Francis Alys" OR "Santiago Sierra" OR "Teresa Margolles" OR "Alfredo Jaar" OR "Pierre Huyghe")',
         '("Kahlil Joseph" OR "Garrett Bradley" OR "Martine Syms" OR "Sondra Perry" OR "Kara Walker" OR "Carrie Mae Weems" OR "Theaster Gates")',
-        '("Aphex Twin" OR "Bjork" OR "FKA twigs" OR "Arca" OR "Oneohtrix Point Never" OR "Ryuichi Sakamoto" OR "Brian Eno")',
-        '("Dieter Rams" OR "Virgil Abloh" OR "Zaha Hadid" OR "Tadao Ando" OR "Rem Koolhaas" OR "Le Corbusier" OR "Ettore Sottsass")',
+        '("Ai Weiwei" OR "Tino Sehgal" OR "Christian Marclay" OR "Tacita Dean" OR "William Kentridge" OR "Shirin Neshat" OR "Olafur Eliasson")',
         '("Guy Debord" OR "Harun Farocki" OR "Ulrike Ottinger" OR "Werner Schroeter" OR "Philippe Garrel" OR "Jean Eustache" OR "Maurice Pialat")'
       ];
       const group = ARTIST_GROUPS[Math.floor(Math.random() * ARTIST_GROUPS.length)];
