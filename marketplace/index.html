@@ -243,6 +243,21 @@
 
     .mp-embedded .back-arrow { display: none !important; }
 
+    .mp-embedded #sourcing-form .search-submit:is(:active, [data-touch-pressed]) {
+      background-color: var(--green);
+      color: var(--black);
+      transition-delay: 0s;
+    }
+
+    .mp-embedded .result-card .result-copy {
+      display: flex;
+      flex-direction: column;
+      align-self: stretch;
+    }
+
+    .mp-embedded .result-card .result-copy h2 { min-block-size: 0; }
+    .mp-embedded .result-card .result-open { margin-block-start: auto; }
+
     @media (max-width: 680px) {
       .market-frame:has(.listing-carousel, .product-detail) { overflow: clip; }
       .ck-market-reload { display: none; }
