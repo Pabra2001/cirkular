@@ -846,3 +846,18 @@ dialog.art-dialog canvas,
   filter: blur(2.2px) !important;
 }
 #catalog-upload-instruction { display: none !important; }
+
+/* Clean borderless left-facing curved back arrow (no outer green ring; fills on hover) */
+.cirkular-back.back-arrow {
+  border: 0 !important;
+  background: transparent !important;
+  color: #bbff29 !important;
+  transform: none !important;
+}
+.cirkular-back.back-arrow svg {
+  transform: none !important;
+}
+.cirkular-back.back-arrow:is(:hover, :focus-visible) {
+  background: #bbff29 !important;
+  color: #060705 !important;
+}
