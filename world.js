@@ -20,12 +20,8 @@ const collections = {
   world: [
     'world-1.mp4', 'world-2.mp4', 'world-3-dance.mp4', 'world-4.mp4', 'world-5.mp4',
   ],
-  history: [
-    ...Array.from({length: 5}, (_, index) => `catalog-${index + 1}.webp`),
-    ...[12110, 488927, 485537, 436532, 438817].map(id => `history-${id}-lime.webp`),
-  ],
+  history: [],
 };
-for (const file of collections.history) new Image().src = `https://prnce.pages.dev/cirkular-world/media/${file}`;
 let requestedContribution = false;
 let collection = 'world';
 const localArt = new Set();
@@ -139,11 +135,19 @@ async function ditherMuseumImage(url) {
     );
     const dithered = results.filter(Boolean);
     if (dithered.length) {
-      // Replace old static history images completely with 20 fresh dithered museum works
       collections.history = dithered;
       if (document.body.dataset.scene === 'catalog' && collection === 'history') {
         renderCollection();
         centerSlide(Math.min(2, dithered.length - 1), 'instant');
+        if (!reducedMotion.matches) {
+          strip.animate(
+            [
+              { opacity: 0, transform: 'scaleX(0.68) scaleY(0.92)', filter: 'blur(8px)' },
+              { opacity: 1, transform: 'scaleX(1) scaleY(1)', filter: 'blur(0px)' }
+            ],
+            { duration: 540, easing: 'cubic-bezier(.22, 1, .36, 1)', fill: 'both' }
+          );
+        }
       }
     }
   } catch {
@@ -230,6 +234,10 @@ function showRoute() {
 function renderCollection() {
   const items = collections[collection];
   strip.dataset.collection = collection;
+  if (!items || !items.length) {
+    strip.replaceChildren();
+    return;
+  }
   const positions = [-2, -1, ...items.keys(), items.length, items.length + 1];
   strip.replaceChildren(...positions.map(position => {
     const itemIndex = (position + items.length) % items.length;
