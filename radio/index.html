@@ -241,9 +241,10 @@
       let lastSlice = 0;
       let output = null;
       const appEmbedded = document.documentElement.classList.contains("app-embedded");
+      const portfolioEmbedded = document.documentElement.classList.contains("portfolio-embedded");
       const compact = appEmbedded || document.documentElement.classList.contains("mac-widget");
       const playback = document.getElementById("radio-playback");
-      let muted = appEmbedded;
+      let muted = appEmbedded || portfolioEmbedded;
       const embedded = document.documentElement.classList.contains("radio-embedded");
 
       function updateOutput() {
@@ -289,6 +290,7 @@
         window.addEventListener("message", event => {
           if (event.source !== window.parent || event.origin !== "https://prnce.pages.dev") return;
           if (event.data?.type !== "cirkular-radio-mute" || typeof event.data.muted !== "boolean") return;
+          if (portfolioEmbedded && !isPlaying && !pendingStart) return;
           muted = event.data.muted;
           updateOutput();
         });
@@ -451,6 +453,7 @@
       function togglePlay() {
         if (!isPlaying && !pendingStart) {
           pausedByUser = false;
+          if (portfolioEmbedded) muted = false;
           startStream();
           return;
         }
@@ -474,8 +477,8 @@
       });
 
       if (mobileAppAudio) initAudio();
-      else startStream();
-      if (!appEmbedded) {
+      else if (!portfolioEmbedded) startStream();
+      if (!appEmbedded && !portfolioEmbedded) {
         window.addEventListener("pageshow", event => {
           if (event.persisted) tuneNextVisit();
         });
