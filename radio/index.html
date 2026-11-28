@@ -40,16 +40,19 @@
       top: 0;
       left: 0;
       right: 0;
+      height: 46px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 22px 28px;
+      padding: 0 22px;
+      background: var(--bg);
+      border-bottom: 1px solid rgba(187, 255, 41, .28);
       z-index: 20;
       pointer-events: none;
     }
 
     .top-bar a { pointer-events: auto; }
-    .radio-embedded .top-bar { top: 10px; justify-content: flex-end !important; }
+    .radio-embedded .top-bar { justify-content: flex-end !important; }
     .radio-embedded .back-arrow { display: none !important; }
 
     .brand-lockup {

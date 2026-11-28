@@ -20,6 +20,8 @@ const CHANNELS = {
     city: "LONDON",
     freq: "94.6 MHz",
     streams: [
+      "https://stream-relay-geo.ntslive.net/stream",
+      "https://stream-relay-geo.ntslive.net/stream2",
       "https://ice1.somafm.com/cliqhop-128-mp3",
       "https://ice2.somafm.com/cliqhop-128-mp3",
       "https://ice1.somafm.com/dubstep-128-mp3",
