@@ -157,6 +157,12 @@ async function ditherMuseumImage(url) {
   }
 })();
 const backLink = document.querySelector('.cirkular-back');
+const referrer = document.referrer ? new URL(document.referrer) : null;
+const portfolioCatalogReturn = referrer?.origin === 'https://prnce.pages.dev' &&
+  (referrer.pathname === '/' || /^\/cirkular-case-study\/?$/.test(referrer.pathname)) &&
+  ['#catalog-intro', '#history'].includes(location.hash);
+const caseStudyUrl = 'https://prnce.pages.dev/cirkular-case-study/#compost';
+const catalogArrivalHistoryLength = history.length;
 let uploadReturn = '#world';
 let uploadReturnIndex = 2;
 
@@ -191,6 +197,10 @@ document.addEventListener('click', event => {
     return;
   }
   blurThen(link, () => {
+    if (portfolioCatalogReturn && link.href === caseStudyUrl && history.length === catalogArrivalHistoryLength && history.length > 1) {
+      history.back();
+      return;
+    }
     if (link.target === '_top') window.top.location.href = link.href;
     else location.href = link.href;
   });
@@ -217,9 +227,10 @@ function showRoute() {
     selectCollection(explicitCollection ? requested : 'world', returningFromUpload ? uploadReturnIndex : 2);
   }
   document.body.dataset.scene = activeRoute;
-  backLink.href = activeRoute === 'upload' ? uploadReturn : './';
+  const backToCaseStudy = activeRoute === 'catalog' && portfolioCatalogReturn;
+  backLink.href = activeRoute === 'upload' ? uploadReturn : backToCaseStudy ? caseStudyUrl : './';
   backLink.target = '_self';
-  backLink.setAttribute('aria-label', activeRoute === 'upload' ? 'Back to Catalog' : 'Back to Cirkular');
+  backLink.setAttribute('aria-label', activeRoute === 'upload' ? 'Back to Catalog' : backToCaseStudy ? 'Back to the Cirkular case study' : 'Back to Cirkular');
   if (dialog.open) dialog.close();
   if (activeRoute !== 'catalog' || entering) focusVideo.pause();
   for (const clip of strip.querySelectorAll('video')) {
