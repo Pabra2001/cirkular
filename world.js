@@ -23,7 +23,7 @@ const collections = {
   history: [],
 };
 let requestedContribution = false;
-let collection = 'world';
+let collection = 'history';
 const localArt = new Set();
 const localColor = new Map();
 const localSourceUrl = new Map();

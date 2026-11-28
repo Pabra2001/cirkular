@@ -67,7 +67,7 @@
       </h1>
     </header>
     <div class="catalog-stage">
-    <nav class="catalog-views" aria-label="Catalog view"><button type="button" data-collection="world" aria-pressed="true">world</button><button type="button" data-collection="history" aria-pressed="false">history</button></nav>
+    <nav class="catalog-views" aria-label="Catalog view" hidden><button type="button" data-collection="world" aria-pressed="false">world</button><button type="button" data-collection="history" aria-pressed="true">history</button></nav>
     <div class="catalog-strip" id="catalog-strip" tabindex="0" aria-label="Catalog artworks"></div>
     <nav class="catalog-pagination cirkular-pagination" aria-label="Catalog carousel navigation"><button data-slide="0" aria-label="Start"></button><button data-slide="2" aria-label="Middle"></button><button data-slide="4" aria-label="End"></button></nav>
     </div>
@@ -145,8 +145,7 @@
       setTimeout(() => seq.classList.add('seq-phase-logo'), 1150);
       setTimeout(() => {
         seq.classList.add('seq-done');
-        frame.classList.remove('seq-hidden');
-        frame.classList.add('seq-reveal');
+        location.replace('#history');
       }, 2150);
     }
   }
