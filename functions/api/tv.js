@@ -59,7 +59,31 @@ export async function onRequestGet({ request }) {
         '("Andy Warhol" OR "Stan Brakhage" OR "Kenneth Anger" OR "Jonas Mekas" OR "Bruce Conner" OR "Nam June Paik" OR "Oskar Fischinger")',
         '("Chris Marker" OR "Agnes Varda" OR "Jean-Luc Godard" OR "Andrei Tarkovsky" OR "Jean Vigo" OR "Dziga Vertov" OR "Carl Theodor Dreyer")',
         '("Alejandro Jodorowsky" OR "Derek Jarman" OR "Chantal Akerman" OR "Norman McLaren" OR "Len Lye" OR "Hans Richter" OR "Rene Clair")',
-        '("Yayoi Kusama" OR "Marina Abramovic" OR "Basquiat" OR "Keith Haring" OR "David Lynch" OR "Shinya Tsukamoto" OR "Bill Viola")'
+        '("Yayoi Kusama" OR "Marina Abramovic" OR "Basquiat" OR "Keith Haring" OR "David Lynch" OR "Shinya Tsukamoto" OR "Bill Viola")',
+        '("Wong Kar-wai" OR "Akira Kurosawa" OR "Yasujiro Ozu" OR "Federico Fellini" OR "Michelangelo Antonioni" OR "Ingmar Bergman" OR "Francois Truffaut")',
+        '("Louis Malle" OR "Vera Chytilova" OR "Sergei Parajanov" OR "Wim Wenders" OR "Fassbinder" OR "Pasolini" OR "Werner Herzog")',
+        '("Claire Denis" OR "Harmony Korine" OR "Gregg Araki" OR "Jean-Pierre Melville" OR "Abbas Kiarostami" OR "Takashi Miike" OR "Gus Van Sant")',
+        '("John Cassavetes" OR "Jim Jarmusch" OR "Hal Hartley" OR "Todd Haynes" OR "John Waters" OR "David Cronenberg" OR "Terry Gilliam")',
+        '("Kenji Mizoguchi" OR "Masaki Kobayashi" OR "Hiroshi Teshigahara" OR "Seijun Suzuki" OR "Nagisa Oshima" OR "Sion Sono" OR "Kiyoshi Kurosawa")',
+        '("Edward Yang" OR "Hou Hsiao-hsien" OR "Tsai Ming-liang" OR "Apichatpong Weerasethakul" OR "Park Chan-wook" OR "Bong Joon-ho" OR "Hong Sang-soo")',
+        '("Robert Bresson" OR "Eric Rohmer" OR "Jacques Rivette" OR "Jacques Demy" OR "Alain Resnais" OR "Marguerite Duras" OR "Leos Carax")',
+        '("Luchino Visconti" OR "Vittorio De Sica" OR "Roberto Rossellini" OR "Bernardo Bertolucci" OR "Dario Argento" OR "Mario Bava" OR "Elio Petri")',
+        '("Bela Tarr" OR "Krzysztof Kieslowski" OR "Andrzej Zulawski" OR "Milos Forman" OR "Jan Svankmajer" OR "Jiri Trnka" OR "Karel Zeman")',
+        '("Pedro Almodovar" OR "Victor Erice" OR "Carlos Saura" OR "Lucrecia Martel" OR "Glauber Rocha" OR "Raul Ruiz" OR "Patricio Guzman")',
+        '("Satyajit Ray" OR "Ritwik Ghatak" OR "Ousmane Sembene" OR "Djibril Diop Mambety" OR "Youssef Chahine" OR "Mohsen Makhmalbaf" OR "Jafar Panahi")',
+        '("Michael Snow" OR "Hollis Frampton" OR "Paul Sharits" OR "Tony Conrad" OR "Harry Smith" OR "Jordan Belson" OR "James Whitney")',
+        '("Shirley Clarke" OR "Barbara Hammer" OR "Carolee Schneemann" OR "Valie Export" OR "Martha Rosler" OR "Joan Jonas" OR "Pipilotti Rist")',
+        '("Vito Acconci" OR "Bruce Nauman" OR "Chris Burden" OR "John Baldessari" OR "Gordon Matta-Clark" OR "Richard Serra" OR "Robert Smithson")',
+        '("Matthew Barney" OR "Douglas Gordon" OR "Steve McQueen" OR "Isaac Julien" OR "Arthur Jafa" OR "Hito Steyerl" OR "Ryan Trecartin")',
+        '("Chris Cunningham" OR "Michel Gondry" OR "Spike Jonze" OR "Jonathan Glazer" OR "Gaspar Noe" OR "Nicolas Winding Refn" OR "Yorgos Lanthimos")',
+        '("Alexander McQueen" OR "Rei Kawakubo" OR "Yohji Yamamoto" OR "Issey Miyake" OR "Martin Margiela" OR "Helmut Newton" OR "Wolfgang Tillmans")',
+        '("Cindy Sherman" OR "Nan Goldin" OR "Robert Mapplethorpe" OR "Diane Arbus" OR "Nobuyoshi Araki" OR "Daido Moriyama" OR "Hiroshi Sugimoto")',
+        '("Takashi Murakami" OR "Yoshitomo Nara" OR "Ryoji Ikeda" OR "Carsten Nicolai" OR "Olafur Eliasson" OR "James Turrell" OR "Anish Kapoor")',
+        '("Ai Weiwei" OR "Tino Sehgal" OR "Christian Marclay" OR "Tacita Dean" OR "William Kentridge" OR "Shirazeh Houshiary" OR "Shirin Neshat")',
+        '("Kahlil Joseph" OR "Garrett Bradley" OR "Martine Syms" OR "Sondra Perry" OR "Kara Walker" OR "Carrie Mae Weems" OR "Theaster Gates")',
+        '("Aphex Twin" OR "Bjork" OR "FKA twigs" OR "Arca" OR "Oneohtrix Point Never" OR "Ryuichi Sakamoto" OR "Brian Eno")',
+        '("Dieter Rams" OR "Virgil Abloh" OR "Zaha Hadid" OR "Tadao Ando" OR "Rem Koolhaas" OR "Le Corbusier" OR "Ettore Sottsass")',
+        '("Guy Debord" OR "Harun Farocki" OR "Ulrike Ottinger" OR "Werner Schroeter" OR "Philippe Garrel" OR "Jean Eustache" OR "Maurice Pialat")'
       ];
       const group = ARTIST_GROUPS[Math.floor(Math.random() * ARTIST_GROUPS.length)];
       const videoArtPage = 1 + Math.floor(Math.random() * 5);
