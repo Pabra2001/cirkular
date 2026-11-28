@@ -174,7 +174,8 @@
       .top-bar { padding: 14px 16px; }
     }
     html.app-embedded .top-bar,
-    html.mac-widget .top-bar { justify-content: center !important; }
+    html.mac-widget .top-bar,
+    html.portfolio-embedded .top-bar { justify-content: center !important; }
   </style>
   <script>
     (() => {
@@ -184,6 +185,10 @@
       if (window.webkit?.messageHandlers?.haptic) document.documentElement.classList.add("mac-widget");
       try { if (window.self !== window.top) embedded = true; } catch { embedded = true; }
       if (embedded) document.documentElement.classList.add("radio-embedded");
+      if (window.self !== window.top && document.referrer &&
+          new URL(document.referrer).origin === "https://prnce.pages.dev") {
+        document.documentElement.classList.add("portfolio-embedded");
+      }
     })();
   </script>
 </head>

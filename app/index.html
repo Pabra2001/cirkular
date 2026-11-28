@@ -126,6 +126,8 @@
       width: 100vw; height: 100dvh; max-width: none; border-radius: 0; box-shadow: none;
     }
     .widget-shell.is-fs { position: fixed; inset: 0; z-index: 99999; }
+    .widget-shell.is-video-fs { grid-template-rows: minmax(0, 1fr); }
+    .widget-shell.is-video-fs .app-bar { display: none; }
     .deck {
       position: relative;
       width: 100%;
@@ -190,6 +192,10 @@
         grid-template-rows: calc(40px + env(safe-area-inset-top)) minmax(0, 1fr);
       }
       .app-bar { padding: env(safe-area-inset-top) 14px 0; }
+      .widget-shell:has(.track.is-shop) {
+        align-self: start;
+        height: 100lvh;
+      }
     }
   </style>
 </head>
@@ -331,18 +337,29 @@
     const shell = document.querySelector(".widget-shell");
 
     // Fullscreen request from the TV inside the card (CSS fullscreen always, native fullscreen as a bonus)
-    function setCardFullscreen(on) {
+    function setCardFullscreen(on, videoOnly = false) {
       shell.classList.toggle("is-fs", on);
-      if (on) { shell.requestFullscreen?.().catch(() => {}); }
-      else if (document.fullscreenElement) { document.exitFullscreen().catch(() => {}); }
+      shell.classList.toggle("is-video-fs", on && videoOnly);
+      if (on && !videoOnly) { shell.requestFullscreen?.().catch(() => {}); }
+      else if (!on && document.fullscreenElement) { document.exitFullscreen().catch(() => {}); }
     }
     document.addEventListener("fullscreenchange", () => {
       if (!document.fullscreenElement) shell.classList.remove("is-fs");
     });
-    window.addEventListener("keydown", (e) => { if (e.key === "Escape") setCardFullscreen(false); });
+    window.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      if (shell.classList.contains("is-video-fs")) {
+        frameTv.contentWindow.postMessage({ ckExitVideoFullscreen: true }, location.origin);
+      }
+      setCardFullscreen(false);
+    });
     window.addEventListener("message", (e) => {
-      if (!e.data || !e.data.ckFullscreen) return;
-      setCardFullscreen(!shell.classList.contains("is-fs"));
+      if (e.origin !== location.origin || e.source !== frameTv.contentWindow || !e.data?.ckFullscreen) return;
+      if (typeof e.data.videoOnly === "boolean") {
+        setCardFullscreen(e.data.videoOnly, true);
+      } else {
+        setCardFullscreen(!shell.classList.contains("is-fs"));
+      }
     });
 
     {

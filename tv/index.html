@@ -442,6 +442,9 @@
       cursor: pointer;
     }
     body.is-tv-fs .fs-exit-btn { display: inline-flex; }
+    @media (pointer: coarse) {
+      .app-embedded .fs-exit-btn { top: max(14px, 7svh); }
+    }
 
     .drawer-handle {
       display: none;
@@ -507,7 +510,8 @@
     .tv-embedded .tv-get-app { display: none !important; }
     .app-embedded #tv-grid { --sidebar-h: 218px; }
     html.app-embedded .top-bar,
-    html.mac-widget .top-bar { justify-content: center !important; }
+    html.mac-widget .top-bar,
+    html.portfolio-embedded .top-bar { justify-content: center !important; }
     .app-embedded #btn-fs,
     .mac-widget #btn-fs { margin-left: auto; }
   </style>
@@ -519,6 +523,10 @@
       if (window.webkit?.messageHandlers?.haptic) document.documentElement.classList.add("mac-widget");
       try { if (window.self !== window.top) embedded = true; } catch { embedded = true; }
       if (embedded) document.documentElement.classList.add("tv-embedded");
+      if (window.self !== window.top && document.referrer &&
+          new URL(document.referrer).origin === "https://prnce.pages.dev") {
+        document.documentElement.classList.add("portfolio-embedded");
+      }
     })();
   </script>
 </head>
@@ -919,10 +927,31 @@
     }, { passive: true });
 
     const fsExitBtn = document.getElementById("btn-fs-exit");
+    function setMobileVideoFullscreen(on) {
+      document.body.classList.toggle("is-tv-fs", on);
+      fsBtn.setAttribute("aria-pressed", String(on));
+      window.parent.postMessage({ ckFullscreen: true, videoOnly: on }, location.origin);
+    }
+
+    if (mobileAppAudio) {
+      window.addEventListener("message", event => {
+        if (event.origin === location.origin && event.source === window.parent && event.data?.ckExitVideoFullscreen) {
+          setMobileVideoFullscreen(false);
+        }
+      });
+      window.addEventListener("keydown", event => {
+        if (event.key === "Escape" && document.body.classList.contains("is-tv-fs")) setMobileVideoFullscreen(false);
+      });
+    }
+
     function toggleFullscreen() {
-      // Inside the CIRKULAR.app card, ask the parent page to fullscreen the whole card
-      if (document.documentElement.classList.contains("tv-embedded") && window.parent !== window) {
-        window.parent.postMessage({ ckFullscreen: true }, "*");
+      if (mobileAppAudio && window.parent !== window) {
+        setMobileVideoFullscreen(!document.body.classList.contains("is-tv-fs"));
+        return;
+      }
+      // Desktop CIRKULAR.app expands the whole card. Other embeds fullscreen their stage.
+      if (document.documentElement.classList.contains("app-embedded") && window.parent !== window) {
+        window.parent.postMessage({ ckFullscreen: true }, location.origin);
         return;
       }
       if (document.body.classList.contains("is-tv-fs")) {
