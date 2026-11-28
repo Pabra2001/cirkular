@@ -28,14 +28,17 @@ export async function onRequestGet({ request }) {
     });
   }
 
-  // Fresh 20-artwork pull from Cleveland Museum of Art Open Access API (41,900+ CC0 museum works)
+  // Fresh 20-artwork pull of gallery-displayed Paintings & Sculptures ONLY (zero manuscripts, papers, or vases)
   try {
-    const skip = Math.floor(Math.random() * 38000);
-    const apiUrl = `https://openaccess-api.clevelandart.org/api/artworks/?has_image=1&cc0=1&limit=36&skip=${skip}`;
-    const res = await fetch(apiUrl);
-    if (!res.ok) throw new Error(`CMA ${res.status}`);
-    const data = await res.json();
-    const valid = (data?.data || []).filter((a) => a?.images?.web?.url && a?.title);
+    const [paintRes, sculpRes] = await Promise.all([
+      fetch(`https://openaccess-api.clevelandart.org/api/artworks/?has_image=1&cc0=1&currently_on_view=1&type=Painting&limit=40&skip=${Math.floor(Math.random() * 500)}`),
+      fetch(`https://openaccess-api.clevelandart.org/api/artworks/?has_image=1&cc0=1&currently_on_view=1&type=Sculpture&limit=20&skip=${Math.floor(Math.random() * 250)}`)
+    ]);
+    const paintData = paintRes.ok ? await paintRes.json() : null;
+    const sculpData = sculpRes.ok ? await sculpRes.json() : null;
+    const combined = [...(paintData?.data || []), ...(sculpData?.data || [])];
+    const SKIP_RE = /\b(manuscript|folio|leaf from|letter|document|vase|jar|jug|bowl|plate|cup|dish|coin|seal|fragment)\b/i;
+    const valid = combined.filter((a) => a?.images?.web?.url && a?.title && !SKIP_RE.test(a.title));
     const items = shuffle(valid).slice(0, 20).map((a) => ({
       id: a.id,
       title: a.title,
