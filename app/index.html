@@ -262,20 +262,21 @@
     const btnRadio = document.getElementById("btn-radio");
     const frameRadio = document.getElementById("frame-radio");
     let radioLoaded = false;
+    let radioVisited = false;
 
     const btnShop = document.getElementById("btn-shop");
     const frameShop = document.getElementById("frame-shop");
     let shopLoaded = false;
     let activeMode = "tv";
 
-    function syncStationAudio(visible) {
+    function syncStationAudio(visible, retuneRadio = false) {
       if (!mobileAudio) return;
       const tvActive = visible && activeMode === "tv";
       const radioActive = visible && activeMode === "radio";
       if (!tvActive) frameTv.contentWindow.cirkularSetActive?.(false);
       if (!radioActive) frameRadio.contentWindow.cirkularSetActive?.(false);
       if (tvActive) frameTv.contentWindow.cirkularSetActive?.(true);
-      if (radioActive) frameRadio.contentWindow.cirkularSetActive?.(true);
+      if (radioActive) frameRadio.contentWindow.cirkularSetActive?.(true, retuneRadio);
     }
 
     if (mobileAudio) {
@@ -284,16 +285,25 @@
       }
       document.addEventListener("visibilitychange", () => syncStationAudio(!document.hidden));
       window.addEventListener("pagehide", () => syncStationAudio(false));
-      window.addEventListener("pageshow", () => syncStationAudio(!document.hidden));
       // Have the Radio document ready so its play call can run inside the tab tap.
       frameRadio.src = "/radio/?embed=app";
       radioLoaded = true;
     }
 
+    window.addEventListener("pageshow", event => {
+      syncStationAudio(!document.hidden, event.persisted);
+      if (event.persisted && !mobileAudio && activeMode === "radio") {
+        frameRadio.contentWindow.cirkularRetune?.();
+      }
+    });
+
     function setMode(mode) {
-      activeMode = mode;
-      syncStationAudio(!document.hidden);
       const isRadio = mode === "radio";
+      const retuneRadio = isRadio && radioVisited && activeMode !== "radio";
+      if (isRadio) radioVisited = true;
+      activeMode = mode;
+      syncStationAudio(!document.hidden, retuneRadio);
+      if (retuneRadio && !mobileAudio) frameRadio.contentWindow.cirkularRetune?.();
       const isShop = mode === "shop";
       if (isRadio && !radioLoaded) {
         frameRadio.src = "/radio/?embed=app";

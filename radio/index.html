@@ -215,6 +215,10 @@
     (() => {
       let isPlaying = false;
       let pendingStart = null;
+      const stations = ["drone", "dub", "punk", "jazz"];
+      let station = null;
+      let lastStation = null;
+      try { lastStation = localStorage.getItem("ck_radio_station"); } catch {}
       let audioEl = null;
       let ctx = null;
       let analyser = null;
@@ -244,14 +248,19 @@
       const mobileAppAudio = appEmbedded && matchMedia("(pointer: coarse)").matches;
       let pausedByUser = false;
       if (mobileAppAudio) {
-        window.cirkularSetActive = active => {
+        window.cirkularSetActive = (active, retune) => {
           muted = !active;
+          if (active && retune) {
+            tuneNextVisit();
+            return;
+          }
           updateOutput();
           if (!active || pausedByUser) return;
           if (ctx?.state === "suspended") ctx.resume().catch(() => {});
           if (!isPlaying && !pendingStart) startStream();
         };
       } else if (appEmbedded) {
+        window.cirkularRetune = tuneNextVisit;
         let visible = false;
         const syncVisibility = () => {
           muted = !visible || document.hidden;
@@ -390,6 +399,23 @@
         updateOutput();
       }
 
+      function selectStation() {
+        // Read again in case another player on this origin just tuned in.
+        try { lastStation = localStorage.getItem("ck_radio_station") || lastStation; } catch {}
+        const previous = stations.indexOf(lastStation);
+        const next = previous < 0 ? Math.floor(Math.random() * stations.length) : (previous + 1) % stations.length;
+        lastStation = stations[next];
+        try { localStorage.setItem("ck_radio_station", lastStation); } catch {}
+        return lastStation;
+      }
+
+      function tuneNextVisit() {
+        pauseStream();
+        pausedByUser = false;
+        station = null;
+        startStream();
+      }
+
       async function startStream() {
         if (pendingStart || isPlaying) return;
         const attempt = {};
@@ -397,8 +423,9 @@
         syncPlaybackButton();
         try {
           initAudio();
-          if (!audioEl.hasAttribute("src") || audioEl.error || audioEl.ended) {
-            audioEl.src = `/api/radio?ch=dub&t=${Date.now()}`;
+          if (!station || !audioEl.hasAttribute("src") || audioEl.error || audioEl.ended) {
+            station ||= selectStation();
+            audioEl.src = `/api/radio?ch=${station}&t=${Date.now()}`;
           }
           const resume = ctx.state === "running" ? undefined : ctx.resume();
           await Promise.all([audioEl.play(), resume]);
@@ -443,6 +470,11 @@
 
       if (mobileAppAudio) initAudio();
       else startStream();
+      if (!appEmbedded) {
+        window.addEventListener("pageshow", event => {
+          if (event.persisted) tuneNextVisit();
+        });
+      }
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         const a = document.getElementById("btn-radio-app");
         const lbl = document.getElementById("btn-radio-app-label");
