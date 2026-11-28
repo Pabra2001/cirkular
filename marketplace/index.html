@@ -287,7 +287,10 @@
         }, { capture: true });
 
         const syncResults = () => {
-          if (results.getAttribute("aria-busy") !== "true") action.removeAttribute("data-reloading");
+          if (results.getAttribute("aria-busy") !== "true") {
+            action.removeAttribute("data-reloading");
+            document.documentElement.toggleAttribute("data-market-landing", !new URLSearchParams(location.search).get("q")?.trim());
+          }
           injectReloadButtons(form, results);
           updateSearchAction();
         };
@@ -329,6 +332,7 @@
       to { text-indent: 8px; }
     }
 
+    .market-landing-title { display: none; }
     .mp-embedded .back-arrow { display: none !important; }
 
     .mp-embedded #sourcing-form .search-submit:is(:active, [data-touch-pressed]) {
@@ -381,6 +385,26 @@
       }
       .ck-market-reload { display: none; }
 
+      .mp-embedded[data-market-landing] main[data-search-start] {
+        align-content: safe center;
+        padding-block: var(--market-top);
+      }
+
+      .mp-embedded[data-market-landing] .market-landing-title {
+        display: block;
+        margin: 0 var(--market-gutter) 14px;
+        text-align: center;
+        font-size: clamp(21px, 7vw, 32px);
+        font-weight: 750;
+        letter-spacing: -.055em;
+        line-height: 1;
+      }
+
+      .mp-embedded[data-market-landing] .market-header { margin-block-end: 0; }
+      .mp-embedded[data-market-landing] #marketplace-results:not(:has(.listing-carousel, .product-detail)) {
+        display: none;
+      }
+
       .mp-embedded .market-header {
         grid-template-columns: minmax(0, 1fr);
       }
@@ -426,7 +450,13 @@
 
     }
   </style>
-  <script>try{if(new URLSearchParams(location.search).has("embed")||window.self!==window.top)document.documentElement.classList.add("mp-embedded")}catch{document.documentElement.classList.add("mp-embedded")}</script>
+  <script>
+    const marketParams = new URLSearchParams(location.search);
+    if (marketParams.has("embed") || window.self !== window.top) {
+      document.documentElement.classList.add("mp-embedded");
+      document.documentElement.toggleAttribute("data-market-landing", !marketParams.get("q")?.trim());
+    }
+  </script>
   <script>
     if (document.documentElement.classList.contains("mp-embedded") && matchMedia("(pointer: coarse)").matches) {
       let swipe;
@@ -461,6 +491,7 @@
 <body>
   <main data-search-start>
     <div class="market-frame">
+      <h1 class="market-landing-title">CIRKULAR.marketplace</h1>
       <header class="market-header">
         <a class="back-arrow" href="https://cirkular.pages.dev/" aria-label="Back to Cirkular home">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg>
