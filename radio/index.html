@@ -132,9 +132,9 @@
     .radio-playback {
       position: fixed;
       z-index: 1;
-      top: 52%;
+      bottom: max(18px, env(safe-area-inset-bottom));
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       width: 44px;
       height: 44px;
       display: none;
