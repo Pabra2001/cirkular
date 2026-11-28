@@ -107,9 +107,11 @@ export async function onRequestGet({ request }) {
         }));
 
       // Pre-resolve and verify that every returned channel actually has a playable MP4 file
-      const candidates = shuffle([...videoArtDocs.slice(0, 12), ...artistDocs.slice(0, 12)]);
+      const videoArtDocs = shuffle(parseDocs(dataVideoArt?.response?.docs)).slice(0, 8);
+      const artistDocs = shuffle(parseDocs(dataArtist?.response?.docs)).slice(0, 8);
+      const candidates = shuffle([...videoArtDocs, ...artistDocs]);
       const resolvedPool = await Promise.all(
-        candidates.slice(0, 18).map(async (item) => {
+        candidates.slice(0, 14).map(async (item) => {
           const info = await resolveMp4Url(item.id);
           return info ? item : null;
         })
