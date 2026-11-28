@@ -517,6 +517,12 @@
       .subs-feed { height: 74px; }
       .ch-row { padding: 10px 14px; font-size: 11px; }
     }
+    @media (max-width: 820px) and (pointer: coarse) {
+      .app-embedded .channels {
+        max-height: none;
+        position: relative;
+      }
+    }
     .tv-embedded .top-bar { justify-content: flex-end !important; }
     .tv-embedded .top-left,
     .tv-embedded .back-link,
