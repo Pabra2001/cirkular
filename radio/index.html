@@ -233,20 +233,20 @@
 
         analyser = ctx.createAnalyser();
         analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.85;
+        analyser.smoothingTimeConstant = 0.68;
         freqData = new Uint8Array(analyser.frequencyBinCount);
 
+        src.connect(analyser);
         src.connect(filter);
         filter.connect(dry);
         filter.connect(preDelay);
         preDelay.connect(conv);
         conv.connect(wetFilter);
         wetFilter.connect(wet);
-        dry.connect(analyser);
-        wet.connect(analyser);
         output = ctx.createGain();
         updateOutput();
-        analyser.connect(output);
+        dry.connect(output);
+        wet.connect(output);
         output.connect(ctx.destination);
       }
 
@@ -326,10 +326,16 @@
         warpStrength += ((pointerActive ? 1 : 0) - warpStrength) * 0.08;
 
         let bass = 0;
+        let mids = 0;
+        let highs = 0;
         if (analyser && isPlaying) {
           analyser.getByteFrequencyData(freqData);
-          for (let i = 0; i < 10; i++) bass += freqData[i];
-          bass /= (10 * 255);
+          for (let i = 0; i < 8; i++) bass += freqData[i];
+          bass /= (8 * 255);
+          for (let i = 8; i < 28; i++) mids += freqData[i];
+          mids /= (20 * 255);
+          for (let i = 28; i < 64; i++) highs += freqData[i];
+          highs /= (36 * 255);
         }
 
         c.fillStyle = "#050604";
@@ -355,13 +361,14 @@
 
           let spec = 0;
           if (analyser && isPlaying) {
-            const bin = Math.min(60, Math.floor(u * 48));
-            spec = (freqData[bin] / 255) * 46;
+            const bin = Math.min(72, Math.floor(Math.abs(u - 0.5) * 2 * 44 + rowNorm * 16));
+            const raw = freqData[bin] / 255;
+            spec = Math.pow(raw, 1.35) * 92;
           }
 
           const ridge =
-            (Math.sin(u * 10 - t * 1.6 + rowNorm * 3.2) * 0.5 + 0.5) * (34 + bass * 42) +
-            Math.cos(u * 5 + t * 0.9 - rowNorm * 2.1) * 14 +
+            (Math.sin(u * 10 - t * 1.6 + rowNorm * 3.2) * 0.5 + 0.5) * (28 + bass * 98 + mids * 36) +
+            Math.cos(u * 6 + t * (1.1 + highs * 1.8) - rowNorm * 2.4) * (12 + highs * 28) +
             spec;
 
           let y = baseY - env * ridge * (0.45 + Math.sin(rowNorm * Math.PI) * 0.75);
