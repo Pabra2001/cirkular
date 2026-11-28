@@ -185,7 +185,49 @@
       });
     })();
   </script>
-  <style>.mp-embedded .back-arrow{display:none!important}</style>
+  <style>
+    .mp-embedded .back-arrow { display: none !important; }
+
+    @media (max-width: 680px) {
+      .mp-embedded .market-header {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .mp-embedded .market-header .market-search {
+        width: 100%;
+        padding: 0;
+      }
+
+      .mp-embedded .search-entry {
+        --search-inset: 5px;
+        --search-button-width: 81px;
+      }
+
+      .mp-embedded .search-entry::before {
+        inset-block: var(--search-inset);
+        inset-inline-end: var(--search-inset);
+      }
+
+      .mp-embedded .search-entry:is(:focus-within, :has(input:not(:placeholder-shown)))::before {
+        inset-inline-start: var(--search-inset);
+      }
+
+      .mp-embedded .market-search .search-submit {
+        flex-basis: calc(var(--search-button-width) - var(--search-inset));
+        min-height: 44px;
+        margin: var(--search-inset);
+      }
+
+      .mp-embedded .market-search .search-field input { font-size: 16px; }
+
+      .mp-embedded .empty-panel {
+        --photo-gutter: 12px;
+        padding: var(--photo-gutter);
+      }
+
+      .mp-embedded .browse-photos { gap: var(--photo-gutter); }
+    }
+  </style>
   <script>try{if(new URLSearchParams(location.search).has("embed")||window.self!==window.top)document.documentElement.classList.add("mp-embedded")}catch{document.documentElement.classList.add("mp-embedded")}</script>
 </head>
 <body>
