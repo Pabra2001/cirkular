@@ -81,7 +81,7 @@
       let reloadAttempt = 0;
       let lastQuery = '';
       const seenIds = new Set();
-      const listingTitles = new Map();
+      const listingDetails = new Map();
 
       function recordDisplayedIds() {
         document.querySelectorAll('#marketplace-results .result-card a.result-open').forEach((link) => {
@@ -102,7 +102,7 @@
             lastQuery = q;
             reloadAttempt = 0;
             seenIds.clear();
-            listingTitles.clear();
+            listingDetails.clear();
           }
           if (reloadAttempt > 0) {
             recordDisplayedIds();
@@ -118,7 +118,7 @@
                 if (embedded) {
                   for (const item of data.listings) {
                     const title = typeof item?.title === "string" ? item.title.trim() : "";
-                    if (item?.id && title) listingTitles.set(item.id, title);
+                    if (item?.id && title) listingDetails.set(item.id, { title, brand: item.brand });
                   }
                 }
                 if (!reloadAttempt || !seenIds.size) return res;
@@ -172,16 +172,48 @@
         form.requestSubmit();
       }
 
+      function fitEmbeddedCards(results) {
+        if (!document.documentElement.classList.contains("mp-embedded")) return;
+        results.querySelectorAll(".result-card").forEach(card => {
+          const heading = card.querySelector(".result-copy h2");
+          const link = card.querySelector(".result-open");
+          if (heading && link && !heading.dataset.fitted) {
+            heading.dataset.fitted = "true";
+            const details = listingDetails.get(new URL(link.href).searchParams.get("item"));
+            const title = details?.title || heading.textContent.trim();
+            heading.textContent = title;
+            const range = document.createRange();
+            range.selectNodeContents(heading);
+            if (range.getClientRects().length < 2) {
+              const words = title.split(/\s+/);
+              const split = Math.ceil(words.length / 2);
+              const brand = typeof details?.brand === "string" ? details.brand.trim() : "";
+              const seller = card.querySelector(".result-seller")?.textContent.trim();
+              const context = brand && brand.toLowerCase() !== title.toLowerCase() ? brand : seller;
+              const secondLine = words.slice(split).join(" ") || context || "Secondhand listing";
+              heading.replaceChildren(words.slice(0, split).join(" ") + " ", document.createElement("br"), secondLine);
+            }
+          }
+
+          const strip = card.querySelector(".result-thumbs");
+          const photo = card.querySelector(".result-photo");
+          if (strip && photo?.src && !strip.firstElementChild) {
+            const thumbnail = document.createElement("span");
+            thumbnail.className = "main-photo-thumb";
+            thumbnail.setAttribute("aria-hidden", "true");
+            const image = document.createElement("img");
+            image.src = photo.src;
+            image.alt = "";
+            image.loading = "lazy";
+            thumbnail.append(image);
+            strip.append(thumbnail);
+            strip.hidden = false;
+          }
+        });
+      }
+
       function injectReloadButtons(form, results) {
-        if (listingTitles.size) {
-          results.querySelectorAll(".result-card").forEach(card => {
-            const link = card.querySelector(".result-open");
-            const heading = card.querySelector(".result-copy h2");
-            if (!link || !heading) return;
-            const title = listingTitles.get(new URL(link.href).searchParams.get("item"));
-            if (title && title.length > heading.textContent.trim().length) heading.textContent = title;
-          });
-        }
+        fitEmbeddedCards(results);
         normalizeKoreLabels();
         recordDisplayedIds();
         if (narrowMarket.matches) return;
@@ -280,17 +312,23 @@
     }
 
     .mp-embedded .result-card .result-thumbs {
+      --thumbnail-size: 46px;
       flex: none;
-      block-size: 54px;
+      block-size: calc(var(--thumbnail-size) + 8px);
     }
 
-    .mp-embedded .result-card .result-thumbs[hidden] {
-      display: block;
-      visibility: hidden;
+    .mp-embedded .result-card .main-photo-thumb {
+      flex: 0 0 var(--thumbnail-size);
+      height: var(--thumbnail-size);
+      overflow: hidden;
+      border: 2px solid var(--green);
+      border-radius: 8px;
     }
+
+    .mp-embedded .photo-dialog .result-thumbs:has(.main-photo-thumb) { display: none; }
 
     @media (max-width: 680px) and (max-height: 590px) {
-      .mp-embedded .result-card .result-thumbs { block-size: 46px; }
+      .mp-embedded .result-card .result-thumbs { --thumbnail-size: 38px; }
     }
     .mp-embedded .result-card .result-open {
       align-self: stretch;
