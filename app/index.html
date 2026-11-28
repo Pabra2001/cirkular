@@ -178,6 +178,7 @@
     /* Fullscreen standalone mobile PWA mode — zero green frame, pure edge-to-edge app */
     @media (display-mode: standalone) {
       html, body { background: #060705; overflow: hidden; }
+      html:has(.track.is-shop), body:has(.track.is-shop) { background-color: #bbff29; }
       body { padding: 0; gap: 0; grid-template-rows: 1fr; }
       .page-top, .caption, .win-controls { display: none; }
       .widget-shell {
