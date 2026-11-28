@@ -197,7 +197,7 @@ function renderCollection() {
     const itemIndex = (position + items.length) % items.length;
     const isEdge = position < 0 || position >= items.length;
     const src = localArt.has(items[itemIndex]) ? items[itemIndex] : `https://prnce.pages.dev/cirkular-world/media/${items[itemIndex]}`;
-    const moving = localArt.has(src) || src.endsWith('.mp4');
+    const moving = (localArt.has(src) && !src.startsWith('data:image/')) || src.endsWith('.mp4');
     const button = document.createElement('button');
     button.type = 'button';
     button.tabIndex = -1;
@@ -225,7 +225,7 @@ function inspect(itemIndex) {
     ? items[itemIndex].replace('.mp4', '-full.mp4')
     : items[itemIndex];
   const src = localArt.has(file) ? file : `https://prnce.pages.dev/cirkular-world/media/${file}`;
-  const moving = localArt.has(src) || src.endsWith('.mp4');
+  const moving = (localArt.has(src) && !src.startsWith('data:image/')) || src.endsWith('.mp4');
   artVideo.pause();
   artwork.hidden = moving;
   artVideo.hidden = !moving;
@@ -236,7 +236,7 @@ function inspect(itemIndex) {
     artVideo.play().catch(() => {});
   } else artwork.src = src;
   artwork.dataset.treated = src;
-  artwork.dataset.source = collection === 'history' ? src.replace(/(?:-lime)?\.webp$/, '-color.webp') : '';
+  artwork.dataset.source = localColor.get(src) || (collection === 'history' ? src.replace(/(?:-lime)?\.webp$/, '-color.webp') : '');
   artwork.alt = `${collection} artwork ${itemIndex + 1}`;
   download.href = src;
   download.download = localArt.has(src) ? 'cirkular-compost.' + (src.endsWith('#mp4') ? 'mp4' : 'webm') : file;
