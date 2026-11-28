@@ -370,7 +370,6 @@ body[data-scene="upload"], html:has(body[data-scene="upload"]) { background: #00
 @keyframes catalog-upload-enter { from { transform: translateY(100%); } }
 @media (prefers-reduced-motion: reduce) { .catalog-upload { animation: none; } }
 @media (any-pointer: fine) {
-  body[data-scene="upload"], body[data-scene="upload"] * { --site-hover-cursor: var(--site-light-square); }
 }
 
 .opening .opening-mark {
