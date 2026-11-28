@@ -21,16 +21,7 @@
       <div class="copy">
         <h1 id="preview-title">Find it secondhand.</h1>
         <p>Finds live secondhand alternatives and grades the sustainability of retail products as you shop.</p>
-        <div style="display:flex;flex-direction:column;align-items:flex-start;gap:14px;">
-          <button class="download" type="button">Download plugin <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path transform="rotate(-90 12 12)" d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg></button>
-          <a id="download-widget-btn" href="../cirkular-mac.zip" download style="display:inline-flex;align-items:center;gap:6px;padding-left:22px;font-size:13px;color:rgba(255,255,255,.72);text-decoration:none;">Download Mac widget <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path transform="rotate(-90 12 12)" d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg></a>
-        </div>
-        <script>
-          if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-            const w = document.getElementById('download-widget-btn');
-            if (w) { w.href = '../app/'; w.removeAttribute('download'); w.textContent = 'Open mobile app'; }
-          }
-        </script>
+        <button class="download" type="button">Download plugin <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path transform="rotate(-90 12 12)" d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg></button>
       </div>
       <div class="plugin-preview">
         <template>
