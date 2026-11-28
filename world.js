@@ -138,16 +138,18 @@ async function ditherMuseumImage(url) {
       collections.history = dithered;
       if (document.body.dataset.scene === 'catalog' && collection === 'history') {
         renderCollection();
-        centerSlide(Math.min(2, dithered.length - 1), 'instant');
-        if (!reducedMotion.matches) {
-          strip.animate(
-            [
-              { opacity: 0, transform: 'scaleX(0.68) scaleY(0.92)', filter: 'blur(8px)' },
-              { opacity: 1, transform: 'scaleX(1) scaleY(1)', filter: 'blur(0px)' }
-            ],
-            { duration: 540, easing: 'cubic-bezier(.22, 1, .36, 1)', fill: 'both' }
-          );
-        }
+        requestAnimationFrame(() => {
+          centerSlide(Math.min(2, dithered.length - 1), 'instant');
+          if (!reducedMotion.matches) {
+            strip.animate(
+              [
+                { opacity: 0, filter: 'blur(10px)' },
+                { opacity: 1, filter: 'blur(0px)' }
+              ],
+              { duration: 480, easing: 'cubic-bezier(.22, 1, .36, 1)', fill: 'both' }
+            );
+          }
+        });
       }
     }
   } catch {
