@@ -283,6 +283,7 @@ function inspect(itemIndex) {
   const captionSpan = dialog.querySelector('.art-caption span');
   if (captionSpan) {
     const sourceUrl = localSourceUrl.get(src);
+    captionSpan.dataset.clickable = sourceUrl ? 'true' : 'false';
     captionSpan.style.cursor = sourceUrl ? 'pointer' : '';
     captionSpan.title = sourceUrl ? 'Open artwork source' : '';
     captionSpan.onclick = sourceUrl ? () => window.open(sourceUrl, '_blank', 'noopener,noreferrer') : null;
@@ -377,7 +378,7 @@ function stepArtwork(direction) {
     dots.appendChild(b);
   });
   const style = document.createElement('style');
-  style.textContent = '.fs-dot[aria-current="true"]{width:22px!important;background:#bbff29!important;}';
+  style.textContent = '.fs-dot[aria-current="true"]{width:22px!important;background:#bbff29!important;}.art-caption span[data-clickable="true"]:hover{text-decoration:underline;text-underline-offset:4px;}';
   dialog.appendChild(style);
   cap.prepend(dots);
 })();
