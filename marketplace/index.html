@@ -209,13 +209,18 @@
       }
 
       .mp-embedded .search-entry:is(:focus-within, :has(input:not(:placeholder-shown)))::before {
-        inset: 0;
+        inset-inline-start: var(--search-inset);
       }
 
       .mp-embedded .market-search .search-submit {
         flex-basis: calc(var(--search-button-width) - var(--search-inset));
         min-height: 44px;
         margin: var(--search-inset);
+      }
+
+      .mp-embedded .market-search .search-entry:is(:focus-within, :has(input:not(:placeholder-shown))) .search-submit {
+        padding: var(--search-inset);
+        background-clip: content-box;
       }
 
       .mp-embedded .market-search .search-field input { font-size: 16px; }
