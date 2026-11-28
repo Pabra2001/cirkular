@@ -97,11 +97,28 @@
       letter-spacing: -.02em;
       transition: padding-left .15s ease;
     }
-    nav a:last-child { border-bottom: var(--home-rule); }
+    nav > a:last-child { border-bottom: var(--home-rule); }
     nav a:hover { padding-left: 6px; }
     nav a span.n {
       font: 10px ui-monospace, SFMono-Regular, Menlo, monospace;
       opacity: .65;
+    }
+    .radio-entry { position: relative; }
+    .radio-entry-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .radio-open .radio-entry-frame {
+      position: fixed;
+      inset: 0;
+      height: 100dvh;
+      z-index: 100;
+    }
+    .radio-open :is(.top, .bot, .oval, .lockup > img, nav > a, .radio-entry > a) {
+      visibility: hidden;
     }
     .oval {
       width: 100%;
@@ -143,7 +160,9 @@
         <a href="./marketplace/"><span>marketplace</span><span class="n">03</span></a>
         <a href="./cirkular-plugin/"><span>plugin</span><span class="n">04</span></a>
         <a href="./tv/"><span>tv</span><span class="n">05</span></a>
-        <a href="./radio/"><span>radio</span><span class="n">06</span></a>
+        <div class="radio-entry">
+          <a href="./radio/" id="home-radio"><span>radio</span><span class="n">06</span></a>
+        </div>
         <a href="./app/"><span>app</span><span class="n">07</span></a>
       </nav>
     </div>
@@ -156,6 +175,42 @@
     <span class="meta"><span class="footer-desktop-tagline">Smart · Sustainable · Secondhand</span><span class="footer-mobile-zero">Zero data collected</span></span>
     <span class="meta" id="rotating-live">KORE · Live</span>
   </footer>
+
+  <script>
+    (() => {
+      if (!matchMedia("(pointer: coarse)").matches) return;
+      const link = document.getElementById("home-radio");
+      const frame = document.createElement("iframe");
+      frame.className = "radio-entry-frame";
+      frame.title = "CIRKULAR.radio";
+      frame.allow = "autoplay";
+      frame.hidden = true;
+      frame.src = "/radio/?home-player=1";
+      const homepageTitle = document.title;
+      const setOpen = open => {
+        document.documentElement.classList.toggle("radio-open", open);
+        document.title = open ? "CIRKULAR.radio" : homepageTitle;
+        frame.contentWindow?.cirkularShowHomePlayer?.(open);
+      };
+
+      window.cirkularOpenHomeRadio = () => {
+        if (!history.state?.homeRadio) history.pushState({homeRadio: true}, "", link.href);
+        setOpen(true);
+      };
+      window.cirkularCloseHomeRadio = () => history.back();
+      window.addEventListener("popstate", () => setOpen(Boolean(history.state?.homeRadio)));
+
+      frame.addEventListener("load", () => {
+        frame.hidden = !frame.contentWindow?.cirkularShowHomePlayer;
+      });
+      link.addEventListener("click", event => {
+        if (frame.hidden || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        window.cirkularOpenHomeRadio();
+      });
+      link.after(frame);
+    })();
+  </script>
 
   <script>
     (() => {

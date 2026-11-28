@@ -37,6 +37,19 @@
 
     :root { --radio-page-gutter: 28px; }
 
+    .home-player:not(.home-player-open),
+    .home-player:not(.home-player-open) body { background: transparent; }
+    .home-player:not(.home-player-open) body > :not(#home-radio-entry) { visibility: hidden; }
+    #home-radio-entry { display: none; }
+    .home-player:not(.home-player-open) #home-radio-entry {
+      display: block;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      border: 0;
+      background: transparent;
+    }
+
     .top-bar {
       position: fixed;
       top: 0;
@@ -194,7 +207,14 @@
       let embedded = embed.has("embed");
       if (embed.get("embed") === "app") document.documentElement.classList.add("app-embedded");
       if (window.webkit?.messageHandlers?.haptic) document.documentElement.classList.add("mac-widget");
-      try { if (window.self !== window.top) embedded = true; } catch { embedded = true; }
+      try {
+        if (window.self !== window.top) {
+          const homePlayer = embed.get("home-player") === "1"
+            && typeof window.parent.cirkularOpenHomeRadio === "function";
+          if (homePlayer) document.documentElement.classList.add("home-player");
+          else embedded = true;
+        }
+      } catch { embedded = true; }
       if (embedded) document.documentElement.classList.add("radio-embedded");
       if (window.self !== window.top && document.referrer &&
           new URL(document.referrer).origin === "https://prnce.pages.dev") {
@@ -205,6 +225,7 @@
   <link rel="stylesheet" href="/assets/portfolio-cursor.css">
 </head>
 <body>
+  <button id="home-radio-entry" type="button" aria-label="Open CIRKULAR.radio"></button>
   <header class="top-bar">
     <a class="back-arrow" href="../" aria-label="Back to Cirkular home">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg>
@@ -492,9 +513,35 @@
         if (e.code === "Space" && e.target !== playback) { e.preventDefault(); togglePlay(); }
       });
 
-      if (mobileAppAudio) initAudio();
+      const homePlayer = document.documentElement.classList.contains("home-player");
+      if (homePlayer) {
+        window.cirkularShowHomePlayer = open => {
+          document.documentElement.classList.toggle("home-player-open", open);
+          if (open) {
+            pausedByUser = false;
+            startStream();
+          } else {
+            pauseStream();
+            station = null;
+          }
+        };
+        document.getElementById("home-radio-entry").addEventListener("click", () => {
+          // Start inside the trusted tap handler in the same document as the audio.
+          pausedByUser = false;
+          startStream();
+          window.parent.cirkularOpenHomeRadio();
+        });
+        for (const link of document.querySelectorAll(".back-arrow, .brand-lockup")) {
+          link.addEventListener("click", event => {
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
+            window.parent.cirkularCloseHomeRadio();
+          });
+        }
+        document.getElementById("btn-radio-app").target = "_top";
+      } else if (mobileAppAudio) initAudio();
       else if (!portfolioEmbedded) startStream();
-      if (!appEmbedded && !portfolioEmbedded) {
+      if (!homePlayer && !appEmbedded && !portfolioEmbedded) {
         window.addEventListener("pageshow", event => {
           if (event.persisted) tuneNextVisit();
         });
