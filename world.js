@@ -419,7 +419,14 @@ function stepArtwork(direction) {
     dots.appendChild(b);
   });
   const style = document.createElement('style');
-  style.textContent = '.fs-dot[aria-current="true"]{width:22px!important;background:#bbff29!important;}.art-caption span[data-clickable="true"]:hover{text-decoration:underline;text-underline-offset:4px;}.art-dialog .art-controls button,.art-dialog .art-controls a,.art-dialog .art-caption span{background:rgba(5,6,4,.86)!important;padding:1px 3px!important;min-height:0!important;height:auto!important;line-height:1!important;border-radius:0!important;}.art-dialog .art-close{background:rgba(5,6,4,.86)!important;min-height:0!important;width:24px!important;height:24px!important;line-height:1!important;border-radius:0!important;}';
+  style.textContent = [
+    '.fs-dots{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:12px;}',
+    '.fs-dot{width:6px!important;height:6px!important;}',
+    '.fs-dot[aria-current="true"]{width:20px!important;background:#bbff29!important;}',
+    '.art-caption span[data-clickable="true"]:hover{text-decoration:underline;text-underline-offset:4px;}',
+    '.art-dialog[data-magnified="true"] .art-controls button,.art-dialog[data-magnified="true"] .art-controls a,.art-dialog[data-magnified="true"] .art-caption span{background:rgba(5,6,4,.86)!important;padding:1px 3px!important;min-height:0!important;height:auto!important;line-height:1!important;border-radius:0!important;}',
+    '.art-dialog[data-magnified="true"] .art-close{background:rgba(5,6,4,.86)!important;min-height:0!important;width:26px!important;height:26px!important;line-height:1!important;border-radius:0!important;}'
+  ].join('');
   dialog.appendChild(style);
   cap.prepend(dots);
 })();
@@ -484,6 +491,7 @@ let panX = 0, panY = 0;
 let dragStart = null;
 
 function applyMagnify() {
+  dialog.dataset.magnified = String(magActive);
   if (!magActive) {
     artwork.style.transform = '';
     artwork.style.cursor = '';
