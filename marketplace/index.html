@@ -231,9 +231,50 @@
       }
 
       .mp-embedded .browse-photos { gap: var(--photo-gutter); }
+
+      .mp-embedded body:has(#marketplace-results[aria-busy="true"]) .market-header:has(input:not(:placeholder-shown)) #market-status {
+        position: absolute;
+        inset: calc(100% + 2px) 0 auto;
+        width: auto;
+        height: auto;
+        clip-path: none;
+        pointer-events: none;
+        text-align: center;
+        font-size: 12px;
+      }
     }
   </style>
   <script>try{if(new URLSearchParams(location.search).has("embed")||window.self!==window.top)document.documentElement.classList.add("mp-embedded")}catch{document.documentElement.classList.add("mp-embedded")}</script>
+  <script>
+    if (document.documentElement.classList.contains("mp-embedded") && matchMedia("(pointer: coarse)").matches) {
+      let swipe;
+
+      document.addEventListener("touchstart", event => {
+        swipe = null;
+        if (event.touches.length !== 1 || !event.target.closest(".result-track") ||
+            event.target.closest(".result-thumbs") || document.querySelector(".photo-dialog[open]")) return;
+        const { clientX, clientY } = event.touches[0];
+        swipe = { clientX, clientY, horizontal: null };
+      }, { passive: true });
+
+      document.addEventListener("touchmove", event => {
+        if (!swipe || event.touches.length !== 1) {
+          swipe = null;
+          return;
+        }
+        const touch = event.touches[0];
+        const x = Math.abs(touch.clientX - swipe.clientX);
+        const y = Math.abs(touch.clientY - swipe.clientY);
+        if (swipe.horizontal === null && Math.max(x, y) >= 8) swipe.horizontal = x > y;
+        // Keep a horizontal gesture in the iframe so the shared carousel sees touchend.
+        if (swipe.horizontal && event.cancelable) event.preventDefault();
+      }, { passive: false });
+
+      for (const type of ["touchend", "touchcancel"]) {
+        document.addEventListener(type, () => { swipe = null; }, { passive: true });
+      }
+    }
+  </script>
 </head>
 <body>
   <main data-search-start>
@@ -252,10 +293,10 @@
             <button class="action search-submit" type="submit">Search</button>
           </div>
         </form>
+        <p class="screen-reader" id="market-status" role="status"></p>
       </header>
       <section id="marketplace-results" aria-label="Marketplace listings" aria-busy="true"></section>
     </div>
-    <p class="screen-reader" id="market-status" role="status"></p>
   </main>
 <!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "09eef96fe7b44e15b57fe6b0170f31a6"}'></script><!-- Cloudflare Pages Analytics --><script>
 window.addEventListener('pageshow', () => document.body.classList.remove('ck-exit-right'));

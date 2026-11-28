@@ -863,7 +863,23 @@
     });
 
     const isEmbeddedTv = document.documentElement.classList.contains("tv-embedded");
-    let userExplicitlyMuted = isEmbeddedTv;
+    const mobileAppAudio = document.documentElement.classList.contains("app-embedded")
+      && matchMedia("(pointer: coarse)").matches;
+    let stationActive = !mobileAppAudio;
+    let userExplicitlyMuted = isEmbeddedTv && !mobileAppAudio;
+
+    if (mobileAppAudio) {
+      window.cirkularSetActive = active => {
+        if (stationActive === active && (!active || !video.muted || userExplicitlyMuted)) return;
+        stationActive = active;
+        if (active) {
+          playWithSmartAudio();
+        } else {
+          video.muted = true;
+          syncMuteUi();
+        }
+      };
+    }
 
     function syncMuteUi() {
       muteBtn.textContent = video.muted ? "UNMUTE" : "MUTE";
@@ -871,7 +887,7 @@
     }
 
     function playWithSmartAudio() {
-      if (!userExplicitlyMuted) {
+      if (stationActive && !userExplicitlyMuted) {
         video.muted = false;
         video.play().then(syncMuteUi).catch(() => {
           // Browser blocked unmuted autoplay on cold refresh; play muted and unmute on first tap
@@ -894,8 +910,8 @@
     });
 
     // If browser blocked unmuted autoplay on a cold refresh, unmute automatically on first interaction
-    document.addEventListener("pointerdown", (e) => {
-      if (userExplicitlyMuted || !video.muted) return;
+    document.addEventListener(mobileAppAudio ? "click" : "pointerdown", (e) => {
+      if (!stationActive || userExplicitlyMuted || !video.muted) return;
       if (e.target?.closest?.("#btn-mute")) return;
       video.muted = false;
       syncMuteUi();

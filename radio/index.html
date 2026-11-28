@@ -235,7 +235,17 @@
         if (output) output.gain.value = embedded && (muted || !isPlaying) ? 0 : 1;
       }
 
-      if (appEmbedded) {
+      const mobileAppAudio = appEmbedded && matchMedia("(pointer: coarse)").matches;
+      let pausedByUser = false;
+      if (mobileAppAudio) {
+        window.cirkularSetActive = active => {
+          muted = !active;
+          updateOutput();
+          if (!active || pausedByUser) return;
+          if (ctx?.state === "suspended") ctx.resume().catch(() => {});
+          if (!isPlaying && !pendingStart) startStream();
+        };
+      } else if (appEmbedded) {
         let visible = false;
         const syncVisibility = () => {
           muted = !visible || document.hidden;
@@ -373,9 +383,11 @@
 
       function togglePlay() {
         if (!isPlaying) {
+          pausedByUser = false;
           startStream();
           return;
         }
+        pausedByUser = true;
         pendingStart = null;
         audioEl.pause();
         audioEl.removeAttribute("src");
@@ -393,7 +405,7 @@
         if (e.code === "Space" && e.target !== playback) { e.preventDefault(); togglePlay(); }
       });
 
-      startStream();
+      if (!mobileAppAudio) startStream();
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         const a = document.getElementById("btn-radio-app");
         const lbl = document.getElementById("btn-radio-app-label");
