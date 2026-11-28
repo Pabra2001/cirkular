@@ -143,6 +143,7 @@
     @media (pointer: coarse) {
       .mode-shop { display: grid; }
       .track.is-shop { transform: translateX(-200%); }
+      .widget-shell:has(.track.is-shop) .app-bar { border-bottom-color: transparent; }
       #frame-shop { border-radius: 18px 18px 0 0; }
     }
     .pane {
@@ -179,6 +180,20 @@
     @media (display-mode: standalone) {
       html, body { background: #060705; overflow: hidden; }
       html:has(.track.is-shop), body:has(.track.is-shop) { background-color: #bbff29; }
+      body:has(.track.is-shop)::after {
+        --shop-corner: clamp(36px, 12vw, 52px);
+        content: "";
+        position: fixed;
+        inset: auto 0 0;
+        z-index: 11;
+        height: var(--shop-corner);
+        pointer-events: none;
+        background:
+          radial-gradient(circle var(--shop-corner) at right top, transparent calc(100% - 1px), #060705) left bottom,
+          radial-gradient(circle var(--shop-corner) at left top, transparent calc(100% - 1px), #060705) right bottom;
+        background-size: var(--shop-corner) var(--shop-corner);
+        background-repeat: no-repeat;
+      }
       body { padding: 0; gap: 0; grid-template-rows: 1fr; }
       .page-top, .caption, .win-controls { display: none; }
       .widget-shell {
