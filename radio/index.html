@@ -173,23 +173,40 @@
       let audioEl = null;
       let ctx = null;
       let analyser = null;
-      let freqData = new Uint8Array(128);
-      let timeData = new Uint8Array(128);
+      let freqData;
+      let timeData;
+      let binHz;
       const LINES = 32;
       const BINS = 64;
       const history = Array.from({ length: LINES }, () => new Float32Array(BINS));
-      let avgBass = 0.15;
+      const accents = new Float32Array(LINES);
+      let bass = 0, mids = 0, highs = 0;
+      let avgBass = 0, avgVolume = 0;
       let beatPulse = 0;
-      let frameTick = 0;
+      let phase = 0;
+      let lastSlice = 0;
       let output = null;
-      let muted = false;
+      const appEmbedded = document.documentElement.classList.contains("app-embedded");
+      let muted = appEmbedded;
       const embedded = document.documentElement.classList.contains("radio-embedded");
 
       function updateOutput() {
         if (output) output.gain.value = embedded && (muted || !isPlaying) ? 0 : 1;
       }
 
-      if (embedded) {
+      if (appEmbedded) {
+        let visible = false;
+        const syncVisibility = () => {
+          muted = !visible || document.hidden;
+          updateOutput();
+        };
+        const observer = new IntersectionObserver(([entry]) => {
+          visible = entry.intersectionRatio >= 0.5;
+          syncVisibility();
+        }, { threshold: 0.5 });
+        observer.observe(document.documentElement);
+        document.addEventListener("visibilitychange", syncVisibility);
+      } else if (embedded) {
         const forceMute = () => {
           if (!muted) {
             muted = true;
@@ -264,10 +281,11 @@
         wet.gain.value = 0.92;
 
         analyser = ctx.createAnalyser();
-        analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.82;
+        analyser.fftSize = 2048;
+        analyser.smoothingTimeConstant = 0.55;
+        binHz = ctx.sampleRate / analyser.fftSize;
         freqData = new Uint8Array(analyser.frequencyBinCount);
-        timeData = new Uint8Array(analyser.frequencyBinCount);
+        timeData = new Float32Array(analyser.fftSize);
 
         src.connect(analyser);
         analyser.connect(filter);
@@ -364,58 +382,68 @@
       });
       resize();
 
-      function draw(now) {
+      function bandEnergy(low, high) {
+        const first = Math.ceil(low / binHz);
+        const end = Math.min(freqData.length, Math.ceil(high / binHz));
+        let sum = 0;
+        for (let i = first; i < end; i++) sum += (freqData[i] / 255) ** 2;
+        return Math.sqrt(sum / Math.max(1, end - first));
+      }
+
+      function writeWaveSlice(now) {
         const t = now * 0.00075;
+        const dt = Math.min(0.1, (now - lastSlice) / 1000);
+        const prev = history[0];
+        const slice = history.pop();
+        const cap = value => Math.max(0, Math.min(1, value));
+        let volume = 0;
+        let low = 0, mid = 0, high = 0;
+
+        if (analyser && isPlaying) {
+          analyser.getByteFrequencyData(freqData);
+          analyser.getFloatTimeDomainData(timeData);
+          for (const sample of timeData) volume += sample * sample;
+          volume = Math.sqrt(volume / timeData.length);
+          low = bandEnergy(35, 180);
+          mid = bandEnergy(180, 1400);
+          high = bandEnergy(1400, 6000);
+        }
+
+        const live = volume > 0.002;
+        avgVolume += (volume - avgVolume) * (1 - Math.exp(-dt / 1.4));
+        bass += (low - bass) * (1 - Math.exp(-dt / (low > bass ? 0.075 : 0.26)));
+        mids += (mid - mids) * (1 - Math.exp(-dt / 0.15));
+        highs += (high - highs) * (1 - Math.exp(-dt / 0.12));
+        avgBass += (bass - avgBass) * (1 - Math.exp(-dt / 0.8));
+
+        const attack = live ? cap((bass - avgBass - 0.025) * 5) : 0;
+        beatPulse = Math.max(attack, beatPulse * Math.exp(-dt / 0.29));
+        const dynamics = live ? cap(volume / Math.max(avgVolume * 1.65, 0.06)) : 0;
+        phase += dt * (0.8 + mids * 1.8 + beatPulse * 1.25);
+
+        const blend = 1 - Math.exp(-dt / 0.12);
+        for (let b = 0; b < BINS; b++) {
+          const u = b / (BINS - 1);
+          const idle = (Math.sin(u * 8 - t * 1.2) * 0.5 + 0.5) * 0.20;
+          const swell = (0.35 + 0.65 * Math.sin(u * 7.4 - phase) ** 2)
+            * (bass * 0.56 + beatPulse * 0.38);
+          const ripple = Math.sin(u * 16 + phase * 1.45) * mids * 0.28;
+          const detail = Math.sin(u * 30 - phase * 2.1) * highs * 0.12;
+          const target = idle + dynamics * (swell + ripple + detail);
+          slice[b] = prev[b] + (target - prev[b]) * blend;
+        }
+        history.unshift(slice);
+        accents.copyWithin(1, 0, LINES - 1);
+        accents[0] = beatPulse * dynamics;
+        lastSlice = now;
+      }
+
+      function draw(now) {
         mx += (tx - mx) * 0.1;
         my += (ty - my) * 0.1;
         warpStrength += ((pointerActive ? 1 : 0) - warpStrength) * 0.08;
 
-        let bass = 0;
-        let mids = 0;
-        let highs = 0;
-        let hasLiveSignal = false;
-        if (analyser && isPlaying) {
-          analyser.getByteFrequencyData(freqData);
-          analyser.getByteTimeDomainData(timeData);
-          for (let i = 0; i < 8; i++) bass += freqData[i];
-          bass /= (8 * 255);
-          for (let i = 8; i < 28; i++) mids += freqData[i];
-          mids /= (20 * 255);
-          for (let i = 28; i < 64; i++) highs += freqData[i];
-          highs /= (36 * 255);
-          hasLiveSignal = (bass + mids + highs) > 0.01;
-        }
-
-        // Gentle beat swell (soft, slow decay) instead of hard spikes
-        avgBass = avgBass * 0.94 + bass * 0.06;
-        if (hasLiveSignal && bass > avgBass * 1.15 && bass > 0.18) {
-          beatPulse = Math.min(0.6, beatPulse + (bass - avgBass) * 1.2);
-        }
-        beatPulse *= 0.93;
-
-        // Push a fresh live audio slice into the 32-row waterfall every 3 frames, eased toward the last slice
-        frameTick++;
-        if (frameTick % 3 === 0) {
-          const prev = history[0];
-          const recycled = history.pop();
-          if (hasLiveSignal) {
-            for (let b = 0; b < BINS; b++) {
-              const sym = Math.abs((b / (BINS - 1)) * 2 - 1);
-              const fIdx = Math.min(76, Math.floor(sym * 58));
-              const fVal = Math.pow(freqData[fIdx] / 255, 1.4);
-              const tIdx = Math.floor((b / BINS) * timeData.length);
-              const tVal = (timeData[tIdx] - 128) / 128;
-              const target = fVal * (42 + beatPulse * 22) + tVal * 7;
-              recycled[b] = prev[b] * 0.62 + target * 0.38;
-            }
-          } else {
-            for (let b = 0; b < BINS; b++) {
-              const u = b / (BINS - 1);
-              recycled[b] = (Math.sin(u * 8 - t * 1.2) * 0.5 + 0.5) * 10;
-            }
-          }
-          history.unshift(recycled);
-        }
+        if (now - lastSlice >= 40) writeWaveSlice(now);
 
         c.fillStyle = "#050604";
         c.fillRect(0, 0, w, h);
@@ -426,6 +454,7 @@
         const topY = h * 0.24;
         const botY = h * 0.80;
         const stepY = (botY - topY) / (lines - 1);
+        const waveHeight = Math.min(w * 0.20, h * 0.12, 106);
         const segs = 120;
         const mxPx = mx * w;
         const myPx = my * h;
@@ -447,7 +476,7 @@
           const liveVal = row[b0] * (1 - frac) + row[b1] * frac;
 
           const rowWeight = 0.55 + Math.sin(rowNorm * Math.PI) * 0.65;
-          let y = baseY - env * liveVal * rowWeight;
+          let y = baseY - env * liveVal * rowWeight * waveHeight;
 
           // Tactile warp field: lines smoothly bend and part around cursor / touch
           if (warpStrength > 0.005) {
@@ -467,7 +496,8 @@
         for (let i = 0; i < lines; i++) {
           const rowNorm = i / (lines - 1);
           const baseY = topY + i * stepY;
-          const depthAlpha = 0.22 + Math.sin(rowNorm * Math.PI) * 0.76;
+          const depth = Math.sin(rowNorm * Math.PI);
+          const depthAlpha = 0.20 + depth * (0.65 + accents[i] * 0.15);
 
           const pts = new Array(segs + 1);
           for (let s = 0; s <= segs; s++) {
@@ -491,7 +521,7 @@
             else c.lineTo(pts[s][0], pts[s][1]);
           }
           c.strokeStyle = `rgba(187, 255, 41, ${depthAlpha})`;
-          c.lineWidth = 1.1;
+          c.lineWidth = 1.05 + accents[i] * 0.45;
           c.stroke();
         }
 
