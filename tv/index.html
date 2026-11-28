@@ -859,9 +859,7 @@
     });
 
     video.addEventListener("loadedmetadata", () => {
-      if (Number.isFinite(video.duration) && video.duration > 5) {
-        try { video.currentTime = (Date.now() / 1000) % video.duration; } catch {}
-      }
+      // Start playing immediately without a slow mid-file seek that stalls archive.org Range buffering
       video.play().catch(() => {});
     });
     video.addEventListener("playing", () => {
