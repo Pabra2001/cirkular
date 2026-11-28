@@ -32,11 +32,12 @@
     }
     body {
       display: grid;
-      grid-template-rows: auto 1fr auto;
-      padding: 20px 24px 24px;
+      grid-template-rows: minmax(40px, 1fr) auto minmax(40px, 1fr);
+      padding: 20px 24px;
       gap: 14px;
     }
     .page-top {
+      align-self: start;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -69,7 +70,7 @@
     }
     .widget-shell {
       width: min(360px, 100%);
-      height: min(540px, calc(100dvh - 150px));
+      height: min(540px, calc(100dvh - 156px));
       border-radius: 18px;
       overflow: hidden;
       background: #060705;
@@ -115,15 +116,11 @@
       border: 0;
       padding: 0;
       background: transparent;
-      color: #bbff29;
+      color: rgba(187, 255, 41, .45);
       display: grid;
       place-items: center;
-      cursor: pointer;
-      text-decoration: none;
+      cursor: default;
     }
-    .win-btn[aria-pressed="false"] { color: rgba(187, 255, 41, .45); }
-    .win-btn[aria-pressed="true"] { color: #bbff29; }
-    .win-btn[hidden] { display: none; }
     .win-x { font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
     .widget-shell:fullscreen, .widget-shell.is-fs {
       width: 100vw; height: 100dvh; max-width: none; border-radius: 0; box-shadow: none;
@@ -138,26 +135,25 @@
     .mode-shop { display: none; }
     .track {
       display: flex;
-      width: 200%;
+      width: 100%;
       height: 100%;
       transition: transform .28s cubic-bezier(.4, 0, .2, 1);
     }
-    .track.is-radio { transform: translateX(-50%); }
+    .track.is-radio { transform: translateX(-100%); }
     @media (pointer: coarse) {
       .mode-shop { display: grid; }
-      .track { width: 300%; }
-      .pane { width: 33.3334%; }
-      .track.is-radio { transform: translateX(-33.3334%); }
-      .track.is-shop { transform: translateX(-66.6667%); }
+      .track.is-shop { transform: translateX(-200%); }
     }
     .pane {
-      width: 50%;
+      flex: 0 0 100%;
+      min-width: 0;
       height: 100%;
       border: 0;
       background: #060705;
     }
 
     .caption {
+      align-self: end;
       text-align: center;
       font: 500 13px/1.4 "Cirkular Inter", sans-serif;
       color: rgba(6, 7, 5, .82);
@@ -232,16 +228,16 @@
           </button>
         </div>
         <div class="win-controls" id="win-controls">
-          <button class="win-btn" id="btn-pin" type="button" aria-pressed="false" aria-label="Pin on top" title="Pin on top" hidden>
+          <button class="win-btn" id="btn-pin" type="button" aria-label="Pin on top" disabled>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 3h9v2h-1.4l.8 6.2H18v2H6v-2h1.1l.8-6.2H7.5z"/><path d="M11.2 13.4h1.6V21l-.8 1.2-.8-1.2z"/></svg>
           </button>
-          <button class="win-btn win-x" id="btn-close" type="button" aria-label="Close" title="Close">&times;</button>
+          <button class="win-btn win-x" id="btn-close" type="button" aria-label="Close" disabled>&times;</button>
         </div>
       </div>
 
       <div class="deck">
         <div class="track" id="track">
-          <iframe class="pane" id="frame-tv" src="/tv/?embed=1" allow="autoplay; fullscreen" title="CIRKULAR TV"></iframe>
+          <iframe class="pane" id="frame-tv" src="/tv/?embed=app" allow="autoplay; fullscreen" title="CIRKULAR TV"></iframe>
           <iframe class="pane" id="frame-radio" src="about:blank" allow="autoplay" title="CIRKULAR Radio"></iframe>
           <iframe class="pane" id="frame-shop" src="about:blank" title="CIRKULAR Marketplace"></iframe>
         </div>
@@ -272,7 +268,7 @@
       const isRadio = mode === "radio";
       const isShop = mode === "shop";
       if (isRadio && !radioLoaded) {
-        frameRadio.src = "/radio/?embed=1";
+        frameRadio.src = "/radio/?embed=app";
         radioLoaded = true;
       }
       if (isShop && !shopLoaded) {
@@ -292,33 +288,7 @@
     btnRadio.addEventListener("click", () => setMode("radio"));
 
 
-    // Close → back to CIRKULAR home
-    document.getElementById("btn-close").addEventListener("click", () => { location.href = "../"; });
-
-    // Pin → float the card in an always-on-top Picture-in-Picture window (Chromium desktop)
-    const pinBtn = document.getElementById("btn-pin");
     const shell = document.querySelector(".widget-shell");
-    const stage = document.querySelector(".center-stage");
-    if ("documentPictureInPicture" in window && !matchMedia("(pointer: coarse)").matches) {
-      pinBtn.hidden = false;
-      pinBtn.addEventListener("click", async () => {
-        const dpip = window.documentPictureInPicture;
-        if (dpip.window) { dpip.window.close(); return; }
-        try {
-          const pip = await dpip.requestWindow({ width: 360, height: 540 });
-          document.head.querySelectorAll("style, link[rel=stylesheet]").forEach(n => pip.document.head.appendChild(n.cloneNode(true)));
-          pip.document.body.style.cssText = "margin:0;background:#060705;";
-          shell.style.cssText = "width:100%;height:100vh;border-radius:0;box-shadow:none;";
-          pip.document.body.appendChild(shell);
-          pinBtn.setAttribute("aria-pressed", "true");
-          pip.addEventListener("pagehide", () => {
-            shell.style.cssText = "";
-            stage.appendChild(shell);
-            pinBtn.setAttribute("aria-pressed", "false");
-          });
-        } catch {}
-      });
-    }
 
     // Fullscreen request from the TV inside the card (CSS fullscreen always, native fullscreen as a bonus)
     function setCardFullscreen(on) {
