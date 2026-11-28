@@ -237,7 +237,7 @@
         freqData = new Uint8Array(analyser.frequencyBinCount);
 
         src.connect(analyser);
-        src.connect(filter);
+        analyser.connect(filter);
         filter.connect(dry);
         filter.connect(preDelay);
         preDelay.connect(conv);
