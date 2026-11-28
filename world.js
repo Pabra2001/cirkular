@@ -323,7 +323,7 @@ function inspect(itemIndex) {
     if (control.dataset.art === 'mute' && keepMag) continue;
     if (control.dataset.art === 'invert' && keepInvert) {
       control.setAttribute('aria-pressed', 'true');
-      dialog.dataset.invert = 'true';
+      dialog.dataset.invert = 'false';
       if (!moving && artwork.dataset.source) {
         artwork.src = artwork.dataset.source;
         download.href = artwork.src;
@@ -417,7 +417,7 @@ function stepArtwork(direction) {
     dots.appendChild(b);
   });
   const style = document.createElement('style');
-  style.textContent = '.fs-dot[aria-current="true"]{width:22px!important;background:#bbff29!important;}.art-caption span[data-clickable="true"]:hover{text-decoration:underline;text-underline-offset:4px;}';
+  style.textContent = '.fs-dot[aria-current="true"]{width:22px!important;background:#bbff29!important;}.art-caption span[data-clickable="true"]:hover{text-decoration:underline;text-underline-offset:4px;}.art-dialog .art-controls button,.art-dialog .art-controls a,.art-dialog .art-caption span{background:rgba(5,6,4,.76)!important;padding:4px 10px!important;border-radius:999px!important;backdrop-filter:blur(4px);}.art-dialog .art-close{background:rgba(5,6,4,.76)!important;border-radius:50%!important;backdrop-filter:blur(4px);}';
   dialog.appendChild(style);
   cap.prepend(dots);
 })();
@@ -524,7 +524,15 @@ artwork.addEventListener('pointercancel', endDrag);
 
 dialog.querySelectorAll('button[data-art]').forEach(button => button.addEventListener('click', () => {
   if (button.dataset.art === 'close') {
-    resetMagnify();
+    if (magActive) {
+      resetMagnify();
+      const m = dialog.querySelector('button[data-art="mute"]');
+      if (m) {
+        m.setAttribute('aria-pressed', 'false');
+        m.textContent = 'magnify';
+      }
+      return;
+    }
     dialog.close();
     return;
   }
