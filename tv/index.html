@@ -759,7 +759,7 @@
       });
       video.src = ch.src;
       video.load();
-      video.play().catch(() => {});
+      playWithSmartAudio();
       loadSubtitles(ch.id);
     }
 
@@ -818,12 +818,45 @@
       setMode(frac < 0.33 ? "green" : frac < 0.67 ? "color" : "raw");
     });
 
-    muteBtn.addEventListener("click", () => {
-      video.muted = !video.muted;
+    const isEmbeddedTv = document.documentElement.classList.contains("tv-embedded");
+    let userExplicitlyMuted = isEmbeddedTv;
+
+    function syncMuteUi() {
       muteBtn.textContent = video.muted ? "UNMUTE" : "MUTE";
       muteBtn.setAttribute("aria-pressed", String(!video.muted));
+    }
+
+    function playWithSmartAudio() {
+      if (!userExplicitlyMuted) {
+        video.muted = false;
+        video.play().then(syncMuteUi).catch(() => {
+          // Browser blocked unmuted autoplay on cold refresh; play muted and unmute on first tap
+          video.muted = true;
+          syncMuteUi();
+          video.play().catch(() => {});
+        });
+      } else {
+        video.muted = true;
+        syncMuteUi();
+        video.play().catch(() => {});
+      }
+    }
+
+    muteBtn.addEventListener("click", () => {
+      video.muted = !video.muted;
+      userExplicitlyMuted = video.muted;
+      syncMuteUi();
       if (video.paused) video.play().catch(() => {});
     });
+
+    // If browser blocked unmuted autoplay on a cold refresh, unmute automatically on first interaction
+    document.addEventListener("pointerdown", (e) => {
+      if (userExplicitlyMuted || !video.muted) return;
+      if (e.target?.closest?.("#btn-mute")) return;
+      video.muted = false;
+      syncMuteUi();
+      if (video.paused) video.play().catch(() => {});
+    }, { passive: true });
 
     const fsExitBtn = document.getElementById("btn-fs-exit");
     function toggleFullscreen() {
@@ -858,7 +891,7 @@
       if (Number.isFinite(video.duration) && video.duration > 10) {
         try { video.currentTime = (Date.now() / 1000) % video.duration; } catch {}
       }
-      video.play().catch(() => {});
+      playWithSmartAudio();
     });
     video.addEventListener("playing", () => {
       statusEl.textContent = `CH.${CHANNELS[activeCh].id} · ${renderMode.toUpperCase()}`;
