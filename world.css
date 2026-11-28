@@ -861,20 +861,3 @@ dialog.art-dialog canvas,
   background: #bbff29 !important;
   color: #060705 !important;
 }
-
-/* Vertically center the catalog gallery & dots cleanly in the viewport */
-.catalog:not([hidden]) {
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  min-height: 100dvh !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-.catalog .catalog-head {
-  position: fixed !important;
-  top: 24px !important;
-  right: 28px !important;
-  z-index: 12 !important;
-  margin: 0 !important;
-}
