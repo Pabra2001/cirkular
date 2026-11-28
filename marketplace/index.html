@@ -81,6 +81,7 @@
       let reloadAttempt = 0;
       let lastQuery = '';
       const seenIds = new Set();
+      const listingTitles = new Map();
 
       function recordDisplayedIds() {
         document.querySelectorAll('#marketplace-results .result-card a.result-open').forEach((link) => {
@@ -101,6 +102,7 @@
             lastQuery = q;
             reloadAttempt = 0;
             seenIds.clear();
+            listingTitles.clear();
           }
           if (reloadAttempt > 0) {
             recordDisplayedIds();
@@ -108,10 +110,18 @@
             if (seenIds.size) u.searchParams.set('exclude', Array.from(seenIds).slice(-120).join(','));
           }
           const res = await origFetch(u.pathname + u.search, init);
-          if (reloadAttempt > 0 && seenIds.size && res.ok) {
+          const embedded = document.documentElement.classList.contains("mp-embedded");
+          if (res.ok && (embedded || (reloadAttempt > 0 && seenIds.size))) {
             try {
               const data = await res.clone().json();
-              if (Array.isArray(data?.listings)) {
+              if (Array.isArray(data?.listings) && q === lastQuery) {
+                if (embedded) {
+                  for (const item of data.listings) {
+                    const title = typeof item?.title === "string" ? item.title.trim() : "";
+                    if (item?.id && title) listingTitles.set(item.id, title);
+                  }
+                }
+                if (!reloadAttempt || !seenIds.size) return res;
                 const unseen = data.listings.filter((item) => item?.id && !seenIds.has(item.id));
                 if (unseen.length > 0 && unseen.length < data.listings.length) {
                   data.listings = unseen;
@@ -163,6 +173,15 @@
       }
 
       function injectReloadButtons(form, results) {
+        if (listingTitles.size) {
+          results.querySelectorAll(".result-card").forEach(card => {
+            const link = card.querySelector(".result-open");
+            const heading = card.querySelector(".result-copy h2");
+            if (!link || !heading) return;
+            const title = listingTitles.get(new URL(link.href).searchParams.get("item"));
+            if (title && title.length > heading.textContent.trim().length) heading.textContent = title;
+          });
+        }
         normalizeKoreLabels();
         recordDisplayedIds();
         if (narrowMarket.matches) return;
@@ -255,7 +274,24 @@
       align-self: stretch;
     }
 
-    .mp-embedded .result-card .result-copy h2 { min-block-size: 0; }
+    .mp-embedded .result-card .result-copy h2 {
+      flex: none;
+      block-size: 2lh;
+    }
+
+    .mp-embedded .result-card .result-thumbs {
+      flex: none;
+      block-size: 54px;
+    }
+
+    .mp-embedded .result-card .result-thumbs[hidden] {
+      display: block;
+      visibility: hidden;
+    }
+
+    @media (max-width: 680px) and (max-height: 590px) {
+      .mp-embedded .result-card .result-thumbs { block-size: 46px; }
+    }
     .mp-embedded .result-card .result-open {
       align-self: stretch;
       margin-block-start: auto;
