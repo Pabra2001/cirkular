@@ -466,10 +466,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 100%;
         height: 14px;
-        padding: 0;
-        border: 0;
         flex-shrink: 0;
         cursor: ns-resize;
         touch-action: none;
@@ -493,10 +490,6 @@
         flex: 1 1 auto;
         min-height: 0;
       }
-      .is-drawer-collapsed .grid { grid-template-rows: minmax(110px, 1fr) auto; }
-      .is-drawer-collapsed .channels { overflow: hidden; }
-      .is-drawer-collapsed .ch-row:not([aria-pressed="true"]),
-      .is-drawer-collapsed .sidebar-lower { display: none; }
       .sidebar-lower {
         padding: 12px 16px;
         gap: 12px;
@@ -512,7 +505,7 @@
     .tv-embedded .top-left,
     .tv-embedded .back-link,
     .tv-embedded .tv-get-app { display: none !important; }
-    .app-embedded .top-bar { justify-content: center !important; }
+    .app-embedded #tv-grid { --sidebar-h: 218px; }
   </style>
   <script>
     (() => {
@@ -521,9 +514,6 @@
       if (embed.get("embed") === "app") document.documentElement.classList.add("app-embedded");
       try { if (window.self !== window.top) embedded = true; } catch { embedded = true; }
       if (embedded) document.documentElement.classList.add("tv-embedded");
-      if (embed.get("embed") === "app" || window.webkit?.messageHandlers?.haptic) {
-        document.documentElement.classList.add("is-drawer-collapsed");
-      }
     })();
   </script>
 </head>
@@ -545,10 +535,10 @@
 
   <main class="grid" id="tv-grid">
     <aside class="sidebar" id="tv-sidebar">
-      <button class="drawer-handle" id="drawer-handle" type="button" aria-controls="channels tv-controls" aria-label="Toggle channel drawer"></button>
+      <div class="drawer-handle" id="drawer-handle" role="separator" aria-orientation="horizontal" aria-label="Drag to resize video and channels"></div>
       <div class="channels" id="channels" role="group" aria-label="TV Channels"></div>
 
-      <div class="sidebar-lower" id="tv-controls">
+      <div class="sidebar-lower">
         <div class="lower-quadrants">
           <div class="fader-section">
             <div class="fader-title">DISPLAY</div>
@@ -798,19 +788,14 @@
       }
     }
 
-    function revealActiveChannel() {
-      const active = channelsEl.querySelector('.ch-row[aria-pressed="true"]');
-      if (active) channelsEl.scrollTop += active.getBoundingClientRect().top - channelsEl.getBoundingClientRect().top;
-    }
-
     function tuneChannel(idx) {
       activeCh = idx;
       const ch = CHANNELS[idx];
       statusEl.textContent = `TUNING CH.${ch.id}…`;
       channelsEl.querySelectorAll(".ch-row").forEach((b, i) => {
         b.setAttribute("aria-pressed", String(i === idx));
+        if (i === idx) channelsEl.scrollTop = b.offsetTop;
       });
-      revealActiveChannel();
       video.src = ch.src;
       video.load();
       playWithSmartAudio();
@@ -1004,27 +989,10 @@
       const sidebar = document.getElementById("tv-sidebar");
       const lower = sidebar?.querySelector(".sidebar-lower");
       if (!handle || !grid || !sidebar) return;
-      const root = document.documentElement;
-      const isCollapsed = () => root.classList.contains("is-drawer-collapsed");
-      handle.setAttribute("aria-expanded", String(!isCollapsed()));
       let startY = 0;
       let startH = 0;
       let dragging = false;
       let snapped = false;
-      let moved = false;
-      let compactHeight = 0;
-
-      function setDrawerCollapsed(collapsed) {
-        root.classList.toggle("is-drawer-collapsed", collapsed);
-        handle.setAttribute("aria-expanded", String(!collapsed));
-        revealActiveChannel();
-      }
-
-      handle.addEventListener("click", (e) => {
-        if (moved && e.detail !== 0) return;
-        grid.style.removeProperty("--sidebar-h");
-        setDrawerCollapsed(!isCollapsed());
-      });
 
       function triggerHaptic() {
         try { window.webkit?.messageHandlers?.haptic?.postMessage("snap"); } catch {}
@@ -1033,10 +1001,7 @@
 
       handle.addEventListener("pointerdown", (e) => {
         dragging = true;
-        moved = false;
         snapped = false;
-        const active = channelsEl.querySelector('.ch-row[aria-pressed="true"]');
-        compactHeight = handle.offsetHeight + (active?.offsetHeight || 35);
         startY = e.clientY;
         startH = sidebar.getBoundingClientRect().height;
         handle.classList.add("is-dragging");
@@ -1047,17 +1012,8 @@
       handle.addEventListener("pointermove", (e) => {
         if (!dragging) return;
         const dy = e.clientY - startY;
-        if (!moved && Math.abs(dy) < 5) return;
-        moved = true;
         const maxH = Math.max(120, Math.round(grid.getBoundingClientRect().height * 0.78));
-        const rawH = Math.max(compactHeight, Math.min(maxH, Math.round(startH - dy)));
-        if (rawH <= compactHeight + 8) {
-          grid.style.removeProperty("--sidebar-h");
-          if (!isCollapsed()) setDrawerCollapsed(true);
-          return;
-        }
-        const wasCollapsed = isCollapsed();
-        if (wasCollapsed) setDrawerCollapsed(false);
+        const rawH = Math.max(22, Math.min(maxH, Math.round(startH - dy)));
 
         // Magnetic detent right where the channel list meets DISPLAY / TRANSCRIPT
         const detentH = lower ? Math.round(lower.getBoundingClientRect().height + handle.getBoundingClientRect().height) : 172;
@@ -1075,7 +1031,6 @@
         }
 
         grid.style.setProperty("--sidebar-h", `${nextH}px`);
-        if (wasCollapsed) revealActiveChannel();
       });
 
       const stopDrag = (e) => {
@@ -1087,9 +1042,6 @@
       };
       handle.addEventListener("pointerup", stopDrag);
       handle.addEventListener("pointercancel", stopDrag);
-      window.addEventListener("resize", () => {
-        if (!dragging && !isCollapsed()) revealActiveChannel();
-      });
     })();
   </script>
 </body>
