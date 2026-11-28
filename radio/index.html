@@ -149,6 +149,14 @@
       let audioEl = null;
       let ctx = null;
       let analyser = null;
+      let freqData = new Uint8Array(128);
+      let timeData = new Uint8Array(128);
+      const LINES = 32;
+      const BINS = 64;
+      const history = Array.from({ length: LINES }, () => new Float32Array(BINS));
+      let avgBass = 0.15;
+      let beatPulse = 0;
+      let frameTick = 0;
       let output = null;
       let muted = false;
       const embedded = document.documentElement.classList.contains("radio-embedded");
@@ -233,8 +241,9 @@
 
         analyser = ctx.createAnalyser();
         analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.68;
+        analyser.smoothingTimeConstant = 0.55;
         freqData = new Uint8Array(analyser.frequencyBinCount);
+        timeData = new Uint8Array(analyser.frequencyBinCount);
 
         src.connect(analyser);
         analyser.connect(filter);
@@ -328,26 +337,60 @@
         let bass = 0;
         let mids = 0;
         let highs = 0;
+        let hasLiveSignal = false;
         if (analyser && isPlaying) {
           analyser.getByteFrequencyData(freqData);
+          analyser.getByteTimeDomainData(timeData);
           for (let i = 0; i < 8; i++) bass += freqData[i];
           bass /= (8 * 255);
           for (let i = 8; i < 28; i++) mids += freqData[i];
           mids /= (20 * 255);
           for (let i = 28; i < 64; i++) highs += freqData[i];
           highs /= (36 * 255);
+          hasLiveSignal = (bass + mids + highs) > 0.01;
+        }
+
+        // Real onset / beat detector
+        avgBass = avgBass * 0.92 + bass * 0.08;
+        if (hasLiveSignal && bass > avgBass * 1.15 && bass > 0.18) {
+          beatPulse = Math.min(1.0, beatPulse + (bass - avgBass) * 2.8);
+        }
+        beatPulse *= 0.86;
+
+        // Push a fresh live audio slice into the 32-row waterfall every 2 frames
+        frameTick++;
+        if (frameTick % 2 === 0) {
+          const recycled = history.pop();
+          if (hasLiveSignal) {
+            for (let b = 0; b < BINS; b++) {
+              // Symmetric spectrum + real time-domain waveform displacement
+              const sym = Math.abs((b / (BINS - 1)) * 2 - 1);
+              const fIdx = Math.min(76, Math.floor(sym * 58));
+              const fVal = Math.pow(freqData[fIdx] / 255, 1.25);
+              const tIdx = Math.floor((b / BINS) * timeData.length);
+              const tVal = (timeData[tIdx] - 128) / 128;
+              recycled[b] = fVal * (88 + beatPulse * 54) + tVal * (26 + bass * 38);
+            }
+          } else {
+            // Subtle idle breath when paused/loading
+            for (let b = 0; b < BINS; b++) {
+              const u = b / (BINS - 1);
+              recycled[b] = (Math.sin(u * 8 - t * 1.2) * 0.5 + 0.5) * 14;
+            }
+          }
+          history.unshift(recycled);
         }
 
         c.fillStyle = "#050604";
         c.fillRect(0, 0, w, h);
 
-        const lines = 32;
+        const lines = LINES;
         const padX = w * 0.14;
         const spanW = w - padX * 2;
         const topY = h * 0.24;
         const botY = h * 0.80;
         const stepY = (botY - topY) / (lines - 1);
-        const segs = 140;
+        const segs = 120;
         const mxPx = mx * w;
         const myPx = my * h;
         const warpRadius = Math.min(w, h) * 0.16;
@@ -356,22 +399,19 @@
           const u = s / segs;
           let x = padX + u * spanW;
 
-          const centerDist = (u - (0.44 + mx * 0.12)) / 0.23;
+          // Center envelope keeps the iconic pulsar silhouette while letting real audio define the peaks
+          const centerDist = (u - (0.46 + mx * 0.08)) / 0.28;
           const env = Math.exp(-centerDist * centerDist);
 
-          let spec = 0;
-          if (analyser && isPlaying) {
-            const bin = Math.min(72, Math.floor(Math.abs(u - 0.5) * 2 * 44 + rowNorm * 16));
-            const raw = freqData[bin] / 255;
-            spec = Math.pow(raw, 1.35) * 92;
-          }
+          const row = history[i];
+          const bf = u * (BINS - 1);
+          const b0 = Math.floor(bf);
+          const b1 = Math.min(BINS - 1, b0 + 1);
+          const frac = bf - b0;
+          const liveVal = row[b0] * (1 - frac) + row[b1] * frac;
 
-          const ridge =
-            (Math.sin(u * 10 - t * 1.6 + rowNorm * 3.2) * 0.5 + 0.5) * (28 + bass * 98 + mids * 36) +
-            Math.cos(u * 6 + t * (1.1 + highs * 1.8) - rowNorm * 2.4) * (12 + highs * 28) +
-            spec;
-
-          let y = baseY - env * ridge * (0.45 + Math.sin(rowNorm * Math.PI) * 0.75);
+          const rowWeight = 0.55 + Math.sin(rowNorm * Math.PI) * 0.65;
+          let y = baseY - env * liveVal * rowWeight;
 
           // Tactile warp field: lines smoothly bend and part around cursor / touch
           if (warpStrength > 0.005) {
