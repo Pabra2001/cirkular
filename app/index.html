@@ -294,16 +294,19 @@
       });
     }
 
-    // Fullscreen request from the TV inside the card
+    // Fullscreen request from the TV inside the card (CSS fullscreen always, native fullscreen as a bonus)
+    function setCardFullscreen(on) {
+      shell.classList.toggle("is-fs", on);
+      if (on) { shell.requestFullscreen?.().catch(() => {}); }
+      else if (document.fullscreenElement) { document.exitFullscreen().catch(() => {}); }
+    }
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement) shell.classList.remove("is-fs");
+    });
+    window.addEventListener("keydown", (e) => { if (e.key === "Escape") setCardFullscreen(false); });
     window.addEventListener("message", (e) => {
       if (!e.data || !e.data.ckFullscreen) return;
-      if (document.fullscreenElement || shell.classList.contains("is-fs")) {
-        if (document.fullscreenElement) document.exitFullscreen();
-        shell.classList.remove("is-fs");
-        return;
-      }
-      if (shell.requestFullscreen) shell.requestFullscreen().catch(() => shell.classList.add("is-fs"));
-      else shell.classList.add("is-fs");
+      setCardFullscreen(!shell.classList.contains("is-fs"));
     });
 
     if (localStorage.getItem("ck_mobile_mode") === "radio") setMode("radio");
