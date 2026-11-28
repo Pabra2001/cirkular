@@ -156,6 +156,10 @@
     .mac-widget .radio-playback,
     .portfolio-embedded .radio-playback { display: grid; }
 
+    @media (pointer: coarse) {
+      html:not(.radio-embedded) .radio-playback { display: grid; }
+    }
+
     .radio-playback::before {
       content: "";
       width: 11px;
@@ -476,7 +480,8 @@
       const canvas = document.getElementById("waves");
       const c = canvas.getContext("2d");
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      if (!compact) canvas.addEventListener("click", togglePlay);
+      const standaloneTouch = !embedded && matchMedia("(pointer: coarse)").matches;
+      if (!compact && !standaloneTouch) canvas.addEventListener("click", togglePlay);
       playback.addEventListener("click", togglePlay);
       window.addEventListener("keydown", (e) => {
         if (e.code === "Space" && e.target !== playback) { e.preventDefault(); togglePlay(); }
