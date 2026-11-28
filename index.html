@@ -41,7 +41,13 @@
     .top, .bot {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+    }
+    .top-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
     }
     .meta {
       font: 10.5px ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -130,7 +136,10 @@
 <body>
   <header class="top">
     <span class="meta">Zero data collected</span>
-    <a class="pill" href="./cirkular-extension.zip" download>Download Plugin<span class="pill-arrow" aria-hidden="true"> ↓</span></a>
+    <div class="top-actions">
+      <a class="pill" href="./cirkular-extension.zip" download>Download Plugin<span class="pill-arrow" aria-hidden="true"> ↓</span></a>
+      <a class="pill" href="./cirkular-mac.zip" download>Download Widget<span class="pill-arrow" aria-hidden="true"> ↓</span></a>
+    </div>
   </header>
 
   <main class="mid">
