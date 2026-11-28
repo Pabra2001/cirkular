@@ -232,16 +232,6 @@
 
       .mp-embedded .browse-photos { gap: var(--photo-gutter); }
 
-      .mp-embedded body:has(#marketplace-results[aria-busy="true"]) .market-header:has(input:not(:placeholder-shown)) #market-status {
-        position: absolute;
-        inset: calc(100% + 2px) 0 auto;
-        width: auto;
-        height: auto;
-        clip-path: none;
-        pointer-events: none;
-        text-align: center;
-        font-size: 12px;
-      }
     }
   </style>
   <script>try{if(new URLSearchParams(location.search).has("embed")||window.self!==window.top)document.documentElement.classList.add("mp-embedded")}catch{document.documentElement.classList.add("mp-embedded")}</script>
@@ -293,10 +283,10 @@
             <button class="action search-submit" type="submit">Search</button>
           </div>
         </form>
-        <p class="screen-reader" id="market-status" role="status"></p>
       </header>
       <section id="marketplace-results" aria-label="Marketplace listings" aria-busy="true"></section>
     </div>
+    <p class="screen-reader" id="market-status" role="status"></p>
   </main>
 <!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "09eef96fe7b44e15b57fe6b0170f31a6"}'></script><!-- Cloudflare Pages Analytics --><script>
 window.addEventListener('pageshow', () => document.body.classList.remove('ck-exit-right'));

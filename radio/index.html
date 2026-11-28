@@ -232,7 +232,7 @@
       const embedded = document.documentElement.classList.contains("radio-embedded");
 
       function updateOutput() {
-        if (output) output.gain.value = embedded && (muted || !isPlaying) ? 0 : 1;
+        if (output) output.gain.value = !isPlaying || (embedded && muted) ? 0 : 1;
       }
 
       const mobileAppAudio = appEmbedded && matchMedia("(pointer: coarse)").matches;
@@ -309,6 +309,11 @@
         audioEl = new Audio();
         audioEl.crossOrigin = "anonymous";
         audioEl.preload = "none";
+        for (const event of ["ended", "error"]) {
+          audioEl.addEventListener(event, () => {
+            if (isPlaying && (audioEl.ended || audioEl.error)) setPlaying(false);
+          });
+        }
 
         const src = ctx.createMediaElementSource(audioEl);
         const filter = ctx.createBiquadFilter();
@@ -352,48 +357,54 @@
         output.connect(ctx.destination);
       }
 
+      function syncPlaybackButton() {
+        const wantsPlayback = isPlaying || pendingStart !== null;
+        playback.toggleAttribute("data-playing", wantsPlayback);
+        playback.setAttribute("aria-label", wantsPlayback ? "Pause radio" : "Play radio");
+      }
+
       function setPlaying(playing) {
         isPlaying = playing;
-        playback.toggleAttribute("data-playing", playing);
-        playback.setAttribute("aria-label", playing ? "Pause radio" : "Play radio");
+        syncPlaybackButton();
         updateOutput();
       }
 
       async function startStream() {
+        if (pendingStart || isPlaying) return;
         const attempt = {};
         pendingStart = attempt;
+        syncPlaybackButton();
         try {
           initAudio();
-          if (ctx.state === "suspended") {
-            const resume = ctx.resume();
-            resume.catch(() => {});
+          if (!audioEl.hasAttribute("src") || audioEl.error || audioEl.ended) {
+            audioEl.src = `/api/radio?ch=dub&t=${Date.now()}`;
           }
-          audioEl.src = `/api/radio?ch=dub&t=${Date.now()}`;
-          await audioEl.play();
-          if (pendingStart !== attempt) return;
-          setPlaying(true);
-          localStorage.setItem("ck_radio_ch", "dub");
-          localStorage.setItem("ck_radio_playing", "1");
+          const resume = ctx.state === "running" ? undefined : ctx.resume();
+          await Promise.all([audioEl.play(), resume]);
+          if (pendingStart === attempt) setPlaying(true);
         } catch {
-          if (pendingStart === attempt) setPlaying(false);
+          if (pendingStart === attempt) {
+            audioEl?.pause();
+            setPlaying(false);
+          }
         } finally {
-          if (pendingStart === attempt) pendingStart = null;
+          if (pendingStart === attempt) {
+            pendingStart = null;
+            syncPlaybackButton();
+          }
         }
       }
 
       function togglePlay() {
-        if (!isPlaying) {
+        if (!isPlaying && !pendingStart) {
           pausedByUser = false;
           startStream();
           return;
         }
         pausedByUser = true;
         pendingStart = null;
-        audioEl.pause();
-        audioEl.removeAttribute("src");
-        audioEl.load();
         setPlaying(false);
-        localStorage.setItem("ck_radio_playing", "0");
+        audioEl?.pause();
       }
 
       const canvas = document.getElementById("waves");
@@ -405,7 +416,8 @@
         if (e.code === "Space" && e.target !== playback) { e.preventDefault(); togglePlay(); }
       });
 
-      if (!mobileAppAudio) startStream();
+      if (mobileAppAudio) initAudio();
+      else startStream();
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         const a = document.getElementById("btn-radio-app");
         const lbl = document.getElementById("btn-radio-app-label");
