@@ -107,30 +107,6 @@
       cursor: pointer;
     }
 
-    .playback {
-      position: fixed;
-      left: 50%;
-      bottom: max(16px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-    }
-
-    .playback button {
-      min-height: 44px;
-      padding: 0 16px;
-      border: 1px solid var(--lime);
-      border-radius: 999px;
-      background: var(--bg);
-      color: var(--lime);
-      font: 600 12px/1 "Cirkular Inter", sans-serif;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-
-    .playback button:focus-visible {
-      outline: 2px solid var(--lime);
-      outline-offset: 4px;
-    }
-
     @media (max-width: 640px) {
       .top-bar { padding: 14px 16px; }
     }
@@ -151,20 +127,10 @@
   </header>
 
   <canvas id="waves" aria-label="CIRKULAR live acoustic architecture"></canvas>
-  <div class="playback">
-    <button id="playback-toggle" type="button">Play radio</button>
-  </div>
 
   <script>
     (() => {
-      const playback = document.getElementById("playback-toggle");
       let isPlaying = false;
-      let isConnecting = false;
-
-      function updatePlayback() {
-        playback.textContent = isConnecting ? "Connecting…" : isPlaying ? "Pause radio" : "Play radio";
-        playback.setAttribute("aria-disabled", String(isConnecting));
-      }
       let audioEl = null;
       let ctx = null;
       let analyser = null;
@@ -232,38 +198,29 @@
         analyser.connect(ctx.destination);
       }
 
-      async function startStream(fromControl = false) {
-        if (isConnecting || isPlaying) return;
-        isConnecting = true;
-        updatePlayback();
+      async function startStream() {
+        initAudio();
+        if (ctx.state === "suspended") await ctx.resume();
+        audioEl.src = `/api/radio?ch=dub&t=${Date.now()}`;
         try {
-          initAudio();
-          if (ctx.state === "suspended") await ctx.resume();
-          audioEl.src = `/api/radio?ch=dub&t=${Date.now()}`;
           await audioEl.play();
           isPlaying = true;
           localStorage.setItem("ck_radio_ch", "dub");
           localStorage.setItem("ck_radio_playing", "1");
         } catch {
           isPlaying = false;
-        } finally {
-          isConnecting = false;
-          updatePlayback();
-          if (fromControl && !isPlaying) playback.textContent = "Retry radio";
         }
       }
 
       function togglePlay() {
-        if (isConnecting) return;
         if (isPlaying && audioEl) {
           audioEl.pause();
           audioEl.removeAttribute("src");
           audioEl.load();
           isPlaying = false;
           localStorage.setItem("ck_radio_playing", "0");
-          updatePlayback();
         } else {
-          void startStream(true);
+          startStream();
         }
       }
 
@@ -271,9 +228,11 @@
       const c = canvas.getContext("2d");
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.addEventListener("click", togglePlay);
-      playback.addEventListener("click", togglePlay);
+      window.addEventListener("keydown", (e) => {
+        if (e.code === "Space") { e.preventDefault(); togglePlay(); }
+      });
 
-      if (navigator.userActivation?.hasBeenActive) void startStream();
+      startStream();
 
       let w = 0, h = 0;
       let mx = 0.5, my = 0.5, tx = 0.5, ty = 0.5;
