@@ -965,18 +965,26 @@
     bootChannels();
     requestAnimationFrame(loop);
 
-    // Draggable divider between video viewport and channel/controls drawer on mobile & widget
+    // Draggable divider between video viewport and channel/controls drawer with magnetic snap detent
     (() => {
       const handle = document.getElementById("drawer-handle");
       const grid = document.getElementById("tv-grid");
       const sidebar = document.getElementById("tv-sidebar");
+      const lower = sidebar?.querySelector(".sidebar-lower");
       if (!handle || !grid || !sidebar) return;
       let startY = 0;
       let startH = 0;
       let dragging = false;
+      let snapped = false;
+
+      function triggerHaptic() {
+        try { window.webkit?.messageHandlers?.haptic?.postMessage("snap"); } catch {}
+        try { navigator.vibrate?.(8); } catch {}
+      }
 
       handle.addEventListener("pointerdown", (e) => {
         dragging = true;
+        snapped = false;
         startY = e.clientY;
         startH = sidebar.getBoundingClientRect().height;
         handle.classList.add("is-dragging");
@@ -988,13 +996,30 @@
         if (!dragging) return;
         const dy = e.clientY - startY;
         const maxH = Math.max(120, Math.round(grid.getBoundingClientRect().height * 0.78));
-        const nextH = Math.max(22, Math.min(maxH, Math.round(startH - dy)));
+        const rawH = Math.max(22, Math.min(maxH, Math.round(startH - dy)));
+
+        // Magnetic detent right where the channel list meets DISPLAY / TRANSCRIPT
+        const detentH = lower ? Math.round(lower.getBoundingClientRect().height + handle.getBoundingClientRect().height) : 172;
+        const SNAP_RADIUS = 14;
+        let nextH = rawH;
+
+        if (Math.abs(rawH - detentH) <= SNAP_RADIUS) {
+          nextH = detentH;
+          if (!snapped) {
+            snapped = true;
+            triggerHaptic();
+          }
+        } else {
+          snapped = false;
+        }
+
         grid.style.setProperty("--sidebar-h", `${nextH}px`);
       });
 
       const stopDrag = (e) => {
         if (!dragging) return;
         dragging = false;
+        snapped = false;
         handle.classList.remove("is-dragging");
         try { handle.releasePointerCapture(e.pointerId); } catch {}
       };
