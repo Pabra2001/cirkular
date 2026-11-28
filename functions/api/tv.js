@@ -52,14 +52,24 @@ function shuffle(arr) {
 export async function onRequestGet({ request }) {
   const url = new URL(request.url);
 
-  // 1. Open, unlimited art-cinema & experimental film discovery gated by real cultural traction (downloads >= 1500)
+  // 1. Dynamic fresh 12-channel lineup across 60+ iconic avant-garde, art-house & video artists
   if (url.searchParams.get("list") === "1") {
     try {
-      const page = 1 + Math.floor(Math.random() * 12);
+      const ARTIST_GROUPS = [
+        '("Maya Deren" OR "Man Ray" OR "Luis Bunuel" OR "Salvador Dali" OR "Jean Cocteau" OR "Marcel Duchamp" OR "Fernand Leger")',
+        '("Andy Warhol" OR "Stan Brakhage" OR "Kenneth Anger" OR "Jonas Mekas" OR "Bruce Conner" OR "Nam June Paik" OR "Oskar Fischinger")',
+        '("Chris Marker" OR "Agnes Varda" OR "Jean-Luc Godard" OR "Andrei Tarkovsky" OR "Jean Vigo" OR "Dziga Vertov" OR "Carl Theodor Dreyer")',
+        '("Alejandro Jodorowsky" OR "Derek Jarman" OR "Chantal Akerman" OR "Norman McLaren" OR "Len Lye" OR "Hans Richter" OR "Rene Clair")',
+        '("Yayoi Kusama" OR "Marina Abramovic" OR "Basquiat" OR "Keith Haring" OR "David Lynch" OR "Shinya Tsukamoto" OR "Bill Viola")',
+        '("Wong Kar-wai" OR "Akira Kurosawa" OR "Yasujiro Ozu" OR "Federico Fellini" OR "Michelangelo Antonioni" OR "Ingmar Bergman" OR "Francois Truffaut")',
+        '("Louis Malle" OR "Vera Chytilova" OR "Sergei Parajanov" OR "Wim Wenders" OR "Fassbinder" OR "Pasolini" OR "Werner Herzog")',
+        '("Claire Denis" OR "Harmony Korine" OR "Gregg Araki" OR "Jean-Pierre Melville" OR "Abbas Kiarostami" OR "Takashi Miike" OR "Gus Van Sant")'
+      ];
+      const group = ARTIST_GROUPS[Math.floor(Math.random() * ARTIST_GROUPS.length)];
       const q = encodeURIComponent(
-        'mediatype:movies AND format:"MPEG4" AND downloads:[1500 TO *] AND (subject:"avant-garde" OR subject:"experimental film" OR subject:"art house" OR subject:"surrealism" OR subject:"new wave" OR subject:"video art" OR subject:"dada" OR subject:"underground film" OR subject:"art film") AND NOT subject:("ai-generated" OR "ai art" OR "generative art" OR "porn" OR "porno" OR "hentai" OR "trailer" OR "review" OR "podcast")'
+        `mediatype:movies AND format:"MPEG4" AND ${group} AND NOT subject:("ai-generated" OR "ai art" OR "generative art" OR "porn" OR "porno" OR "hentai" OR "trailer" OR "review" OR "podcast")`
       );
-      const searchUrl = `https://archive.org/advancedsearch.php?q=${q}&fl[]=identifier&fl[]=title&fl[]=subject&rows=48&page=${page}&sort[]=downloads+desc&output=json`;
+      const searchUrl = `https://archive.org/advancedsearch.php?q=${q}&fl[]=identifier&fl[]=title&fl[]=subject&rows=50&sort[]=downloads+desc&output=json`;
       const res = await fetch(searchUrl);
       const data = res.ok ? await res.json() : null;
       const BLOCK_RE = /(\bai\b|ai-generated|ai art|generative|artificial intelligence|deepfake|midjourney|sora|runway|stable diffusion|kling|bobsgame|porn|porno|hentai|onlyfans|ポルノ|エロ|trailer|podcast|reaction|review|lecture|webinar|gameplay)/i;
@@ -74,8 +84,8 @@ export async function onRequestGet({ request }) {
           title: String(d.title).replace(/\s+/g, " ").trim().toUpperCase().slice(0, 38)
         }));
 
-      const fresh = shuffle(docs).slice(0, 10);
-      const anchors = shuffle(FALLBACK_CHANNELS).slice(0, Math.max(2, 12 - fresh.length));
+      const fresh = shuffle(docs).slice(0, 9);
+      const anchors = shuffle(FALLBACK_CHANNELS).slice(0, Math.max(3, 12 - fresh.length));
       const combined = shuffle([...fresh, ...anchors]).slice(0, 12);
 
       const channels = combined.map((c, idx) => {
