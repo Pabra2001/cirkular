@@ -106,13 +106,20 @@ export async function onRequestGet({ request }) {
           title: String(d.title).replace(/\s+/g, " ").trim().toUpperCase().slice(0, 38)
         }));
 
-      // Blend 6 Most-Viewed Video Art + 6 Iconic Artists, strictly deduplicated so no video ever repeats
-      const videoArtDocs = shuffle(parseDocs(dataVideoArt?.response?.docs)).slice(0, 12);
-      const artistDocs = shuffle(parseDocs(dataArtist?.response?.docs)).slice(0, 12);
+      // Pre-resolve and verify that every returned channel actually has a playable MP4 file
+      const candidates = shuffle([...videoArtDocs.slice(0, 12), ...artistDocs.slice(0, 12)]);
+      const resolvedPool = await Promise.all(
+        candidates.slice(0, 18).map(async (item) => {
+          const info = await resolveMp4Url(item.id);
+          return info ? item : null;
+        })
+      );
+
       const seenIds = new Set();
       const seenTitles = new Set();
       const unique = [];
       const addUnique = (item) => {
+        if (!item) return false;
         const tKey = item.title.replace(/[^A-Z0-9]/g, "").slice(0, 20);
         if (seenIds.has(item.id) || (tKey && seenTitles.has(tKey))) return false;
         seenIds.add(item.id);
@@ -121,11 +128,7 @@ export async function onRequestGet({ request }) {
         return true;
       };
 
-      for (const item of videoArtDocs) {
-        if (unique.length >= 6) break;
-        addUnique(item);
-      }
-      for (const item of artistDocs) {
+      for (const item of resolvedPool) {
         if (unique.length >= 12) break;
         addUnique(item);
       }
