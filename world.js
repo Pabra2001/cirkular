@@ -86,27 +86,30 @@ async function ditherMuseumImage(url) {
 
 (async function loadFreshMuseumHistory() {
   try {
-    const res = await fetch('/api/history', { cache: 'no-store' });
+    const res = await fetch(`/api/history?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) return;
     const data = await res.json();
-    const items = Array.isArray(data?.items) ? data.items : [];
-    const dithered = [];
-    for (const item of items.slice(0, 8)) {
-      const limeUrl = await ditherMuseumImage(item.src);
-      if (limeUrl) {
+    const items = Array.isArray(data?.items) ? data.items.slice(0, 20) : [];
+    const results = await Promise.all(
+      items.map(async (item) => {
+        const limeUrl = await ditherMuseumImage(item.src);
+        if (!limeUrl) return null;
         localArt.add(limeUrl);
         localColor.set(limeUrl, item.src);
-        dithered.push(limeUrl);
-      }
-    }
+        return limeUrl;
+      })
+    );
+    const dithered = results.filter(Boolean);
     if (dithered.length) {
-      collections.history = [...dithered, ...collections.history];
+      // Replace old static history images completely with 20 fresh dithered museum works
+      collections.history = dithered;
       if (document.body.dataset.scene === 'catalog' && collection === 'history') {
-        if (typeof renderCatalog === 'function') renderCatalog(0);
+        renderCollection();
+        centerSlide(Math.min(2, dithered.length - 1), 'instant');
       }
     }
   } catch {
-    // Keep default history collection on network error
+    // Keep fallback if museum API is unreachable
   }
 })();
 const backLink = document.querySelector('.cirkular-back');

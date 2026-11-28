@@ -49,15 +49,15 @@ export async function onRequestGet({ request }) {
   // Fresh museum artwork discovery from Art Institute of Chicago Open Access API (100k+ public domain works)
   try {
     const theme = THEMES[Math.floor(Math.random() * THEMES.length)];
-    const page = 1 + Math.floor(Math.random() * 10);
-    const apiUrl = `https://api.artic.edu/api/v1/artworks/search?q=${encodeURIComponent(theme)}&query[term][is_public_domain]=true&fields=id,title,artist_title,date_display,image_id&limit=28&page=${page}`;
+    const page = 1 + Math.floor(Math.random() * 12);
+    const apiUrl = `https://api.artic.edu/api/v1/artworks/search?q=${encodeURIComponent(theme)}&query[term][is_public_domain]=true&fields=id,title,artist_title,date_display,image_id&limit=40&page=${page}`;
     const res = await fetch(apiUrl, {
       headers: { "User-Agent": "CIRKULAR-Archive/1.0 (https://cirkular.pages.dev)" }
     });
     if (!res.ok) throw new Error("ARTIC unavailable");
     const data = await res.json();
     const valid = (data?.data || []).filter((a) => a?.image_id && a?.title);
-    const items = shuffle(valid).slice(0, 12).map((a) => ({
+    const items = shuffle(valid).slice(0, 20).map((a) => ({
       id: a.id,
       title: a.title,
       artist: a.artist_title || "Archive",
