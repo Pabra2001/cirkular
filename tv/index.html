@@ -455,6 +455,7 @@
       }
       .stage { order: 1; padding: 12px; }
       .sidebar {
+        position: relative;
         order: 2;
         border-right: 0;
         border-top: var(--rule);
@@ -462,27 +463,16 @@
         min-height: 0;
       }
       .drawer-handle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 18px;
-        flex-shrink: 0;
+        display: block;
+        position: absolute;
+        top: -6px;
+        left: 0;
+        right: 0;
+        height: 12px;
+        z-index: 10;
         cursor: ns-resize;
         touch-action: none;
-        background: var(--bg);
-      }
-      .drawer-handle::before {
-        content: "";
-        width: 34px;
-        height: 3px;
-        border-radius: 999px;
-        background: rgba(187, 255, 41, .42);
-        transition: background .15s ease, width .15s ease;
-      }
-      .drawer-handle:hover::before,
-      .drawer-handle.is-dragging::before {
-        background: var(--lime);
-        width: 44px;
+        background: transparent;
       }
       .channels {
         max-height: 156px;
