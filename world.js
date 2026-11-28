@@ -293,6 +293,12 @@ function inspect(itemIndex) {
     const bucket = Math.round(itemIndex * 2 / Math.max(1, items.length - 1));
     fsDots.forEach((d, idx) => d.setAttribute('aria-current', String(idx === bucket)));
   }
+  const muteBtn = dialog.querySelector('button[data-art="mute"]');
+  if (muteBtn) {
+    muteBtn.textContent = collection === 'history' ? 'magnify' : 'unmute';
+    muteBtn.setAttribute('aria-pressed', 'false');
+  }
+  resetMagnify();
   for (const control of dialog.querySelectorAll('[aria-pressed]')) {
     control.setAttribute('aria-pressed', 'false');
     dialog.dataset[control.dataset.art] = 'false';
@@ -437,9 +443,64 @@ dialog.addEventListener('touchend', (e) => {
   }
 }, {passive: true});
 pagination.forEach(dot => dot.addEventListener('click', () => centerSlide(Math.round(Number(dot.dataset.slide) * (collections[collection].length - 1) / 4), reducedMotion.matches ? 'instant' : 'smooth')));
+// Magnify & drag-to-pan mode for History dithered artworks
+let magActive = false;
+let panX = 0, panY = 0;
+let dragStart = null;
+
+function applyMagnify() {
+  if (!magActive) {
+    artwork.style.transform = '';
+    artwork.style.cursor = '';
+    artwork.style.imageRendering = '';
+    return;
+  }
+  artwork.style.imageRendering = 'pixelated';
+  artwork.style.cursor = dragStart ? 'grabbing' : 'grab';
+  artwork.style.transform = `translate(${panX}px, ${panY}px) scale(2.4)`;
+}
+
+function resetMagnify() {
+  magActive = false;
+  panX = 0;
+  panY = 0;
+  dragStart = null;
+  applyMagnify();
+}
+
+artwork.addEventListener('pointerdown', (e) => {
+  if (!magActive) return;
+  e.preventDefault();
+  artwork.setPointerCapture?.(e.pointerId);
+  dragStart = { x: e.clientX - panX, y: e.clientY - panY };
+  applyMagnify();
+});
+artwork.addEventListener('pointermove', (e) => {
+  if (!magActive || !dragStart) return;
+  panX = Math.max(-420, Math.min(420, e.clientX - dragStart.x));
+  panY = Math.max(-420, Math.min(420, e.clientY - dragStart.y));
+  applyMagnify();
+});
+const endDrag = () => {
+  if (!dragStart) return;
+  dragStart = null;
+  applyMagnify();
+};
+artwork.addEventListener('pointerup', endDrag);
+artwork.addEventListener('pointercancel', endDrag);
+
 dialog.querySelectorAll('button[data-art]').forEach(button => button.addEventListener('click', () => {
   if (button.dataset.art === 'close') {
+    resetMagnify();
     dialog.close();
+    return;
+  }
+  if (button.dataset.art === 'mute' && collection === 'history') {
+    magActive = !magActive;
+    if (!magActive) { panX = 0; panY = 0; }
+    button.setAttribute('aria-pressed', String(magActive));
+    button.textContent = magActive ? 'unmagnify' : 'magnify';
+    applyMagnify();
     return;
   }
   if (button.dataset.art === 'upload') {
