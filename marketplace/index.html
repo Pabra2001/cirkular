@@ -118,7 +118,10 @@
                 if (embedded) {
                   for (const item of data.listings) {
                     const title = typeof item?.title === "string" ? item.title.trim() : "";
-                    if (item?.id && title) listingDetails.set(item.id, { title, brand: item.brand });
+                    if (item?.id && title) listingDetails.set(item.id, {
+                      title, brand: item.brand, size: item.size, colors: item.colors,
+                      measurements: item.measurements, department: item.department
+                    });
                   }
                 }
                 if (!reloadAttempt || !seenIds.size) return res;
@@ -185,13 +188,20 @@
             const range = document.createRange();
             range.selectNodeContents(heading);
             if (range.getClientRects().length < 2) {
-              const words = title.split(/\s+/);
-              const split = Math.ceil(words.length / 2);
-              const brand = typeof details?.brand === "string" ? details.brand.trim() : "";
+              const size = typeof details?.size === "string" ? details.size.trim() : "";
+              const hasSize = size && !/^(unstated|unknown|n\/?a|see (title|desc).*)$/i.test(size);
+              const sizeLabel = hasSize && !/^(?:one )?size\b/i.test(size) ? `Size ${size}` : size;
+              const titleLower = title.toLowerCase();
+              const attributes = [
+                hasSize ? sizeLabel : "",
+                details?.colors?.[0],
+                details?.measurements?.[0],
+                details?.department,
+                details?.brand
+              ].filter(value => typeof value === "string" && value.trim() && !titleLower.includes(value.trim().toLowerCase()));
               const seller = card.querySelector(".result-seller")?.textContent.trim();
-              const context = brand && brand.toLowerCase() !== title.toLowerCase() ? brand : seller;
-              const secondLine = words.slice(split).join(" ") || context || "Secondhand listing";
-              heading.replaceChildren(words.slice(0, split).join(" ") + " ", document.createElement("br"), secondLine);
+              const secondLine = [...new Set(attributes)].slice(0, 2).join(" · ") || (seller ? `Listed on ${seller}` : "Secondhand listing");
+              heading.replaceChildren(title + " ", document.createElement("br"), secondLine);
             }
           }
 
