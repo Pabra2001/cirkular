@@ -281,10 +281,13 @@
         action.addEventListener("click", event => {
           if (action.dataset.action !== "reload") return;
           event.stopImmediatePropagation();
+          if (results.getAttribute("aria-busy") === "true") return;
+          action.toggleAttribute("data-reloading", true);
           rerunSearch(form, results);
         }, { capture: true });
 
         const syncResults = () => {
+          if (results.getAttribute("aria-busy") !== "true") action.removeAttribute("data-reloading");
           injectReloadButtons(form, results);
           updateSearchAction();
         };
@@ -301,6 +304,30 @@
     .search-clear:not([data-action="reload"]) svg,
     .search-clear[data-action="reload"]::before,
     .search-clear[data-action="reload"]::after { display: none; }
+
+    .market-search .search-clear[data-action="reload"] {
+      background-color: transparent;
+    }
+
+    .market-search .search-clear[data-action="reload"]:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: -6px;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .search-clear[data-action="reload"][data-reloading] svg {
+        animation: ck-m-spin 680ms linear infinite;
+      }
+
+      body:has(#marketplace-results[aria-busy="true"]) #sourcing-input:not(:placeholder-shown) {
+        animation: ck-search-sway 760ms ease-in-out infinite alternate;
+      }
+    }
+
+    @keyframes ck-search-sway {
+      from { text-indent: 0; }
+      to { text-indent: 8px; }
+    }
 
     .mp-embedded .back-arrow { display: none !important; }
 
