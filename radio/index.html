@@ -262,7 +262,7 @@
 
         analyser = ctx.createAnalyser();
         analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.55;
+        analyser.smoothingTimeConstant = 0.82;
         freqData = new Uint8Array(analyser.frequencyBinCount);
         timeData = new Uint8Array(analyser.frequencyBinCount);
 
@@ -383,32 +383,32 @@
           hasLiveSignal = (bass + mids + highs) > 0.01;
         }
 
-        // Real onset / beat detector
-        avgBass = avgBass * 0.92 + bass * 0.08;
+        // Gentle beat swell (soft, slow decay) instead of hard spikes
+        avgBass = avgBass * 0.94 + bass * 0.06;
         if (hasLiveSignal && bass > avgBass * 1.15 && bass > 0.18) {
-          beatPulse = Math.min(1.0, beatPulse + (bass - avgBass) * 2.8);
+          beatPulse = Math.min(0.6, beatPulse + (bass - avgBass) * 1.2);
         }
-        beatPulse *= 0.86;
+        beatPulse *= 0.93;
 
-        // Push a fresh live audio slice into the 32-row waterfall every 2 frames
+        // Push a fresh live audio slice into the 32-row waterfall every 3 frames, eased toward the last slice
         frameTick++;
-        if (frameTick % 2 === 0) {
+        if (frameTick % 3 === 0) {
+          const prev = history[0];
           const recycled = history.pop();
           if (hasLiveSignal) {
             for (let b = 0; b < BINS; b++) {
-              // Symmetric spectrum + real time-domain waveform displacement
               const sym = Math.abs((b / (BINS - 1)) * 2 - 1);
               const fIdx = Math.min(76, Math.floor(sym * 58));
-              const fVal = Math.pow(freqData[fIdx] / 255, 1.25);
+              const fVal = Math.pow(freqData[fIdx] / 255, 1.4);
               const tIdx = Math.floor((b / BINS) * timeData.length);
               const tVal = (timeData[tIdx] - 128) / 128;
-              recycled[b] = fVal * (88 + beatPulse * 54) + tVal * (26 + bass * 38);
+              const target = fVal * (42 + beatPulse * 22) + tVal * 7;
+              recycled[b] = prev[b] * 0.62 + target * 0.38;
             }
           } else {
-            // Subtle idle breath when paused/loading
             for (let b = 0; b < BINS; b++) {
               const u = b / (BINS - 1);
-              recycled[b] = (Math.sin(u * 8 - t * 1.2) * 0.5 + 0.5) * 14;
+              recycled[b] = (Math.sin(u * 8 - t * 1.2) * 0.5 + 0.5) * 10;
             }
           }
           history.unshift(recycled);

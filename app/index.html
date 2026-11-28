@@ -122,7 +122,14 @@
       cursor: pointer;
       text-decoration: none;
     }
-    .win-btn[aria-pressed="false"] { color: rgba(187, 255, 41, .4); }
+    .win-btn[aria-pressed="false"] { color: rgba(187, 255, 41, .45); }
+    .win-btn[aria-pressed="true"] { color: #bbff29; }
+    .win-btn[hidden] { display: none; }
+    .win-x { font: 600 15px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .widget-shell:fullscreen, .widget-shell.is-fs {
+      width: 100vw; height: 100dvh; max-width: none; border-radius: 0; box-shadow: none;
+    }
+    .widget-shell.is-fs { position: fixed; inset: 0; z-index: 99999; }
     .deck {
       position: relative;
       width: 100%;
@@ -188,7 +195,7 @@
       </svg>
     </a>
     <div class="wordmark">
-      <img src="../media/mark.svg" alt="CIRKULAR"><span class="app-dot">.app</span>
+      <img src="../media/mark.svg" alt="CIRKULAR">
     </div>
   </header>
 
@@ -212,12 +219,10 @@
           </button>
         </div>
         <div class="win-controls" id="win-controls">
-          <button class="win-btn" id="btn-pin" type="button" aria-pressed="true" aria-label="Pin on top" title="Pin">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 3v2h-1v5l2 2v2h-4v7l-1 1-1-1v-7H7v-2l2-2V5H8V3h8z"/></svg>
+          <button class="win-btn" id="btn-pin" type="button" aria-pressed="false" aria-label="Pin on top" title="Pin on top" hidden>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><g transform="rotate(45 12 12)"><path d="M15.5 3h-7v2h1.2v5.2L7 13v2h4.2v6.2l.8.8.8-.8V15H17v-2l-2.7-2.8V5h1.2z"/></g></svg>
           </button>
-          <a class="win-btn" href="../" aria-label="Close" title="Close">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </a>
+          <button class="win-btn win-x" id="btn-close" type="button" aria-label="Close" title="Close">&times;</button>
         </div>
       </div>
 
@@ -225,14 +230,6 @@
         <div class="track" id="track">
           <iframe class="pane" id="frame-tv" src="/tv/?embed=1" allow="autoplay; fullscreen" title="CIRKULAR TV"></iframe>
           <iframe class="pane" id="frame-radio" src="about:blank" allow="autoplay" title="CIRKULAR Radio"></iframe>
-        </div>
-        <div class="win-controls" id="win-controls">
-          <button class="win-btn" id="btn-pin" type="button" aria-pressed="true" aria-label="Pin on top" title="Pin">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 3v2h-1v5l2 2v2h-4v7l-1 1-1-1v-7H7v-2l2-2V5H8V3h8z"/></svg>
-          </button>
-          <a class="win-btn" href="../" aria-label="Close" title="Close">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </a>
         </div>
       </div>
     </div>
@@ -266,9 +263,48 @@
     }
 
     btnTv.addEventListener("click", () => setMode("tv"));
-    const pinBtn = document.getElementById("btn-pin");
-    pinBtn.addEventListener("click", () => pinBtn.setAttribute("aria-pressed", String(pinBtn.getAttribute("aria-pressed") !== "true")));
     btnRadio.addEventListener("click", () => setMode("radio"));
+
+
+    // Close → back to CIRKULAR home
+    document.getElementById("btn-close").addEventListener("click", () => { location.href = "../"; });
+
+    // Pin → float the card in an always-on-top Picture-in-Picture window (Chromium desktop)
+    const pinBtn = document.getElementById("btn-pin");
+    const shell = document.querySelector(".widget-shell");
+    const stage = document.querySelector(".center-stage");
+    if ("documentPictureInPicture" in window && !matchMedia("(pointer: coarse)").matches) {
+      pinBtn.hidden = false;
+      pinBtn.addEventListener("click", async () => {
+        const dpip = window.documentPictureInPicture;
+        if (dpip.window) { dpip.window.close(); return; }
+        try {
+          const pip = await dpip.requestWindow({ width: 360, height: 540 });
+          document.head.querySelectorAll("style, link[rel=stylesheet]").forEach(n => pip.document.head.appendChild(n.cloneNode(true)));
+          pip.document.body.style.cssText = "margin:0;background:#060705;";
+          shell.style.cssText = "width:100%;height:100vh;border-radius:0;box-shadow:none;";
+          pip.document.body.appendChild(shell);
+          pinBtn.setAttribute("aria-pressed", "true");
+          pip.addEventListener("pagehide", () => {
+            shell.style.cssText = "";
+            stage.appendChild(shell);
+            pinBtn.setAttribute("aria-pressed", "false");
+          });
+        } catch {}
+      });
+    }
+
+    // Fullscreen request from the TV inside the card
+    window.addEventListener("message", (e) => {
+      if (!e.data || !e.data.ckFullscreen) return;
+      if (document.fullscreenElement || shell.classList.contains("is-fs")) {
+        if (document.fullscreenElement) document.exitFullscreen();
+        shell.classList.remove("is-fs");
+        return;
+      }
+      if (shell.requestFullscreen) shell.requestFullscreen().catch(() => shell.classList.add("is-fs"));
+      else shell.classList.add("is-fs");
+    });
 
     if (localStorage.getItem("ck_mobile_mode") === "radio") setMode("radio");
   </script>

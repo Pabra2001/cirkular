@@ -896,6 +896,11 @@
 
     const fsExitBtn = document.getElementById("btn-fs-exit");
     function toggleFullscreen() {
+      // Inside the CIRKULAR.app card, ask the parent page to fullscreen the whole card
+      if (document.documentElement.classList.contains("tv-embedded") && window.parent !== window) {
+        window.parent.postMessage({ ckFullscreen: true }, "*");
+        return;
+      }
       if (document.body.classList.contains("is-tv-fs")) {
         document.body.classList.remove("is-tv-fs");
         fsBtn.setAttribute("aria-pressed", "false");
