@@ -159,7 +159,7 @@
   </script>
 
   <canvas id="waves" aria-label="CIRKULAR live acoustic architecture"></canvas>
-  <a class="radio-get-app" id="btn-radio-app" href="../cirkular-mac.zip" download>WIDGET ↓</a>
+  <a class="radio-get-app" id="btn-radio-app" href="../cirkular-mac.zip" download style="display:inline-flex;align-items:center;gap:5px;"><span id="btn-radio-app-label">WIDGET</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" aria-hidden="true"><path d="M12 4v11m0 0l-5-5m5 5l5-5M4 20h16"/></svg></a>
 
   <script>
     (() => {
@@ -305,7 +305,9 @@
           startStream();
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         const a = document.getElementById("btn-radio-app");
-        if (a) { a.href = "../app/"; a.removeAttribute("download"); a.textContent = "GET APP ↗"; }
+        const lbl = document.getElementById("btn-radio-app-label");
+        if (a) { a.href = "../app/"; a.removeAttribute("download"); }
+        if (lbl) lbl.textContent = "GET APP";
       }
         }
       }
@@ -321,7 +323,9 @@
       startStream();
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         const a = document.getElementById("btn-radio-app");
-        if (a) { a.href = "../app/"; a.removeAttribute("download"); a.textContent = "GET APP ↗"; }
+        const lbl = document.getElementById("btn-radio-app-label");
+        if (a) { a.href = "../app/"; a.removeAttribute("download"); }
+        if (lbl) lbl.textContent = "GET APP";
       }
 
       let w = 0, h = 0;

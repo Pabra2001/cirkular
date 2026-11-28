@@ -562,7 +562,7 @@
         <div class="util-row">
           <button class="util-btn" id="btn-mute" aria-pressed="false" type="button">UNMUTE</button>
           <button class="util-btn" id="btn-fs" aria-pressed="false" type="button">FULLSCREEN</button>
-          <a class="util-btn tv-get-app" id="btn-tv-app" href="../cirkular-mac.zip" download style="text-decoration:none;margin-left:auto;">WIDGET ↓</a>
+          <a class="util-btn tv-get-app" id="btn-tv-app" href="../cirkular-mac.zip" download style="text-decoration:none;margin-left:auto;display:inline-flex;align-items:center;gap:5px;"><span id="btn-tv-app-label">WIDGET</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" aria-hidden="true"><path d="M12 4v11m0 0l-5-5m5 5l5-5M4 20h16"/></svg></a>
         </div>
       </div>
     </aside>
@@ -969,7 +969,9 @@
 
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
       const a = document.getElementById("btn-tv-app");
-      if (a) { a.href = "../app/"; a.removeAttribute("download"); a.textContent = "GET APP ↗"; }
+      const lbl = document.getElementById("btn-tv-app-label");
+      if (a) { a.href = "../app/"; a.removeAttribute("download"); }
+      if (lbl) lbl.textContent = "GET APP";
     }
 
     // Draggable divider between video viewport and channel/controls drawer with magnetic snap detent
