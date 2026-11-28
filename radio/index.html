@@ -129,6 +129,12 @@
       cursor: pointer;
     }
 
+    .app-embedded #waves,
+    .mac-widget #waves {
+      cursor: default;
+      touch-action: none;
+    }
+
     .radio-playback {
       position: fixed;
       z-index: 1;
@@ -410,7 +416,7 @@
       const canvas = document.getElementById("waves");
       const c = canvas.getContext("2d");
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.addEventListener("click", togglePlay);
+      if (!compact) canvas.addEventListener("click", togglePlay);
       playback.addEventListener("click", togglePlay);
       window.addEventListener("keydown", (e) => {
         if (e.code === "Space" && e.target !== playback) { e.preventDefault(); togglePlay(); }
@@ -439,19 +445,26 @@
       }
 
       window.addEventListener("resize", resize);
-      window.addEventListener("pointermove", (e) => {
-        tx = e.clientX / (w || 1);
-        ty = e.clientY / (h || 1);
+      function trackPointer(event) {
+        tx = event.clientX / (w || 1);
+        ty = event.clientY / (h || 1);
         pointerActive = true;
+      }
+
+      canvas.addEventListener("pointermove", event => {
+        if (event.isPrimary) trackPointer(event);
       });
-      window.addEventListener("pointerdown", (e) => {
-        tx = e.clientX / (w || 1);
-        ty = e.clientY / (h || 1);
-        pointerActive = true;
+      canvas.addEventListener("pointerdown", event => {
+        if (!event.isPrimary) return;
+        trackPointer(event);
+        mx = tx;
+        my = ty;
+        warpStrength = Math.max(warpStrength, 0.7);
       });
-      window.addEventListener("pointerleave", () => { pointerActive = false; });
-      window.addEventListener("pointerup", (e) => {
-        if (e.pointerType === "touch") pointerActive = false;
+      canvas.addEventListener("pointerleave", () => { pointerActive = false; });
+      canvas.addEventListener("pointercancel", () => { pointerActive = false; });
+      canvas.addEventListener("pointerup", event => {
+        if (event.isPrimary && event.pointerType !== "mouse") pointerActive = false;
       });
       resize();
 
