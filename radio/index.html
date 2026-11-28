@@ -35,6 +35,8 @@
       user-select: none;
     }
 
+    :root { --radio-page-gutter: 28px; }
+
     .top-bar {
       position: fixed;
       top: 0;
@@ -43,7 +45,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 22px 28px;
+      padding: 22px var(--radio-page-gutter);
       z-index: 20;
       pointer-events: none;
     }
@@ -158,7 +160,7 @@
 
     html:not(.radio-embedded, .mac-widget) .radio-playback {
       display: grid;
-      left: max(17px, env(safe-area-inset-left));
+      left: max(calc(var(--radio-page-gutter) + 5px), env(safe-area-inset-left));
       bottom: max(1px, env(safe-area-inset-bottom));
       transform: none;
     }
@@ -179,10 +181,8 @@
     }
 
     @media (max-width: 640px) {
-      .top-bar { padding: 14px 16px; }
-      html:not(.radio-embedded, .mac-widget) .radio-playback {
-        left: max(5px, env(safe-area-inset-left));
-      }
+      :root { --radio-page-gutter: 16px; }
+      .top-bar { padding: 14px var(--radio-page-gutter); }
     }
     html.app-embedded .top-bar,
     html.mac-widget .top-bar,
