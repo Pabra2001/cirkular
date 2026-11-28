@@ -158,11 +158,30 @@
       }
 
       if (embedded) {
+        const forceMute = () => {
+          if (!muted) {
+            muted = true;
+            updateOutput();
+            try { window.parent.postMessage({ type: "cirkular-radio-muted", muted: true }, "*"); } catch {}
+          }
+        };
+
         window.addEventListener("message", event => {
           if (event.source !== window.parent || event.origin !== "https://prnce.pages.dev") return;
           if (event.data?.type !== "cirkular-radio-mute" || typeof event.data.muted !== "boolean") return;
           muted = event.data.muted;
           updateOutput();
+        });
+
+        // Auto-mute when scrolled out of view and stay muted until user re-engages unmute
+        if ("IntersectionObserver" in window) {
+          const io = new IntersectionObserver(([entry]) => {
+            if (!entry.isIntersecting) forceMute();
+          }, { threshold: 0.05 });
+          io.observe(document.documentElement);
+        }
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) forceMute();
         });
       }
 

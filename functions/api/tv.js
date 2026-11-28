@@ -80,14 +80,22 @@ export async function onRequestGet({ request }) {
         '("Alexander McQueen" OR "Rei Kawakubo" OR "Yohji Yamamoto" OR "Issey Miyake" OR "Martin Margiela" OR "Helmut Newton" OR "Wolfgang Tillmans")'
       ];
       const group = ARTIST_GROUPS[Math.floor(Math.random() * ARTIST_GROUPS.length)];
-      const q = encodeURIComponent(
+      const videoArtPage = 1 + Math.floor(Math.random() * 6);
+      const qArtist = encodeURIComponent(
         `mediatype:movies AND format:"MPEG4" AND ${group} AND NOT subject:("ai-generated" OR "ai art" OR "generative art" OR "porn" OR "porno" OR "hentai" OR "trailer" OR "review" OR "podcast")`
       );
-      const searchUrl = `https://archive.org/advancedsearch.php?q=${q}&fl[]=identifier&fl[]=title&fl[]=subject&rows=50&sort[]=downloads+desc&output=json`;
-      const res = await fetch(searchUrl);
-      const data = res.ok ? await res.json() : null;
+      const qVideoArt = encodeURIComponent(
+        `mediatype:movies AND format:"MPEG4" AND subject:"video art" AND NOT subject:("ai-generated" OR "ai art" OR "generative art" OR "porn" OR "porno" OR "hentai" OR "trailer" OR "review" OR "podcast")`
+      );
+      const [resArtist, resVideoArt] = await Promise.all([
+        fetch(`https://archive.org/advancedsearch.php?q=${qArtist}&fl[]=identifier&fl[]=title&fl[]=subject&rows=40&sort[]=downloads+desc&output=json`),
+        fetch(`https://archive.org/advancedsearch.php?q=${qVideoArt}&fl[]=identifier&fl[]=title&fl[]=subject&rows=40&page=${videoArtPage}&sort[]=downloads+desc&output=json`)
+      ]);
+      const dataArtist = resArtist.ok ? await resArtist.json() : null;
+      const dataVideoArt = resVideoArt.ok ? await resVideoArt.json() : null;
       const BLOCK_RE = /(\bai\b|ai-generated|ai art|generative|artificial intelligence|deepfake|midjourney|sora|runway|stable diffusion|kling|bobsgame|porn|porno|hentai|onlyfans|ポルノ|エロ|trailer|podcast|reaction|review|lecture|webinar|gameplay)/i;
-      const docs = (data?.response?.docs || [])
+
+      const parseDocs = (docs) => (docs || [])
         .filter((d) => {
           if (!d?.identifier || !d?.title || !/^[A-Za-z0-9._-]{2,100}$/.test(d.identifier)) return false;
           const meta = `${d.title} ${Array.isArray(d.subject) ? d.subject.join(" ") : (d.subject || "")}`;
@@ -98,9 +106,34 @@ export async function onRequestGet({ request }) {
           title: String(d.title).replace(/\s+/g, " ").trim().toUpperCase().slice(0, 38)
         }));
 
-      const fresh = shuffle(docs).slice(0, 9);
-      const anchors = shuffle(FALLBACK_CHANNELS).slice(0, Math.max(3, 12 - fresh.length));
-      const combined = shuffle([...fresh, ...anchors]).slice(0, 12);
+      // Blend 6 Most-Viewed Video Art + 6 Iconic Artists, strictly deduplicated so no video ever repeats
+      const videoArtDocs = shuffle(parseDocs(dataVideoArt?.response?.docs)).slice(0, 12);
+      const artistDocs = shuffle(parseDocs(dataArtist?.response?.docs)).slice(0, 12);
+      const seenIds = new Set();
+      const seenTitles = new Set();
+      const unique = [];
+      const addUnique = (item) => {
+        const tKey = item.title.replace(/[^A-Z0-9]/g, "").slice(0, 20);
+        if (seenIds.has(item.id) || (tKey && seenTitles.has(tKey))) return false;
+        seenIds.add(item.id);
+        if (tKey) seenTitles.add(tKey);
+        unique.push(item);
+        return true;
+      };
+
+      for (const item of videoArtDocs) {
+        if (unique.length >= 6) break;
+        addUnique(item);
+      }
+      for (const item of artistDocs) {
+        if (unique.length >= 12) break;
+        addUnique(item);
+      }
+      for (const item of shuffle(FALLBACK_CHANNELS)) {
+        if (unique.length >= 12) break;
+        addUnique(item);
+      }
+      const combined = shuffle(unique).slice(0, 12);
 
       const channels = combined.map((c, idx) => {
         const num = String(idx + 1).padStart(2, "0");
