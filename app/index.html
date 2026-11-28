@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#060705">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CIRKULAR">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icon-512.png">
+  <title>CIRKULAR — TV &amp; Radio</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      background: #060705;
+      color: #bbff29;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    body {
+      display: grid;
+      grid-template-rows: calc(40px + env(safe-area-inset-top)) minmax(0, 1fr);
+    }
+    .app-bar {
+      padding: env(safe-area-inset-top) 14px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #060705;
+      border-bottom: 1px solid rgba(187, 255, 41, .18);
+      z-index: 10;
+    }
+    .mode-pills {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mode-btn {
+      width: 46px;
+      height: 22px;
+      border-radius: 11px;
+      border: 0;
+      background: transparent;
+      color: rgba(187, 255, 41, .45);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: background .18s ease, color .18s ease;
+    }
+    .mode-btn[aria-pressed="true"] {
+      background: rgba(187, 255, 41, .18);
+      color: #bbff29;
+    }
+    .install-hint {
+      font: 500 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(187, 255, 41, .55);
+      text-decoration: none;
+    }
+    @media (display-mode: standalone) {
+      .install-hint { display: none; }
+    }
+    .deck {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .track {
+      display: flex;
+      width: 200%;
+      height: 100%;
+      transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+    }
+    .track.is-radio {
+      transform: translateX(-50%);
+    }
+    .pane {
+      width: 50%;
+      height: 100%;
+      border: 0;
+      background: #060705;
+    }
+  </style>
+</head>
+<body>
+  <header class="app-bar">
+    <div class="mode-pills" role="tablist" aria-label="CIRKULAR mode">
+      <button class="mode-btn" id="btn-tv" type="button" role="tab" aria-pressed="true" aria-label="CIRKULAR TV">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="4" width="20" height="14" rx="2"/>
+          <path d="M8 21h8"/>
+        </svg>
+      </button>
+      <button class="mode-btn" id="btn-radio" type="button" role="tab" aria-pressed="false" aria-label="CIRKULAR Radio">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="8" width="18" height="12" rx="2"/>
+          <path d="M7 8l10-4"/>
+          <circle cx="8.5" cy="14" r="2"/>
+          <path d="M14 12h4M14 16h4"/>
+        </svg>
+      </button>
+    </div>
+    <span class="install-hint">Share → Add to Home Screen</span>
+  </header>
+
+  <main class="deck">
+    <div class="track" id="track">
+      <iframe class="pane" id="frame-tv" src="/tv/?embed=1" allow="autoplay; fullscreen" title="CIRKULAR TV"></iframe>
+      <iframe class="pane" id="frame-radio" src="about:blank" allow="autoplay" title="CIRKULAR Radio"></iframe>
+    </div>
+  </main>
+
+  <script>
+    const track = document.getElementById("track");
+    const btnTv = document.getElementById("btn-tv");
+    const btnRadio = document.getElementById("btn-radio");
+    const frameRadio = document.getElementById("frame-radio");
+    let radioLoaded = false;
+
+    function setMode(mode) {
+      const isRadio = mode === "radio";
+      if (isRadio && !radioLoaded) {
+        frameRadio.src = "/radio/?embed=1";
+        radioLoaded = true;
+      }
+      track.classList.toggle("is-radio", isRadio);
+      btnTv.setAttribute("aria-pressed", String(!isRadio));
+      btnRadio.setAttribute("aria-pressed", String(isRadio));
+      localStorage.setItem("ck_mobile_mode", mode);
+    }
+
+    btnTv.addEventListener("click", () => setMode("tv"));
+    btnRadio.addEventListener("click", () => setMode("radio"));
+
+    if (localStorage.getItem("ck_mobile_mode") === "radio") setMode("radio");
+  </script>
+</body>
+</html>

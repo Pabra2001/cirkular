@@ -21,7 +21,16 @@
       <div class="copy">
         <h1 id="preview-title">Find it secondhand.</h1>
         <p>Finds live secondhand alternatives and grades the sustainability of retail products as you shop.</p>
-        <button class="download" type="button">Download plugin <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path transform="rotate(-90 12 12)" d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg></button>
+        <div style="display:flex;flex-direction:column;align-items:flex-start;gap:12px;">
+          <button class="download" type="button">Download plugin <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path transform="rotate(-90 12 12)" d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg></button>
+          <a class="download" id="download-widget-btn" href="../cirkular-mac.zip" download style="text-decoration:none;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.28);">Download widget <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path transform="rotate(-90 12 12)" d="M21 12H4M11 5L4 12l7 7" stroke="currentColor" stroke-width="3" stroke-linejoin="miter"/></svg></a>
+        </div>
+        <script>
+          if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            const w = document.getElementById('download-widget-btn');
+            if (w) { w.href = '../app/'; w.removeAttribute('download'); }
+          }
+        </script>
       </div>
       <div class="plugin-preview">
         <template>
