@@ -859,7 +859,10 @@
     });
 
     video.addEventListener("loadedmetadata", () => {
-      // Start playing immediately without a slow mid-file seek that stalls archive.org Range buffering
+      // Retain the live-broadcast tune-in feel (fast now that we stream small web MP4s directly)
+      if (Number.isFinite(video.duration) && video.duration > 10) {
+        try { video.currentTime = (Date.now() / 1000) % video.duration; } catch {}
+      }
       video.play().catch(() => {});
     });
     video.addEventListener("playing", () => {
