@@ -441,9 +441,21 @@
       border-radius: 999px;
       cursor: pointer;
     }
-    body.is-tv-fs .fs-exit-btn { display: inline-flex; }
+    body.is-tv-fs .fs-exit-btn { display: inline-flex; gap: .35em; }
     @media (pointer: coarse) {
-      .app-embedded .fs-exit-btn { top: max(14px, 7svh); }
+      .app-embedded .fs-exit-btn {
+        top: max(14px, 7svh);
+        width: 44px;
+        height: 44px;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        font-size: 20px;
+        letter-spacing: 0;
+      }
+      .app-embedded .fs-exit-label { display: none; }
     }
 
     .drawer-handle {
@@ -587,7 +599,9 @@
       <div class="tv-frame" id="tv-frame">
         <video id="tv-video" class="is-hidden" playsinline webkit-playsinline autoplay muted loop preload="auto"></video>
         <canvas id="tv-canvas" aria-label="CIRKULAR.tv live dithered broadcast"></canvas>
-        <button class="fs-exit-btn" id="btn-fs-exit" type="button">EXIT ✕</button>
+        <button class="fs-exit-btn" id="btn-fs-exit" type="button" aria-label="Exit fullscreen">
+          <span class="fs-exit-label" aria-hidden="true">EXIT</span><span aria-hidden="true">✕</span>
+        </button>
         <div class="stage-status" id="stage-status">TUNING CH.01…</div>
         <div class="stage-timecode" id="stage-timecode">00:00:00</div>
       </div>
