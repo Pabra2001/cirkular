@@ -129,6 +129,41 @@
       cursor: pointer;
     }
 
+    .radio-playback {
+      position: fixed;
+      z-index: 1;
+      top: 52%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      display: none;
+      place-items: center;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: var(--lime);
+      cursor: pointer;
+    }
+
+    .app-embedded .radio-playback,
+    .mac-widget .radio-playback { display: grid; }
+
+    .radio-playback::before {
+      content: "";
+      width: 11px;
+      height: 13px;
+      background: currentColor;
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+      filter: drop-shadow(0 0 2px #050604);
+    }
+
+    .radio-playback[data-playing]::before {
+      width: 10px;
+      clip-path: none;
+      background: linear-gradient(to right, currentColor 0 3px, transparent 3px 7px, currentColor 7px);
+    }
+
     @media (max-width: 640px) {
       .top-bar { padding: 14px 16px; }
     }
@@ -167,11 +202,13 @@
   </script>
 
   <canvas id="waves" aria-label="CIRKULAR live acoustic architecture"></canvas>
+  <button class="radio-playback" id="radio-playback" type="button" aria-label="Play radio"></button>
   <a class="radio-get-app" id="btn-radio-app" href="../cirkular-mac.zip" download style="display:inline-flex;align-items:center;gap:5px;"><span id="btn-radio-app-label">WIDGET</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" aria-hidden="true"><path d="M12 4v11m0 0l-5-5m5 5l5-5M4 20h16"/></svg></a>
 
   <script>
     (() => {
       let isPlaying = false;
+      let pendingStart = null;
       let audioEl = null;
       let ctx = null;
       let analyser = null;
@@ -189,6 +226,8 @@
       let lastSlice = 0;
       let output = null;
       const appEmbedded = document.documentElement.classList.contains("app-embedded");
+      const compact = appEmbedded || document.documentElement.classList.contains("mac-widget");
+      const playback = document.getElementById("radio-playback");
       let muted = appEmbedded;
       const embedded = document.documentElement.classList.contains("radio-embedded");
 
@@ -303,47 +342,55 @@
         output.connect(ctx.destination);
       }
 
+      function setPlaying(playing) {
+        isPlaying = playing;
+        playback.toggleAttribute("data-playing", playing);
+        playback.setAttribute("aria-label", playing ? "Pause radio" : "Play radio");
+        updateOutput();
+      }
+
       async function startStream() {
-        initAudio();
-        if (ctx.state === "suspended") await ctx.resume();
-        audioEl.src = `/api/radio?ch=dub&t=${Date.now()}`;
+        const attempt = {};
+        pendingStart = attempt;
         try {
+          initAudio();
+          if (ctx.state === "suspended") {
+            const resume = ctx.resume();
+            resume.catch(() => {});
+          }
+          audioEl.src = `/api/radio?ch=dub&t=${Date.now()}`;
           await audioEl.play();
-          isPlaying = true;
-          updateOutput();
+          if (pendingStart !== attempt) return;
+          setPlaying(true);
           localStorage.setItem("ck_radio_ch", "dub");
           localStorage.setItem("ck_radio_playing", "1");
         } catch {
-          isPlaying = false;
-          updateOutput();
+          if (pendingStart === attempt) setPlaying(false);
+        } finally {
+          if (pendingStart === attempt) pendingStart = null;
         }
       }
 
       function togglePlay() {
-        if (isPlaying && audioEl) {
-          audioEl.pause();
-          audioEl.removeAttribute("src");
-          audioEl.load();
-          isPlaying = false;
-          updateOutput();
-          localStorage.setItem("ck_radio_playing", "0");
-        } else {
+        if (!isPlaying) {
           startStream();
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        const a = document.getElementById("btn-radio-app");
-        const lbl = document.getElementById("btn-radio-app-label");
-        if (a) { a.href = "../app/"; a.removeAttribute("download"); }
-        if (lbl) lbl.textContent = "GET APP";
-      }
+          return;
         }
+        pendingStart = null;
+        audioEl.pause();
+        audioEl.removeAttribute("src");
+        audioEl.load();
+        setPlaying(false);
+        localStorage.setItem("ck_radio_playing", "0");
       }
 
       const canvas = document.getElementById("waves");
       const c = canvas.getContext("2d");
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.addEventListener("click", togglePlay);
+      playback.addEventListener("click", togglePlay);
       window.addEventListener("keydown", (e) => {
-        if (e.code === "Space") { e.preventDefault(); togglePlay(); }
+        if (e.code === "Space" && e.target !== playback) { e.preventDefault(); togglePlay(); }
       });
 
       startStream();
@@ -426,7 +473,9 @@
         const blend = 1 - Math.exp(-dt / 0.12);
         for (let b = 0; b < BINS; b++) {
           const u = b / (BINS - 1);
-          const idle = (Math.sin(u * 8 - t * 1.2) * 0.5 + 0.5) * 0.20;
+          const idle = compact
+            ? 0.12 * Math.sin(u * 8 - t * 2.7) + 0.06 * Math.sin(u * 15 + t * 1.9)
+            : (Math.sin(u * 8 - t * 1.2) * 0.5 + 0.5) * 0.20;
           const swell = (0.35 + 0.65 * Math.sin(u * 7.4 - phase) ** 2)
             * (bass * 0.56 + beatPulse * 0.38);
           const ripple = Math.sin(u * 16 + phase * 1.45) * mids * 0.28;
@@ -456,7 +505,9 @@
         const topY = h * 0.24;
         const botY = h * 0.80;
         const stepY = (botY - topY) / (lines - 1);
-        const waveHeight = Math.min(w * 0.20, h * 0.12, 106);
+        const waveHeight = compact
+          ? Math.min(w * 0.28, h * 0.20, 106)
+          : Math.min(w * 0.20, h * 0.12, 106);
         const segs = 120;
         const mxPx = mx * w;
         const myPx = my * h;
