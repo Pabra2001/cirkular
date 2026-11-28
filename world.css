@@ -800,8 +800,6 @@ body:has(.catalog-entry:not([hidden])) .cirkular-back.back-arrow {
     bottom: 4.9rem !important;
     transform: none !important;
     padding-inline: 24px !important;
-    padding-bottom: 12px !important;
-    border-bottom: 1px solid rgba(187, 255, 41, .16) !important;
   }
   .art-dialog .art-controls > * {
     grid-column: auto !important;
