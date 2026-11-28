@@ -1,0 +1,15 @@
+@media (any-pointer: fine) and (forced-colors: none) and (prefers-contrast: no-preference) {
+  html.portfolio-embedded {
+    --portfolio-square-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='white' d='M0 0h12v12H0z'/%3E%3C/svg%3E") 6 6;
+    --portfolio-square-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='black' d='M0 0h12v12H0z'/%3E%3C/svg%3E") 6 6;
+    --portfolio-square: var(--portfolio-square-light);
+  }
+
+  html.portfolio-embedded .ch-row[aria-pressed="true"] {
+    --portfolio-square: var(--portfolio-square-dark);
+  }
+
+  html.portfolio-embedded, html.portfolio-embedded :where(body, body *) {
+    cursor: var(--portfolio-square), default !important;
+  }
+}
