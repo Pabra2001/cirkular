@@ -308,6 +308,19 @@
         return impulse;
       }
 
+      function setupMediaSession() {
+        if (!navigator.mediaSession || !window.MediaMetadata) return;
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: "CIRKULAR.radio",
+          artwork: [{ src: new URL("/app/icon-512.png", location.origin).href, sizes: "512x512", type: "image/png" }]
+        });
+        navigator.mediaSession.setActionHandler("play", () => {
+          pausedByUser = false;
+          startStream();
+        });
+        navigator.mediaSession.setActionHandler("pause", pauseStream);
+      }
+
       function initAudio() {
         if (ctx) return;
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -361,6 +374,7 @@
         dry.connect(output);
         wet.connect(output);
         output.connect(ctx.destination);
+        setupMediaSession();
       }
 
       function syncPlaybackButton() {
@@ -371,6 +385,7 @@
 
       function setPlaying(playing) {
         isPlaying = playing;
+        if (navigator.mediaSession) navigator.mediaSession.playbackState = playing ? "playing" : "paused";
         syncPlaybackButton();
         updateOutput();
       }
@@ -407,6 +422,10 @@
           startStream();
           return;
         }
+        pauseStream();
+      }
+
+      function pauseStream() {
         pausedByUser = true;
         pendingStart = null;
         setPlaying(false);

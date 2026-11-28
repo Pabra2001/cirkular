@@ -153,42 +153,100 @@
 
       const RELOAD_SVG = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 8A5.2 5.2 0 1 1 11.7 4.3L13.5 6"/><path d="M13.5 2.5V6H10"/></svg>';
 
-      function injectReloadButtons() {
+      const narrowMarket = matchMedia("(max-width: 680px)");
+
+      function rerunSearch(form, results) {
+        if (results.getAttribute("aria-busy") === "true") return;
+        recordDisplayedIds();
+        reloadAttempt += 1;
+        form.requestSubmit();
+      }
+
+      function injectReloadButtons(form, results) {
         normalizeKoreLabels();
         recordDisplayedIds();
-        document.querySelectorAll('#marketplace-results .result-card').forEach((card) => {
-          if (card.querySelector('.ck-market-reload')) return;
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'ck-market-reload';
-          btn.setAttribute('aria-label', 'Load new listings');
-          btn.title = 'Load a fresh set of listings';
-          btn.innerHTML = RELOAD_SVG;
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            recordDisplayedIds();
-            btn.classList.add('is-loading');
-            reloadAttempt += 1;
-            const form = document.getElementById('sourcing-form');
-            if (form) form.requestSubmit();
+        if (narrowMarket.matches) return;
+        results.querySelectorAll(".result-card").forEach(card => {
+          if (card.querySelector(".ck-market-reload")) return;
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "ck-market-reload";
+          button.setAttribute("aria-label", "Load new listings");
+          button.title = "Load a fresh set of listings";
+          button.innerHTML = RELOAD_SVG;
+          button.addEventListener("click", () => {
+            if (results.getAttribute("aria-busy") === "true") return;
+            button.classList.add("is-loading");
+            rerunSearch(form, results);
           });
-          card.appendChild(btn);
+          card.appendChild(button);
         });
       }
 
-      document.addEventListener('DOMContentLoaded', () => {
-        const container = document.getElementById('marketplace-results');
-        if (!container) return;
-        new MutationObserver(injectReloadButtons).observe(container, { childList: true, subtree: true });
-        injectReloadButtons();
+      document.addEventListener("DOMContentLoaded", () => {
+        const results = document.getElementById("marketplace-results");
+        const form = document.getElementById("sourcing-form");
+        const input = document.getElementById("sourcing-input");
+        const action = form.querySelector(".search-clear");
+        action.innerHTML = RELOAD_SVG;
+        let editing = false;
+
+        function updateSearchAction() {
+          const query = new URLSearchParams(location.search).get("q")?.trim();
+          const canRefresh = narrowMarket.matches && !editing && query && input.value.trim() === query;
+          action.dataset.action = canRefresh ? "reload" : "clear";
+          action.setAttribute("aria-label", canRefresh ? "Load new listings" : "Clear search");
+        }
+
+        input.addEventListener("focus", () => {
+          editing = true;
+          updateSearchAction();
+        });
+        input.addEventListener("input", updateSearchAction);
+        form.addEventListener("focusout", event => {
+          if (event.relatedTarget === input || event.relatedTarget === action) return;
+          editing = false;
+          updateSearchAction();
+        });
+        form.addEventListener("submit", () => {
+          if (!narrowMarket.matches || !input.value.trim()) return;
+          editing = false;
+          input.blur();
+          updateSearchAction();
+        });
+        action.addEventListener("pointerdown", event => {
+          if (editing) event.preventDefault();
+        });
+        action.addEventListener("click", event => {
+          if (action.dataset.action !== "reload") return;
+          event.stopImmediatePropagation();
+          rerunSearch(form, results);
+        }, { capture: true });
+
+        const syncResults = () => {
+          injectReloadButtons(form, results);
+          updateSearchAction();
+        };
+        new MutationObserver(syncResults).observe(results, {
+          childList: true, subtree: true, attributes: true, attributeFilter: ["aria-busy"]
+        });
+        narrowMarket.addEventListener("change", syncResults);
+        window.addEventListener("popstate", updateSearchAction);
+        syncResults();
       });
     })();
   </script>
   <style>
+    .search-clear:not([data-action="reload"]) svg,
+    .search-clear[data-action="reload"]::before,
+    .search-clear[data-action="reload"]::after { display: none; }
+
     .mp-embedded .back-arrow { display: none !important; }
 
     @media (max-width: 680px) {
+      .market-frame:has(.listing-carousel, .product-detail) { overflow: clip; }
+      .ck-market-reload { display: none; }
+
       .mp-embedded .market-header {
         grid-template-columns: minmax(0, 1fr);
       }
