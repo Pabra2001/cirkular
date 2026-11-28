@@ -293,13 +293,38 @@ function inspect(itemIndex) {
     const bucket = Math.round(itemIndex * 2 / Math.max(1, items.length - 1));
     fsDots.forEach((d, idx) => d.setAttribute('aria-current', String(idx === bucket)));
   }
+  const wasOpen = dialog.open;
+  const keepInvert = wasOpen && dialog.querySelector('button[data-art="invert"]')?.getAttribute('aria-pressed') === 'true';
+  const keepMag = wasOpen && collection === 'history' && magActive;
+
   const muteBtn = dialog.querySelector('button[data-art="mute"]');
   if (muteBtn) {
-    muteBtn.textContent = collection === 'history' ? 'magnify' : 'unmute';
-    muteBtn.setAttribute('aria-pressed', 'false');
+    muteBtn.textContent = collection === 'history' ? (keepMag ? 'unmagnify' : 'magnify') : 'unmute';
+    muteBtn.setAttribute('aria-pressed', String(keepMag));
   }
-  resetMagnify();
+  if (keepMag) {
+    panX = 0;
+    panY = 0;
+    dragStart = null;
+    applyMagnify();
+  } else {
+    resetMagnify();
+  }
+
   for (const control of dialog.querySelectorAll('[aria-pressed]')) {
+    if (control.dataset.art === 'mute' && keepMag) continue;
+    if (control.dataset.art === 'invert' && keepInvert) {
+      control.setAttribute('aria-pressed', 'true');
+      dialog.dataset.invert = 'true';
+      if (!moving && artwork.dataset.source) {
+        artwork.src = artwork.dataset.source;
+        download.href = artwork.src;
+      } else if (moving && artVideo.dataset.color) {
+        artVideo.src = artVideo.dataset.color;
+        artVideo.play().catch(() => {});
+      }
+      continue;
+    }
     control.setAttribute('aria-pressed', 'false');
     dialog.dataset[control.dataset.art] = 'false';
   }
