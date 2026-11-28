@@ -517,8 +517,9 @@
       .subs-feed { height: 74px; }
       .ch-row { padding: 10px 14px; font-size: 11px; }
     }
-    @media (max-width: 820px) and (pointer: coarse) {
-      .app-embedded .channels {
+    @media (max-width: 820px) {
+      .app-embedded .channels,
+      html:not(.mac-widget, .portfolio-embedded) #tv-grid[data-drawer-resized] .channels {
         max-height: none;
         position: relative;
       }
@@ -1102,6 +1103,7 @@
           snapped = false;
         }
 
+        grid.dataset.drawerResized = "";
         grid.style.setProperty("--sidebar-h", `${nextH}px`);
       });
 
