@@ -46,13 +46,15 @@ async function ditherMuseumImage(url) {
         canvas.height = h;
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         ctx.drawImage(img, 0, 0, w, h);
-        const id = ctx.getImageData(0, 0, w, h);
-        const d = id.data;
+        const srcData = ctx.getImageData(0, 0, w, h);
+
+        // 1. Floyd-Steinberg Green Dither (#060705 obsidian + #bbff29 acid lime)
+        const limeImg = ctx.createImageData(w, h);
+        const ld = limeImg.data;
         const luma = new Float32Array(w * h);
         for (let i = 0, p = 0; i < luma.length; i++, p += 4) {
-          luma[i] = 0.299 * d[p] + 0.587 * d[p + 1] + 0.114 * d[p + 2];
+          luma[i] = 0.299 * srcData.data[p] + 0.587 * srcData.data[p + 1] + 0.114 * srcData.data[p + 2];
         }
-        // Floyd-Steinberg dither into CIRKULAR obsidian (#060705) + acid lime (#bbff29)
         for (let y = 0; y < h; y++) {
           for (let x = 0; x < w; x++) {
             const idx = y * w + x;
@@ -67,14 +69,48 @@ async function ditherMuseumImage(url) {
             }
             const p = idx * 4;
             if (val > 0) {
-              d[p] = 187; d[p + 1] = 255; d[p + 2] = 41; d[p + 3] = 255;
+              ld[p] = 187; ld[p + 1] = 255; ld[p + 2] = 41; ld[p + 3] = 255;
             } else {
-              d[p] = 6; d[p + 1] = 7; d[p + 2] = 5; d[p + 3] = 255;
+              ld[p] = 6; ld[p + 1] = 7; ld[p + 2] = 5; ld[p + 3] = 255;
             }
           }
         }
-        ctx.putImageData(id, 0, 0);
-        resolve(canvas.toDataURL('image/webp', 0.86));
+        ctx.putImageData(limeImg, 0, 0);
+        const limeUrl = canvas.toDataURL('image/webp', 0.86);
+
+        // 2. Floyd-Steinberg Color Dither (quantized 4-level RGB, never raw undithered image)
+        const colorImg = ctx.createImageData(w, h);
+        const cd = colorImg.data;
+        const rgb = new Float32Array(w * h * 3);
+        for (let i = 0, p = 0, q = 0; i < w * h; i++, p += 4, q += 3) {
+          rgb[q] = srcData.data[p];
+          rgb[q + 1] = srcData.data[p + 1];
+          rgb[q + 2] = srcData.data[p + 2];
+        }
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const q = (y * w + x) * 3;
+            const p = (y * w + x) * 4;
+            for (let c = 0; c < 3; c++) {
+              const old = rgb[q + c];
+              const val = Math.round(Math.max(0, Math.min(255, old)) / 85) * 85;
+              const err = old - val;
+              cd[p + c] = val;
+              if (x + 1 < w) rgb[q + 3 + c] += err * 7 / 16;
+              if (y + 1 < h) {
+                const rowBelow = ((y + 1) * w + x) * 3;
+                if (x > 0) rgb[rowBelow - 3 + c] += err * 3 / 16;
+                rgb[rowBelow + c] += err * 5 / 16;
+                if (x + 1 < w) rgb[rowBelow + 3 + c] += err * 1 / 16;
+              }
+            }
+            cd[p + 3] = 255;
+          }
+        }
+        ctx.putImageData(colorImg, 0, 0);
+        const colorUrl = canvas.toDataURL('image/webp', 0.86);
+
+        resolve({ limeUrl, colorUrl });
       } catch {
         resolve(null);
       }
@@ -92,11 +128,11 @@ async function ditherMuseumImage(url) {
     const items = Array.isArray(data?.items) ? data.items.slice(0, 20) : [];
     const results = await Promise.all(
       items.map(async (item) => {
-        const limeUrl = await ditherMuseumImage(item.src);
-        if (!limeUrl) return null;
-        localArt.add(limeUrl);
-        localColor.set(limeUrl, item.src);
-        return limeUrl;
+        const pair = await ditherMuseumImage(item.src);
+        if (!pair) return null;
+        localArt.add(pair.limeUrl);
+        localColor.set(pair.limeUrl, pair.colorUrl);
+        return pair.limeUrl;
       })
     );
     const dithered = results.filter(Boolean);
