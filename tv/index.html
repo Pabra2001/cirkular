@@ -463,17 +463,27 @@
         min-height: 0;
       }
       .drawer-handle {
-        display: block;
-        height: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 14px;
         flex-shrink: 0;
         cursor: ns-resize;
         touch-action: none;
-        background: transparent;
-        transition: background .15s ease;
+        background: var(--bg);
       }
-      .drawer-handle:hover,
-      .drawer-handle.is-dragging {
-        background: rgba(187, 255, 41, .14);
+      .drawer-handle::before {
+        content: "";
+        width: 34px;
+        height: 3px;
+        border-radius: 999px;
+        background: rgba(187, 255, 41, .45);
+        transition: background .15s ease, width .15s ease;
+      }
+      .drawer-handle:hover::before,
+      .drawer-handle.is-dragging::before {
+        background: var(--lime);
+        width: 44px;
       }
       .channels {
         max-height: 156px;
