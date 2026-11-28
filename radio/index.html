@@ -153,7 +153,8 @@
     }
 
     .app-embedded .radio-playback,
-    .mac-widget .radio-playback { display: grid; }
+    .mac-widget .radio-playback,
+    .portfolio-embedded .radio-playback { display: grid; }
 
     .radio-playback::before {
       content: "";
@@ -245,6 +246,7 @@
       const compact = appEmbedded || document.documentElement.classList.contains("mac-widget");
       const playback = document.getElementById("radio-playback");
       let muted = appEmbedded || portfolioEmbedded;
+      let portfolioMuteRequested = false;
       const embedded = document.documentElement.classList.contains("radio-embedded");
 
       function updateOutput() {
@@ -290,7 +292,10 @@
         window.addEventListener("message", event => {
           if (event.source !== window.parent || event.origin !== "https://prnce.pages.dev") return;
           if (event.data?.type !== "cirkular-radio-mute" || typeof event.data.muted !== "boolean") return;
-          if (portfolioEmbedded && !isPlaying && !pendingStart) return;
+          if (portfolioEmbedded) {
+            portfolioMuteRequested = event.data.muted;
+            if (!isPlaying && !pendingStart) return;
+          }
           muted = event.data.muted;
           updateOutput();
         });
@@ -453,7 +458,7 @@
       function togglePlay() {
         if (!isPlaying && !pendingStart) {
           pausedByUser = false;
-          if (portfolioEmbedded) muted = false;
+          if (portfolioEmbedded) muted = portfolioMuteRequested;
           startStream();
           return;
         }
