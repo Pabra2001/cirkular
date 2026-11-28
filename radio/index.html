@@ -132,12 +132,15 @@
     @media (max-width: 640px) {
       .top-bar { padding: 14px 16px; }
     }
+    html.app-embedded .top-bar,
+    html.mac-widget .top-bar { justify-content: center !important; }
   </style>
   <script>
     (() => {
       const embed = new URLSearchParams(location.search);
       let embedded = embed.has("embed");
       if (embed.get("embed") === "app") document.documentElement.classList.add("app-embedded");
+      if (window.webkit?.messageHandlers?.haptic) document.documentElement.classList.add("mac-widget");
       try { if (window.self !== window.top) embedded = true; } catch { embedded = true; }
       if (embedded) document.documentElement.classList.add("radio-embedded");
     })();
