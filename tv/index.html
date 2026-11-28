@@ -463,27 +463,17 @@
         min-height: 0;
       }
       .drawer-handle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 14px;
+        display: block;
+        height: 8px;
         flex-shrink: 0;
         cursor: ns-resize;
         touch-action: none;
-        background: var(--bg);
+        background: transparent;
+        transition: background .15s ease;
       }
-      .drawer-handle::before {
-        content: "";
-        width: 34px;
-        height: 3px;
-        border-radius: 999px;
-        background: rgba(187, 255, 41, .45);
-        transition: background .15s ease, width .15s ease;
-      }
-      .drawer-handle:hover::before,
-      .drawer-handle.is-dragging::before {
-        background: var(--lime);
-        width: 44px;
+      .drawer-handle:hover,
+      .drawer-handle.is-dragging {
+        background: rgba(187, 255, 41, .14);
       }
       .channels {
         max-height: 156px;
@@ -789,6 +779,7 @@
       statusEl.textContent = `TUNING CH.${ch.id}…`;
       channelsEl.querySelectorAll(".ch-row").forEach((b, i) => {
         b.setAttribute("aria-pressed", String(i === idx));
+        if (i === idx) channelsEl.scrollTop = b.offsetTop;
       });
       video.src = ch.src;
       video.load();
