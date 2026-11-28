@@ -503,7 +503,8 @@
     }
     .tv-embedded .top-bar { justify-content: flex-end !important; }
     .tv-embedded .top-left,
-    .tv-embedded .back-link { display: none !important; }
+    .tv-embedded .back-link,
+    .tv-embedded .tv-get-app { display: none !important; }
   </style>
   <script>
     (() => {
@@ -561,6 +562,7 @@
         <div class="util-row">
           <button class="util-btn" id="btn-mute" aria-pressed="false" type="button">UNMUTE</button>
           <button class="util-btn" id="btn-fs" aria-pressed="false" type="button">FULLSCREEN</button>
+          <a class="util-btn tv-get-app" id="btn-tv-app" href="../cirkular-mac.zip" download style="text-decoration:none;margin-left:auto;">WIDGET ↓</a>
         </div>
       </div>
     </aside>
@@ -964,6 +966,11 @@
     setMode("green");
     bootChannels();
     requestAnimationFrame(loop);
+
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      const a = document.getElementById("btn-tv-app");
+      if (a) { a.href = "../app/"; a.removeAttribute("download"); a.textContent = "GET APP ↗"; }
+    }
 
     // Draggable divider between video viewport and channel/controls drawer with magnetic snap detent
     (() => {

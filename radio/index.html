@@ -53,7 +53,21 @@
 
     .top-bar a { pointer-events: auto; }
     .radio-embedded .top-bar { justify-content: flex-end !important; }
-    .radio-embedded .back-arrow { display: none !important; }
+    .radio-embedded .back-arrow,
+    .radio-embedded .radio-get-app { display: none !important; }
+    .radio-get-app {
+      position: fixed;
+      right: 22px;
+      bottom: 18px;
+      z-index: 20;
+      font: 500 10.5px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(187, 255, 41, .68);
+      text-decoration: none;
+      transition: color .15s ease;
+    }
+    .radio-get-app:hover { color: #bbff29; }
 
     .brand-lockup {
       display: inline-flex;
@@ -145,6 +159,7 @@
   </script>
 
   <canvas id="waves" aria-label="CIRKULAR live acoustic architecture"></canvas>
+  <a class="radio-get-app" id="btn-radio-app" href="../cirkular-mac.zip" download>WIDGET ↓</a>
 
   <script>
     (() => {
@@ -288,6 +303,10 @@
           localStorage.setItem("ck_radio_playing", "0");
         } else {
           startStream();
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        const a = document.getElementById("btn-radio-app");
+        if (a) { a.href = "../app/"; a.removeAttribute("download"); a.textContent = "GET APP ↗"; }
+      }
         }
       }
 
@@ -300,6 +319,10 @@
       });
 
       startStream();
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        const a = document.getElementById("btn-radio-app");
+        if (a) { a.href = "../app/"; a.removeAttribute("download"); a.textContent = "GET APP ↗"; }
+      }
 
       let w = 0, h = 0;
       let mx = 0.5, my = 0.5, tx = 0.5, ty = 0.5;
