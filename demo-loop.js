@@ -8,7 +8,9 @@ export function loopRecommendations(preview, root, openRecommendations, {blocked
   let step = 0;
   let running = false;
   let manual = false;
-  const listingCount = root.querySelectorAll('.thumb').length;
+  let resumeTimer;
+
+  const listingCount = Math.max(root.querySelectorAll('.thumb').length, 3);
   const returnAt = 1650 + listingCount * 2700;
   const beats = [
     [0, () => openRecommendations()],
@@ -17,22 +19,26 @@ export function loopRecommendations(preview, root, openRecommendations, {blocked
     ]),
     [returnAt, () => {
       const picked = root.querySelector('.thumb[data-picked]');
-      mark.style.setProperty('--return-offset', `${picked.offsetTop - mark.offsetTop}px`);
-      mark.classList.add('demo-return');
+      if (picked && mark) {
+        mark.style.setProperty('--return-offset', `${picked.offsetTop - mark.offsetTop}px`);
+        mark.classList.add('demo-return');
+      }
     }],
     [returnAt + 390, () => {
-      mark.classList.remove('demo-return');
-      if (mark.getAttribute('aria-expanded') === 'true') mark.click();
-      mark.classList.add('demo-complete');
+      mark?.classList.remove('demo-return');
+      if (mark?.getAttribute('aria-expanded') === 'true') mark.click();
+      mark?.classList.add('demo-complete');
     }],
     [returnAt + 1190, () => {
-      mark.hidden = true;
+      if (mark) mark.hidden = true;
     }],
     [returnAt + 1750, () => {
       elapsed = 0;
       step = 0;
-      mark.hidden = false;
-      mark.classList.remove('demo-complete');
+      if (mark) {
+        mark.hidden = false;
+        mark.classList.remove('demo-complete');
+      }
     }],
   ];
 
@@ -41,7 +47,13 @@ export function loopRecommendations(preview, root, openRecommendations, {blocked
     if (!running || !visible || document.hidden || blocked()) return;
     if (lastFrame !== undefined) elapsed += Math.min(now - lastFrame, 100);
     lastFrame = now;
-    while (step < beats.length && elapsed >= beats[step][0]) beats[step++][1]();
+    while (step < beats.length && elapsed >= beats[step][0]) {
+      try {
+        beats[step++][1]();
+      } catch {
+        // Never allow a single beat error to stall the animation loop
+      }
+    }
     if (running) frame = requestAnimationFrame(tick);
   }
 
@@ -57,31 +69,40 @@ export function loopRecommendations(preview, root, openRecommendations, {blocked
       if (showReducedPreview) openRecommendations(0);
       return;
     }
-    if (mark.getAttribute('aria-expanded') === 'true') mark.click();
+    if (mark?.getAttribute('aria-expanded') === 'true') mark.click();
     elapsed = 0;
     step = 0;
     running = true;
-    mark.hidden = false;
-    mark.classList.remove('demo-complete', 'demo-return');
+    if (mark) {
+      mark.hidden = false;
+      mark.classList.remove('demo-complete', 'demo-return');
+    }
     sync();
   }
 
   function takeControl(event) {
     if (!event.isTrusted || !running) return;
+    if (!event.target?.closest?.('button, a')) return;
     running = false;
     manual = true;
-    mark.classList.remove('demo-complete', 'demo-return');
+    mark?.classList.remove('demo-complete', 'demo-return');
     sync();
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => {
+      manual = false;
+      if (visible && !blocked()) start();
+    }, 12000);
   }
 
   root.addEventListener('pointerdown', takeControl);
-  root.addEventListener('focusin', takeControl);
   document.addEventListener('visibilitychange', sync);
   reduced.addEventListener('change', () => {
     if (reduced.matches) {
       running = false;
-      mark.hidden = false;
-      mark.classList.remove('demo-complete', 'demo-return');
+      if (mark) {
+        mark.hidden = false;
+        mark.classList.remove('demo-complete', 'demo-return');
+      }
       if (showReducedPreview && visible && !blocked() && !manual) openRecommendations(0);
       sync();
     } else if (visible && !manual) start();
@@ -89,10 +110,13 @@ export function loopRecommendations(preview, root, openRecommendations, {blocked
 
   const observer = new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
-    if (!visible) manual = false;
+    if (!visible) {
+      manual = false;
+      clearTimeout(resumeTimer);
+    }
     if (visible && !running && !manual) start();
     else sync();
-  }, {threshold: .15});
+  }, {threshold: .05});
   observer.observe(preview);
   return sync;
 }
